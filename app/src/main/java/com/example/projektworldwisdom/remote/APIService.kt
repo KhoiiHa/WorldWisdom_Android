@@ -1,6 +1,5 @@
 package com.example.projektworldwisdom.remote
 
-import com.example.projektworldwisdom.adapter.QuoteListAdapter
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.model.QuoteSearchResult
@@ -21,7 +20,6 @@ private const val BASE_URL = "https://api.quotable.io"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
-    .add(Types.newParameterizedType(List::class.java, Quote::class.java), QuoteListAdapter())
     .build()
 
 private val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -43,13 +41,13 @@ interface WorldWisdomApiService {
 
     //https://api.quotable.io/random
     // Gibt ein zufälliges Zitat zurück
-    @GET("random")
-    suspend fun getRandomQuote(): SingleQuoteResponse
+//    @GET("random")
+//    suspend fun getRandomQuote(): SingleQuoteResponse
 
     //https://api.quotable.io/quotes/random
     // Gibt mehrere zufällige Zitate zurück
     @GET("quotes/random")
-    suspend fun getMultipleRandomQuotes(): QuoteSearchResult
+    suspend fun getMultipleRandomQuotes(@Query("count") count: Int = 1): QuoteSearchResult
 
     //https://api.quotable.io/quotes
     // Gibt alle Zitate zurück

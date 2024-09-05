@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "473563354453",
-    "project_id": "world-wisdom-5a60a",
-    "storage_bucket": "world-wisdom-5a60a.appspot.com"
+    "project_number": "296865137611",
+    "project_id": "project-worldwisdom",
+    "storage_bucket": "project-worldwisdom.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:473563354453:android:5e6720b8f65e468ce3cbdc",
+        "mobilesdk_app_id": "1:296865137611:android:54037f58277bac2aacac4e",
         "android_client_info": {
-          "package_name": "com.projekt.worldwisdom"
+          "package_name": "com.example.projektworldwisdom"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC3YJGon_pxv57Q8PJy2UEas6KNqwZwrK0"
+          "current_key": "AIzaSyAAOK-Gbs0xqHrCOpslIdz8S0T2gRKYngo"
         }
       ],
       "services": {

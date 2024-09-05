@@ -1,5 +1,7 @@
 package com.example.projektworldwisdom.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.projektworldwisdom.remote.FirebaseRepository
@@ -10,15 +12,27 @@ class AuthenticationViewModel : ViewModel() {
 
     val currentUser = firebaseRepository.currentUser
 
+    private val _loginError = MutableLiveData<String?>()
+    val loginError: LiveData<String?> = _loginError
+
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            firebaseRepository.loginUser(email, password)
+            try {
+                firebaseRepository.loginUser(email, password)
+            } catch (e: Exception) {
+                _loginError.value = "Anmeldung fehlgeschlagen: ${e.message}"
+            }
         }
     }
 
-    fun register(email: String, password: String,firstname: String, lastname: String) {
+    fun register(email: String, password: String, firstname: String, lastname: String) {
         viewModelScope.launch {
-            firebaseRepository.registerNewUser(email, password)
+            try {
+                firebaseRepository.registerNewUser(email, password)
+            }catch (e: Exception) {
+                _loginError.value = "Regestrierung fehlgeschlagen: ${e.message}"
+            }
+
         }
     }
 

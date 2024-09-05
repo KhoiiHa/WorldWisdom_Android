@@ -18,8 +18,8 @@ class QuoteAdapter(private var quotes: List<Quote>) : RecyclerView.Adapter<Quote
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
         val currentQuote = quotes[position]
-        holder.binding.quoteText.text = currentQuote.content
-        holder.binding.quoteAuthor.text = "- ${currentQuote.author}"
+        holder.binding.quoteText.text = currentQuote.content ?: "Kein Zitat verfügbar"
+        holder.binding.quoteAuthor.text = "- ${currentQuote.author ?: "Unbekannt"}"
     }
 
     override fun getItemCount(): Int {

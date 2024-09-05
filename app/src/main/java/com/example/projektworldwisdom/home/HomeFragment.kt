@@ -1,7 +1,6 @@
 package com.example.projektworldwisdom.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 
 
-class HomeFragment: Fragment() {
+class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var binding: FragmentHomeBinding
     private lateinit var quoteAdapter: QuoteAdapter
@@ -28,16 +27,39 @@ class HomeFragment: Fragment() {
         // Ladeanzeige standardmäßig anzeigen
         binding.progressBar.visibility = View.VISIBLE
 
+        // RecyclerView einrichten
+        quoteAdapter = QuoteAdapter(emptyList())
+        binding.quotesList?.let { recyclerView ->
+            recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            recyclerView.adapter = quoteAdapter
+        }
+
         // LiveData beobachten und Adapter aktualisieren (in onCreateView verschoben)
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             quoteAdapter.updateData(quotes)
         }
+
+        // Lade alle Zitate beim Start des Fragments
+        viewModel.loadQuotes()
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // LiveData beobachten und CardView aktualisieren
+        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
+            if (quotes.isNotEmpty()) {
+                val firstQuote = quotes[0]
+                binding.affirmationText.text = firstQuote.content
+                binding.affirmationAuthor.text = "- ${firstQuote.author}"
+            } else {
+                // Handle den Fall, dass keine Zitate geladen wurden (optional)
+                binding.affirmationText.text = "Keine Zitate gefunden."
+                binding.affirmationAuthor.text = ""
+            }
+        }
 
 
         // Klick-Listener für Filter
@@ -66,13 +88,6 @@ class HomeFragment: Fragment() {
         }
 
 
-        // Ladeanzeige (ProgressBar)
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-
-        }
-
-
         // Fehlerbehandlung
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
@@ -82,20 +97,6 @@ class HomeFragment: Fragment() {
             }
         }
 
-        // RecyclerView einrichten
-        quoteAdapter = QuoteAdapter(emptyList())
-        binding.quotesList?.let { recyclerView ->
-            recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            recyclerView.adapter = quoteAdapter
-        }
 
-
-        // LiveData beobachten und Adapter aktualisieren
-        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            quoteAdapter.updateData(quotes)
-        }
-
-        // Lade alle Zitate beim Start des Fragments
-        viewModel.loadQuotes()
     }
 }

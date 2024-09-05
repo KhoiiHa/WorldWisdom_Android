@@ -14,14 +14,23 @@ import java.io.IOException
 
 class HomeViewModel : ViewModel() {
 
-    private val _quotes = MutableLiveData<List<Quote>>()
+    val _quotes = MutableLiveData<List<Quote>>()
     val quotes: LiveData<List<Quote>> = _quotes
 
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
+
+    private val _userName = MutableLiveData<String>()
+    val userName: LiveData<String> = _userName
+
+    private val _affirmationText = MutableLiveData<String>()
+    val affirmationText: LiveData<String> = _affirmationText
+
+    private val _affirmationAuthor = MutableLiveData<String>()
+    val affirmationAuthor: LiveData<String> = _affirmationAuthor
 
     init {
         loadQuotes()
@@ -31,15 +40,12 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                val result = WorldWisdomApi.retrofitService.getMultipleRandomQuotes()
+                val result = WorldWisdomApi.retrofitService.getMultipleRandomQuotes(count = 10) // Anzahl der Zitate anpassen
                 _quotes.postValue(result.results)
                 _error.postValue(null)
-            } catch (e: IOException) {
-                _error.postValue("Netzwerkfehler: ${e.message}")
-                Log.e("HomeViewModel", "Network error fetching quotes", e)
-            } catch (e: HttpException) {
-                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
-                Log.e("HomeViewModel", "HTTP error fetching quotes", e)
+            } catch (e: Exception) {
+                // Allgemeine Fehlerbehandlung
+                Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
             } finally {
                 _isLoading.postValue(false)
             }
@@ -52,14 +58,12 @@ class HomeViewModel : ViewModel() {
             try {
                 val result = WorldWisdomApi.retrofitService.searchQuotes(tag)
                 _quotes.postValue(result.results)
-                _error.postValue(null)
+            } catch (e: IOException) {
+                _error.postValue("Netzwerkfehler: ${e.message}")
+                Log.e("HomeViewModel", "Network error fetching quotes", e)
             } catch (e: HttpException) {
-                if (e.code() == 404) {
-                    _error.postValue("Keine Zitate für den Tag '$tag' gefunden.")
-                } else {
-                    _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
-                }
-                Log.e("HomeViewModel", "Error loading quotes by tag", e)
+                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
+                Log.e("HomeViewModel", "HTTP error fetching quotes", e)
             } finally {
                 _isLoading.postValue(false)
             }

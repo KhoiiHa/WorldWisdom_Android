@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.ui.register
+package com.example.projektworldwisdom.register
 
 
 import android.os.Bundle
@@ -9,9 +9,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.projektworldwisdom.R
+import com.example.projektworldwisdom.databinding.FragmentRegisterBinding
 import com.example.projektworldwisdom.viewmodel.AuthenticationViewModel
-import com.projekt.worldwisdom.R
-import com.projekt.worldwisdom.databinding.FragmentRegisterBinding
+
 
 class RegisterFragment : Fragment() {
     private lateinit var binding: FragmentRegisterBinding
@@ -31,12 +32,12 @@ class RegisterFragment : Fragment() {
 
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
-                findNavController().navigate(RegisterFragmentDirections.actionNavigationDashboardToNavigationHome())
+                findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToHomeFragment())
             }
         }
 
         binding.btBack.setOnClickListener {
-            findNavController().navigate(R.id.navigation_home)
+            findNavController().navigateUp()
         }
 
         binding.btRegister.setOnClickListener {

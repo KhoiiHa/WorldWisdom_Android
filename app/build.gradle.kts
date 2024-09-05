@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -9,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.projektworldwisdom"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -63,4 +65,12 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 }
+
+
+

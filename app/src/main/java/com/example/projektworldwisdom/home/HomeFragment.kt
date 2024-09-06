@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
+import com.example.projektworldwisdom.model.Quote
 
 
 class HomeFragment : Fragment() {
@@ -25,7 +27,16 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         // Ladeanzeige standardmäßig anzeigen
-        binding.progressBar.visibility = View.VISIBLE
+        viewModel?.isLoading?.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView einrichten
         quoteAdapter = QuoteAdapter(emptyList())
@@ -34,20 +45,6 @@ class HomeFragment : Fragment() {
             recyclerView.adapter = quoteAdapter
         }
 
-        // LiveData beobachten und Adapter aktualisieren (in onCreateView verschoben)
-        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            quoteAdapter.updateData(quotes)
-        }
-
-        // Lade alle Zitate beim Start des Fragments
-        viewModel.loadQuotes()
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         // LiveData beobachten und CardView aktualisieren
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             if (quotes.isNotEmpty()) {
@@ -55,16 +52,30 @@ class HomeFragment : Fragment() {
                 binding.affirmationText.text = firstQuote.content
                 binding.affirmationAuthor.text = "- ${firstQuote.author}"
             } else {
-                // Handle den Fall, dass keine Zitate geladen wurden (optional)
+                // Handle den Fall, dass keine Zitate geladen wurden
                 binding.affirmationText.text = "Keine Zitate gefunden."
                 binding.affirmationAuthor.text = ""
             }
         }
 
+        // LiveData beobachten und RecyclerView aktualisieren
+        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
+            quoteAdapter.updateData(quotes)
+        }
+
+
+        // In HomeFragment, wenn der Benutzer auf ein Zitat klickt:
+        quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
+            override fun onItemClick(quote: Quote) {
+                val authorSlug = quote.authorSlug // authorSlug aus dem Quote-Objekt holen
+                val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorSlug)
+                findNavController().navigate(action)
+            }
+        })
 
         // Klick-Listener für Filter
-        binding.filterMotivation.setOnClickListener {
-            viewModel.loadQuotesByTag("motivational")
+        binding.filterSociety.setOnClickListener {
+            viewModel.loadQuotesByTag("society")
         }
 
         binding.filterSuccess.setOnClickListener {
@@ -87,15 +98,18 @@ class HomeFragment : Fragment() {
             viewModel.loadQuotes()
         }
 
-
         // Fehlerbehandlung
-        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+        viewModel?.error?.observe(viewLifecycleOwner)
+        { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
 
-                viewModel._error.postValue(null)
+                viewModel?._error?.postValue(null)
             }
         }
+
+        // Lade alle Zitate beim Start des Fragments
+        viewModel.loadQuotes()
 
 
     }

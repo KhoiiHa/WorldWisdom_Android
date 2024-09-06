@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.remote
 
 import com.example.projektworldwisdom.model.Author
+import com.example.projektworldwisdom.model.AuthorSearchResult
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.model.QuoteSearchResult
 import com.example.projektworldwisdom.model.SingleQuoteResponse
@@ -41,8 +42,8 @@ interface WorldWisdomApiService {
 
     //https://api.quotable.io/random
     // Gibt ein zufälliges Zitat zurück
-//    @GET("random")
-//    suspend fun getRandomQuote(): SingleQuoteResponse
+    @GET("random")
+    suspend fun getRandomQuote(): Quote
 
     //https://api.quotable.io/quotes/random
     // Gibt mehrere zufällige Zitate zurück
@@ -74,7 +75,7 @@ interface WorldWisdomApiService {
     //https://api.quotable.io/search/authors?query=Albert
     // Suche nach Autoren basierend auf einem Suchbegriff
     @GET("search/authors")
-    suspend fun searchAuthors(@Query("query") query: String): List<Author>
+    suspend fun searchAuthors(@Query("query") query: String): AuthorSearchResult
 
     //https://api.quotable.io/authors/123
     // Gibt einen Autor anhand seiner ID zurück

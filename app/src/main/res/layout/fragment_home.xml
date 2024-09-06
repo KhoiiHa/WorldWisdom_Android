@@ -125,7 +125,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:id="@+id/filter_Motivation"
+                android:id="@+id/filter_Society"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -135,7 +135,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Motivation" />
+                    android:text="Society" />
             </LinearLayout>
 
             <LinearLayout

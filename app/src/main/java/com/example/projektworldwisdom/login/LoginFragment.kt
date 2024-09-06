@@ -38,7 +38,7 @@ class LoginFragment : Fragment() {
 
         viewModel.loginError.observe(viewLifecycleOwner) { errorMessage ->
             if (errorMessage != null) {
-                // Zeige die Fehlermeldung an, z.B. in einem Toast oder einem TextView
+                // Zeige die Fehlermeldung an
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
             }
         }

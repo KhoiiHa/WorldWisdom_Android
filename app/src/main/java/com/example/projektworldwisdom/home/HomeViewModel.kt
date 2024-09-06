@@ -32,6 +32,9 @@ class HomeViewModel : ViewModel() {
     private val _affirmationAuthor = MutableLiveData<String>()
     val affirmationAuthor: LiveData<String> = _affirmationAuthor
 
+    private val _affirmation = MutableLiveData<Quote>() // Für das Zitat in der CardView
+    val affirmation: LiveData<Quote> = _affirmation
+
     init {
         loadQuotes()
     }
@@ -40,8 +43,8 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                val result = WorldWisdomApi.retrofitService.getMultipleRandomQuotes(count = 10) // Anzahl der Zitate anpassen
-                _quotes.postValue(result.results)
+                val result = WorldWisdomApi.retrofitService.getRandomQuote()
+                _affirmation.postValue(result) // Aktualisiere das LiveData für die CardView
                 _error.postValue(null)
             } catch (e: Exception) {
                 // Allgemeine Fehlerbehandlung
@@ -57,7 +60,7 @@ class HomeViewModel : ViewModel() {
             _isLoading.postValue(true)
             try {
                 val result = WorldWisdomApi.retrofitService.searchQuotes(tag)
-                _quotes.postValue(result.results)
+                _quotes.postValue(result.results) // Aktualisiere das LiveData für das RecyclerView
             } catch (e: IOException) {
                 _error.postValue("Netzwerkfehler: ${e.message}")
                 Log.e("HomeViewModel", "Network error fetching quotes", e)

@@ -66,9 +66,7 @@ class CollectionViewModel(private val homeViewModel: HomeViewModel) : ViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Hier die Logik zum Aktualisieren der Sammlung implementieren, z.B.:
                 val userCollection = firebaseRepository.getUserCollection()
-                // ... weitere Logik, um die Sammlung zu aktualisieren ...
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = "Fehler beim Aktualisieren der Sammlung: ${e.message}"

@@ -34,11 +34,11 @@ class AuthorDetailsFragment : Fragment() {
             }
         }
 
-        // die ID oder den Namen des Autors aus den Argumenten
-        val authorId = arguments?.getString("authorId") // Oder authorName
+        // Beobachte selectedAuthorSlug und lade Autoren-Details
+        viewModel.selectedAuthorSlug.observe(viewLifecycleOwner) { authorSlug ->
+            authorSlug?.let { viewModel.loadAuthorDetails(it) }
+        }
 
-        // Lade die Autoren-Details
-        authorId?.let { viewModel.loadAuthorDetails(it) }
 
         // Beobachtet die authorDetails LiveData und aktualisiere es
         viewModel.authorDetails.observe(viewLifecycleOwner) { author ->

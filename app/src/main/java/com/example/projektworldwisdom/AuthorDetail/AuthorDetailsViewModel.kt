@@ -21,13 +21,15 @@ class AuthorDetailsViewModel : ViewModel() {
     val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
+    val _selectedAuthorSlug = MutableLiveData<String?>()
+    val selectedAuthorSlug: LiveData<String?> = _selectedAuthorSlug
+
     fun loadAuthorDetails(authorSlug: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
                 val result = WorldWisdomApi.retrofitService.searchAuthors(authorSlug)
                 _authorDetails.postValue(result.results.firstOrNull())
-                _error.postValue(null)
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Laden der Autoren-Details: ${e.message}")
                 Log.e("AuthorDetailsViewModel", "Error loading author details", e)

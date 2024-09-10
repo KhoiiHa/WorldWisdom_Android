@@ -1,19 +1,18 @@
 package com.example.projektworldwisdom.AuthorDetail
 
-
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.remote.WorldWisdomApi
-import kotlinx.coroutines.launch
+import android.util.Log
 
 class AuthorDetailsViewModel : ViewModel() {
 
-    private val _authorDetails = MutableLiveData<Author?>()
-    val authorDetails: LiveData<Author?> = _authorDetails
+    private val _authorDetails = MutableLiveData<Author>(Author("","","","","",""))
+    val authorDetails: LiveData<Author> = _authorDetails
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading

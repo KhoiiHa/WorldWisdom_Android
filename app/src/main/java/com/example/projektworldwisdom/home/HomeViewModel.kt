@@ -12,12 +12,14 @@ import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
-import java.time.LocalDate
 
-class HomeViewModel(private val sharedPrefs: SharedPreferences) : ViewModel() {
+
+
+class HomeViewModel : ViewModel() {
 
     val _quotes = MutableLiveData<List<Quote>>()
     val quotes: LiveData<List<Quote>> = _quotes
@@ -43,10 +45,17 @@ class HomeViewModel(private val sharedPrefs: SharedPreferences) : ViewModel() {
 
     private lateinit var application: Application
 
+    private lateinit var sharedPrefs: SharedPreferences
 
-    private fun getSharedPrefs(): SharedPreferences {
-        return application.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    fun setSharedPrefs(sharedPrefs: SharedPreferences) {
+        this.sharedPrefs = sharedPrefs
     }
+
+//    private val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+//    private fun getSharedPrefs(): SharedPreferences {
+//        return application.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+//    }
 
 
     init {
@@ -56,37 +65,35 @@ class HomeViewModel(private val sharedPrefs: SharedPreferences) : ViewModel() {
 
 
     //Überprüft, ob das letzte Aktualisierungsdatum mit dem aktuellen Datum übereinstimmt. Wenn nicht, ist eine Aktualisierung erforderlich.
-    private fun isQuoteUpdateNeeded(): Boolean {
-        val lastUpdateDate = getSharedPrefs().getString("last_update_date", null)
-        val currentDate = LocalDate.now().toString()
-        return lastUpdateDate != currentDate
-    }
+//    private fun isQuoteUpdateNeeded(): Boolean {
+//        val lastUpdateDate = getSharedPrefs().getString("last_update_date", null)
+//        val currentDate = LocalDate.now().toString()
+//        return lastUpdateDate != currentDate
+//    }
 
-    fun initializeData() {
-        // Überprüfe, ob heute bereits ein Zitat geladen wurde
-        if (isQuoteUpdateNeeded()) {
-            loadDailyAffirmation()
-        } else {
-            // Lade das letzte Zitat aus SharedPreferences (falls vorhanden)
-            val savedQuoteJson = getSharedPrefs().getString("daily_affirmation", null)
-            savedQuoteJson?.let {
-                _dailyAffirmation.value = quoteAdapter.fromJson(it)
-            }
-        }
-    }
+//    fun initializeData() {
+//        // Überprüfe, ob heute bereits ein Zitat geladen wurde
+//        if (isQuoteUpdateNeeded()) {
+//            loadDailyAffirmation()
+//        } else {
+//            // Lade das letzte Zitat aus SharedPreferences (falls vorhanden)
+//            val savedQuoteJson = getSharedPrefs().getString("daily_affirmation", null)
+//            savedQuoteJson?.let {
+//                _dailyAffirmation.value = quoteAdapter.fromJson(it)
+//            }
+//        }
+//    }
 
     fun loadQuotes() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                val result = WorldWisdomApi.retrofitService.getMultipleRandomQuotes(count = 25)
+                val result = WorldWisdomApi.retrofitService.getMultipleRandomQuotes(count = 20)
                 _quotes.postValue(result.results)
-            } catch (e: IOException) {
-                _error.postValue("Netzwerkfehler: ${e.message}")
-                Log.e("HomeViewModel", "Network error fetching quotes", e)
-            } catch (e: HttpException) {
-                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
-                Log.e("HomeViewModel", "HTTP error fetching quotes", e)
+                _error.postValue(null)
+            } catch (e: Exception) {
+                // Allgemeine Fehlerbehandlung
+                Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
             } finally {
                 _isLoading.postValue(false)
             }
@@ -118,17 +125,12 @@ class HomeViewModel(private val sharedPrefs: SharedPreferences) : ViewModel() {
             try {
                 val result = WorldWisdomApi.retrofitService.getRandomQuote()
                 _dailyAffirmation.postValue(result)
-
-                // Aktuelles Datum in SharedPreferences speichern
-                with(getSharedPrefs().edit()) {
-                    putString("daily_affirmation", quoteAdapter.toJson(result))
-                    putString("last_update_date", LocalDate.now().toString())
-                    apply()
-                }
+                _error.postValue(null)
             } catch (e: Exception) {
                 // Allgemeine Fehlerbehandlung
                 Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
-                _isLoading.postValue(false) // Ladeanzeige im Fehlerfall beenden
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }

@@ -12,17 +12,22 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.projektworldwisdom.R
+
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.model.Quote
 
 
+
+
+
 class HomeFragment : Fragment() {
-    private val viewModel: HomeViewModel by activityViewModels {
-        val sharedPrefs = requireActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        HomeViewModelFactory(sharedPrefs)
-    }
+    private val viewModel: HomeViewModel by activityViewModels()
+
+    //    private val viewModel: HomeViewModel by hiltViewModel() {
+//        val sharedPrefs = requireActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+//        HomeViewModelFactory(sharedPrefs)
+//    }
     private lateinit var binding: FragmentHomeBinding
     private lateinit var quoteAdapter: QuoteAdapter
 
@@ -55,15 +60,38 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.initializeData()
+        val sharedPrefs = requireActivity().getSharedPreferences(
+            "app_prefs",
+            Context.MODE_PRIVATE
+        )
+        viewModel.setSharedPrefs(sharedPrefs) // Methode im ViewModel erstellen
 
+        // ...
+
+
+        // LiveData beobachten und Adapter aktualisieren
+        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
+            quoteAdapter.updateQuotes(quotes)
+        }
+
+//        viewModel.initializeData()
 
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
-                viewModel._selectedAuthorSlug.value = quote.authorSlug
-                findNavController().navigate(R.id.action_homeFragment_to_authorDetailsFragment)
+                val authorSlug = quote.authorSlug
+                val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorSlug)
+                findNavController().navigate(action)
             }
         })
+
+
+
+//        quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
+//            override fun onItemClick(quote: Quote) {
+//                viewModel._selectedAuthorSlug.value = quote.authorSlug
+//                findNavController().navigate(R.id.action_homeFragment_to_authorDetailsFragment)
+//            }
+//        })
 
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -79,16 +107,16 @@ class HomeFragment : Fragment() {
             }
         })
 
-        viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
-            quote?.let {
-                binding.affirmationText.text = it.content
-                binding.affirmationAuthor.text = "- ${it.author}"
-            } ?: run {
-                // Handle den Fall, dass kein Zitat geladen wurde (optional)
-                binding.affirmationText.text = "Keine Zitate gefunden."
-                binding.affirmationAuthor.text = ""
-            }
-        }
+//        viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
+//            quote?.let {
+//                binding.affirmationText.text = it.content
+//                binding.affirmationAuthor.text = "- ${it.author}"
+//            } ?: run {
+//                // Handle den Fall, dass kein Zitat geladen wurde (optional)
+//                binding.affirmationText.text = "Keine Zitate gefunden."
+//                binding.affirmationAuthor.text = ""
+//            }
+//        }
 
 
         // Klick-Listener für Filter

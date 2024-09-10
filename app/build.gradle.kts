@@ -1,11 +1,10 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs.kotlin")
-    id("com.google.dagger.hilt.android")
+//    id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.kapt")
-
 }
 
 android {
@@ -40,11 +39,11 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -55,10 +54,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 
-    //Hilt
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
+//    //Hilt
+//    implementation("com.google.dagger:hilt-android:2.48.1")
+//    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 
     //Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")

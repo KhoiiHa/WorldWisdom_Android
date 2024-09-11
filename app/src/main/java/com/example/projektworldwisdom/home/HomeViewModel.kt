@@ -72,4 +72,21 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+
+
+    fun loadAllQuotes() {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            try {
+                _quotes.postValue(WorldWisdomApi.retrofitService.getAllQuotes())
+            } catch (e: Exception) {
+                // Fehlerbehandlung
+                _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
+                Log.e("HomeViewModel", "Error loading all quotes", e)
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
 }

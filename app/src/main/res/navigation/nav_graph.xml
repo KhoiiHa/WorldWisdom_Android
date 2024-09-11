@@ -16,6 +16,9 @@
         android:name="authorSlug"
         app:argType="string" />
     </action>
+        <action
+            android:id="@+id/action_homeFragment_to_allQuotesFragment2"
+            app:destination="@id/allQuotesFragment2" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -40,4 +43,8 @@
         android:id="@+id/authorDetailsFragment"
         android:name="com.example.projektworldwisdom.AuthorDetail.AuthorDetailsFragment"
         android:label="AuthorDetailsFragment" />
+    <fragment
+        android:id="@+id/allQuotesFragment2"
+        android:name="com.example.projektworldwisdom.allquotes.AllQuotesFragment"
+        android:label="AllQuotesFragment" />
 </navigation>

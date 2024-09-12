@@ -11,6 +11,7 @@ class QuoteAdapter(private var quotes: List<Quote>) : RecyclerView.Adapter<Quote
 
     inner class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
 
+
     // Interface für den Klick-Listener
     interface OnItemClickListener {
         fun onItemClick(quote: Quote)
@@ -33,6 +34,11 @@ class QuoteAdapter(private var quotes: List<Quote>) : RecyclerView.Adapter<Quote
         val currentQuote = quotes[position]
         holder.binding.quoteText.text = currentQuote.content ?: "Kein Zitat verfügbar"
         holder.binding.quoteAuthor.text = "- ${currentQuote.author ?: "Unbekannt"}"
+
+        // Klick-Listener hinzufügen
+        holder.itemView.setOnClickListener {
+            listener?.onItemClick(currentQuote)
+        }
     }
 
     override fun getItemCount(): Int {

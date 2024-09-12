@@ -5,15 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentAllQuotesBinding
-import com.example.projektworldwisdom.home.HomeViewModel
+import com.example.projektworldwisdom.local.QuoteDatabase
+import com.example.projektworldwisdom.local.QuoteRepository
+import com.example.projektworldwisdom.remote.WorldWisdomApi
 
 class AllQuotesFragment : Fragment() {
 
-    private val viewModel: HomeViewModel by activityViewModels()
+    private val viewModel: AllQuotesViewModel by viewModels {
+        val apiService = WorldWisdomApi.retrofitService
+        val database = QuoteDatabase.getDatabase(requireContext())
+        val quoteDao = database.quoteDao()
+        val repository = QuoteRepository(quoteDao, apiService)
+        AllQuotesViewModelFactory(repository)
+    }
+
     private lateinit var binding: FragmentAllQuotesBinding
     private lateinit var quoteAdapter: QuoteAdapter
 

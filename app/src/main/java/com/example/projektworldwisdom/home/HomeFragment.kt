@@ -122,6 +122,6 @@ class HomeFragment : Fragment() {
         }
 
         // Lade alle Zitate beim Start des Fragments
-        viewModel.loadQuotes()
+        viewModel.loadAllQuotesHome()
     }
 }

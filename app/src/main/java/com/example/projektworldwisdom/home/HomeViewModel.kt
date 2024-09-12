@@ -87,7 +87,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    fun loadAllQuotes() {
+    fun loadAllQuotesHome() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {

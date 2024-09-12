@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.projektworldwisdom.home.HomeViewModel
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.FirebaseRepository
-import com.example.projektworldwisdom.remote.QuoteRepository
+import com.example.projektworldwisdom.remote.QuoteRepositoryFire
 import com.example.projektworldwisdom.remote.WorldWisdomApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,12 +19,12 @@ import java.io.IOException
 class CollectionViewModel(private val homeViewModel: HomeViewModel) : ViewModel() {
 
     private val firebaseRepository = FirebaseRepository()
-    private val quoteRepository = QuoteRepository(WorldWisdomApi.retrofitService)
+    private val quoteRepository = QuoteRepositoryFire(WorldWisdomApi.retrofitService)
 
     val downloading: LiveData<Boolean> = firebaseRepository.downloading
 
     // Verwende das quotes LiveData aus dem HomeViewModel
-    val quotes: LiveData<List<Quote>> = homeViewModel.quotes
+    val quotes: LiveData<List<Quote>?> = homeViewModel.quotes
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading

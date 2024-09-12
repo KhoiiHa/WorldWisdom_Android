@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
-class QuoteRepository(
+class QuoteRepositoryFire(
     private val QuoteApi: WorldWisdomApiService
 ) {
 

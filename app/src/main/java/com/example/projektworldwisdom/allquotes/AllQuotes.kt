@@ -38,7 +38,9 @@ class AllQuotesFragment : Fragment() {
 
         // LiveData beobachten und Adapter aktualisieren
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            quoteAdapter.updateData(quotes)
+            if (quotes != null) {
+                quoteAdapter.updateData(quotes)
+            }
         }
 
         // Lade alle Zitate

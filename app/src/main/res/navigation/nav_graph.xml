@@ -17,7 +17,7 @@
         app:argType="string" />
     </action>
         <action
-            android:id="@+id/action_homeFragment_to_allQuotesFragment2"
+            android:id="@+id/action_homeFragment_to_allQuotesFragment"
             app:destination="@id/allQuotesFragment2" />
     </fragment>
     <fragment

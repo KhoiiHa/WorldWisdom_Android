@@ -2,7 +2,7 @@ package com.example.projektworldwisdom.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.projektworldwisdom.local.QuoteRepository
+import com.example.projektworldwisdom.repository.QuoteRepository
 
 class HomeViewModelFactory(private val repository: QuoteRepository) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentAllQuotesBinding
 import com.example.projektworldwisdom.local.QuoteDatabase
-import com.example.projektworldwisdom.local.QuoteRepository
+import com.example.projektworldwisdom.repository.QuoteRepository
 import com.example.projektworldwisdom.remote.WorldWisdomApi
 
 class AllQuotesFragment : Fragment() {

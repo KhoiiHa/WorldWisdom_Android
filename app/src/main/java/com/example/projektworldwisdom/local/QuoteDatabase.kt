@@ -12,7 +12,7 @@ import com.example.projektworldwisdom.model.Quote
 
 
 
-@Database(entities = [Quote::class, Note::class], version = 2)
+@Database(entities = [Quote::class, Note::class], version = 3) // Version auf 3 aktualisieren
 @TypeConverters(Converters::class)
 abstract class QuoteDatabase : RoomDatabase() {
     abstract fun quoteDao(): QuoteDao
@@ -22,11 +22,13 @@ abstract class QuoteDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: QuoteDatabase? = null
 
-        // Migration von Version 1 auf Version 2
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
+        // Migration von Version 1 und 2 auf Version 3
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Erstelle die Tabelle für Notizen
-                database.execSQL("CREATE TABLE IF NOT EXISTS `notes` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `content` TEXT)")
+                // Füge die neuen Spalten zur Tabelle "quotes" hinzu
+                database.execSQL("ALTER TABLE quotes ADD COLUMN html TEXT")
+                database.execSQL("ALTER TABLE quotes ADD COLUMN isQuoteOfTheDay INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE quotes ADD COLUMN isFavorite INTEGER NOT NULL DEFAULT 0")
             }
         }
 
@@ -37,7 +39,7 @@ abstract class QuoteDatabase : RoomDatabase() {
                     QuoteDatabase::class.java,
                     "quote_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_2_3) // Migration hinzufügen
                     .build()
                 INSTANCE = instance
                 instance

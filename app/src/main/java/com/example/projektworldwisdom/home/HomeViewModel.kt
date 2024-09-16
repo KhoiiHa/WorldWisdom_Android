@@ -1,86 +1,61 @@
 package com.example.projektworldwisdom.home
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.projektworldwisdom.local.QuoteRepository
+import androidx.lifecycle.*
+import com.example.projektworldwisdom.repository.QuoteRepository
+import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.remote.WorldWisdomApi
 import kotlinx.coroutines.launch
-
 
 class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
 
-    val _quotes = MutableLiveData<List<Quote>?>()
+    private val _quotes = MutableLiveData<List<Quote>?>()
     val quotes: LiveData<List<Quote>?> = _quotes
 
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    val _error = MutableLiveData<String?>()
+    private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
-
-    private val _userName = MutableLiveData<String?>()
-    val userName: LiveData<String?> = _userName
-
-    private val _affirmationText = MutableLiveData<String?>()
-    val affirmationText: LiveData<String?> = _affirmationText
-
-    private val _affirmationAuthor = MutableLiveData<String?>()
-    val affirmationAuthor: LiveData<String?> = _affirmationAuthor
 
     private val _affirmation = MutableLiveData<Quote?>()
     val affirmation: LiveData<Quote?> = _affirmation
 
+    // LiveData für Schlüsselwörter
+    private val _keywords = MutableLiveData<List<Keyword>>()
+    val keywords: LiveData<List<Keyword>> = _keywords
 
     init {
-        loadQuotes()
+        loadQuoteOfTheDay() // Initiales Laden des Zitats des Tages
     }
 
-    fun loadQuotes() {
+    fun clearError() {
+        _error.postValue(null)
+    }
+
+    fun loadQuoteOfTheDay() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                // API-Anfrage
-                val result = WorldWisdomApi.retrofitService.getRandomQuote()
-                _affirmation.postValue(result)
+                val result = repository.getQuoteOfTheDay()
+                _affirmation.postValue(result) // Direktes Zuweisen des Ergebnisses
                 _error.postValue(null)
-                // Speichere das Ergebnis in der lokalen Datenbank
-                repository.insertQuote(result)
             } catch (e: Exception) {
-                // Fallback: Lade Zitate aus der lokalen Datenbank
-                val localQuote = repository.getRandomLocalQuote()
-                if (localQuote != null) {
-                    _affirmation.postValue(localQuote)
-                } else {
-                    _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
-                    Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
-                }
+                _error.postValue("Fehler beim Laden des Zitats des Tages: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
-    fun loadQuotesByTag(tag: String) {
+    fun loadQuotesByKeyword(keyword: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                val result = WorldWisdomApi.retrofitService.searchQuotes(tag)
-                _quotes.postValue(result.results)
-                // Speichere die abgerufenen Zitate in der lokalen Datenbank
-                repository.insertQuotes(result.results)
+                val result = repository.getQuotesByKeyword(keyword)
+                _quotes.postValue(result)
+                _error.postValue(null)
             } catch (e: Exception) {
-                // Fallback: Lade Zitate nach Tag aus der lokalen Datenbank
-                val localQuotes = repository.getQuotesByTag(tag)
-                if (!localQuotes.isNullOrEmpty()) {
-                    _quotes.postValue(localQuotes)
-                } else {
-                    _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
-                    Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
-                }
+                _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
@@ -91,67 +66,56 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                val allQuotes = WorldWisdomApi.retrofitService.getAllQuotes()
+                val allQuotes = repository.getAllQuotes()
                 _quotes.postValue(allQuotes)
-                // Speichere die Zitate in der lokalen Datenbank
-                repository.insertQuotes(allQuotes)
-            } catch (e: Exception) {
-                // Fallback: Lade alle Zitate aus der lokalen Datenbank
-                val localQuotes = repository.getAllLocalQuotes()
-                if (!localQuotes.isNullOrEmpty()) {
-                    _quotes.postValue(localQuotes)
-                } else {
-                    _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
-                    Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
-                }
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
-
-    //Funktion im HomeFragment noch einbauen
-    fun searchQuotesByTag(tag: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            try {
-                // Suche Zitate nach Tag über die API
-                val quotesByTag = repository.searchQuotesByTag(tag)
-                _quotes.postValue(quotesByTag)
                 _error.postValue(null)
             } catch (e: Exception) {
-                // Fallback: Suche Zitate nach Tag in der lokalen Datenbank
-                val localQuotes = repository.getQuotesByTagFromLocal(tag)
-                if (localQuotes.isNotEmpty()) {
-                    _quotes.postValue(localQuotes)
-                } else {
-                    _error.postValue("Fehler beim Suchen der Zitate: ${e.message}")
-                    Log.e("HomeViewModel", "Fehler beim Suchen der Zitate", e)
-                }
+                _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
-    //Funktion im HomeFragment noch einbauen
-    fun loadRandomQuote() {
+    fun loadMultipleRandomQuotes(count: Int) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                val randomQuote = repository.getRandomQuote()
-                if (randomQuote != null) {
-                    _affirmation.postValue(randomQuote)
-                } else {
-                    _error.postValue("Kein Zitat gefunden")
-                }
+                val result = repository.getMultipleRandomQuotes(count)
+                _quotes.postValue(result)
+                _error.postValue(null)
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden eines zufälligen Zitats: ${e.message}")
-                Log.e("HomeViewModel", "Fehler beim Laden eines zufälligen Zitats", e)
+                _error.postValue("Fehler beim Laden der zufälligen Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
+    fun searchQuotesByKeyword(keyword: String) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            try {
+                val result = repository.searchQuotesByKeyword(keyword)
+                _quotes.postValue(result)
+                _error.postValue(null)
+            } catch (e: Exception) {
+                _error.postValue("Fehler bei der Suche nach Zitaten: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    fun loadKeywords() {
+        viewModelScope.launch {
+            try {
+                val result = repository.getKeywords()
+                _keywords.postValue(result) // Direktes Zuweisen der Liste von Keyword-Objekten
+                _error.postValue(null)
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Laden der Schlüsselwörter: ${e.message}")
+            }
+        }
+    }
 }

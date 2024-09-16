@@ -1,10 +1,7 @@
 package com.example.projektworldwisdom.remote
 
 import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.model.AuthorSearchResult
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.model.QuoteSearchResult
-import com.example.projektworldwisdom.model.Tag
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
@@ -15,9 +12,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-private const val BASE_URL = "https://api.quotable.io"
+private const val BASE_URL = "https://zenquotes.io/api/"
+private const val API_KEY = "70L87470TF537222S"
 
-// Erstelle einen Gson-Builder
 private val gson: Gson = GsonBuilder()
     .create()
 
@@ -31,61 +28,42 @@ private val client = OkHttpClient.Builder()
 
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create(gson))
-    .baseUrl(BASE_URL)
+    .baseUrl("$BASE_URL$API_KEY/")
     .client(client)
     .build()
 
 interface WorldWisdomApiService {
-    // Methoden für Zitate
 
-
-    //https://api.quotable.io/random
-    // Gibt ein zufälliges Zitat zurück
-    @GET("random")
-    suspend fun getRandomQuote(): Quote
-
-    //https://api.quotable.io/quotes/random
-    // Gibt mehrere zufällige Zitate zurück
+    // Gibt mehrere zufällige Zitate zurück (auch einzelne Zitate)
+    //Beispiel: https://zenquotes.io/api/quotes/random?count=5
     @GET("quotes/random")
-    suspend fun getMultipleRandomQuotes(@Query("count") count: Int = 1): QuoteSearchResult
+    suspend fun getMultipleRandomQuotes(@Query("count") count: Int? = null): List<Quote>
 
-    //https://api.quotable.io/quotes
-    // Gibt alle Zitate zurück
+    // Liefert eine Liste aller verfügbaren Zitate.
+    // Beispiel: https://zenquotes.io/api/quotes?limit=10
     @GET("quotes")
-    suspend fun getAllQuotes(): List<Quote>
+    suspend fun getAllQuotes(@Query("limit") limit: Int = 10): List<Quote>
 
-    //https://api.quotable.io/search/quotes?query=life
-    // Suche nach Zitaten basierend auf einem Suchbegriff
-    @GET("search/quotes")
-    suspend fun searchQuotes(@Query("query") query: String): QuoteSearchResult
+    // Liefert das Zitat des Tages.
+    // Beispiel: https://zenquotes.io/api/today
+    @GET("today")
+    suspend fun getQuoteOfTheDay(): List<Quote>
 
-    // Methoden für Autoren und Tags
+    // Liefert eine Liste von Zitaten, die mit dem angegebenen Tag verknüpft sind.
+    // Beispiel: https://zenquotes.io/api/quotes/tag/success
+    @GET("quotes/")
+    suspend fun searchQuotesByKeyword(@Query("keyword") keyword: String): List<Quote>
 
-    //https://api.quotable.io/authors
-    // Gibt alle Autoren zurück
+    // Liefert eine Liste aller verfügbaren Autoren.
+    // Beispiel: https://zenquotes.io/api/authors
     @GET("authors")
-    suspend fun getAllAuthors(): List<Author>
+    suspend fun getAuthors(): List<Author>
 
-    //https://api.quotable.io/authors/random
-    // Gibt einen zufälligen Autor zurück
-    @GET("authors/random")
-    suspend fun getRandomAuthor(): Author
-
-    //https://api.quotable.io/search/authors?query=Albert
-    // Suche nach Autoren basierend auf einem Suchbegriff
-    @GET("search/authors")
-    suspend fun searchAuthors(@Query("query") query: String): AuthorSearchResult
-
-    //https://api.quotable.io/authors/123
-    // Gibt einen Autor anhand seiner ID zurück
-    @GET("authors/{id}")
-    suspend fun getAuthorById(@Path("id") id: String): Author
-
-    //https://api.quotable.io/tags
-    // Gibt alle Tags zurück
-    @GET("tags")
-    suspend fun getAllTags(): List<Tag>
-
+    // Liefert eine Liste aller verfügbaren Keywords.
+    // Beispiel: https://zenquotes.io/api/keywords
+    // Liefert eine Liste aller verfügbaren Keywords (mit API-Schlüssel als Query-Parameter für Premium-Version).
+    @GET("keywords")
+    suspend fun getKeywords(@Query("api_key") apiKey: String): List<String>
 }
 
 object WorldWisdomApi {

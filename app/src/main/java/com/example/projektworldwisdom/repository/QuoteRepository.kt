@@ -1,78 +1,108 @@
-package com.example.projektworldwisdom.local
+package com.example.projektworldwisdom.repository
 
+import com.example.projektworldwisdom.local.QuoteDao
+import com.example.projektworldwisdom.model.Author
+import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
 
-class QuoteRepository(private val quoteDao: QuoteDao, private val apiService: WorldWisdomApiService) {
+class QuoteRepository(
+    private val quoteDao: QuoteDao,
+    private val apiService: WorldWisdomApiService
+) {
 
-    suspend fun getAllQuotes(): List<Quote?> {
-        return try {
-            val quotes = apiService.getAllQuotes()
-            quoteDao.insertQuotes(quotes)
-            quotes
-        } catch (e: Exception) {
-            quoteDao.getAllQuotes()
-        }
-    }
-
-    suspend fun getQuoteById(id: String): Quote? {
-        return quoteDao.getQuoteById(id)
-    }
-
-    suspend fun insertQuote(quote: Quote) {
-        quoteDao.insertQuote(quote)
-    }
-
-    suspend fun deleteQuote(quote: Quote) {
-        quoteDao.deleteQuote(quote)
-    }
-
-    // Methode für das Laden eines zufälligen Zitats
+    // Liefert ein zufälliges Zitat
     suspend fun getRandomQuote(): Quote? {
         return try {
-            // Versuche, ein zufälliges Zitat von der API zu bekommen
-            apiService.getRandomQuote()
-        } catch (e: Exception) {
-            // Fallback: Lade ein zufälliges Zitat aus der lokalen Datenbank
-            quoteDao.getRandomQuote()
-        }
-    }
-
-    // Methode für das Suchen von Zitaten nach Tag
-    suspend fun searchQuotesByTag(tag: String): List<Quote> {
-        return try {
-            val result = apiService.searchQuotes(tag)
-            result.results
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
-    // Methode zum Einfügen von mehreren Zitaten in die Datenbank
-    suspend fun insertQuotes(quotes: List<Quote>) {
-        quoteDao.insertQuotes(quotes)
-    }
-
-    // Methode zum Abrufen von Zitaten nach Tag aus der lokalen Datenbank
-    suspend fun getQuotesByTag(tag: String): List<Quote> {
-        return quoteDao.getQuotesByTag(tag)
-    }
-
-    // Methode zum Abrufen eines zufälligen Zitats aus der lokalen Datenbank
-    suspend fun getRandomLocalQuote(): Quote? {
-        return try {
-            quoteDao.getRandomQuote()
+            val response = apiService.getMultipleRandomQuotes(1) // Rufe ein einzelnes Zitat ab
+            response.firstOrNull() // Nimmt das erste Zitat aus der Liste
         } catch (e: Exception) {
             null
         }
     }
 
-    suspend fun getQuotesByTagFromLocal(tag: String): List<Quote> {
-        return quoteDao.getQuotesByTag(tag)
+    // Liefert mehrere zufällige Zitate (kann auch ein einzelnes Zitat liefern, wenn count = 1)
+    suspend fun getMultipleRandomQuotes(count: Int): List<Quote> {
+        return try {
+            apiService.getMultipleRandomQuotes(count)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
+    // Liefert Zitate, die mit dem angegebenen Schlüsselwort verknüpft sind
+    suspend fun getQuotesByKeyword(keyword: String): List<Quote> {
+        return try {
+            apiService.searchQuotesByKeyword(keyword) // Verwendet die Methode, um Zitate basierend auf dem Schlüsselwort zu suchen
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
-    suspend fun getAllLocalQuotes(): List<Quote> {
-        return quoteDao.getAllQuotes().filterNotNull()
+    // Liefert Zitate, die mit dem angegebenen Schlüsselwort verknüpft sind
+    suspend fun searchQuotesByKeyword(keyword: String): List<Quote> {
+        return try {
+            apiService.searchQuotesByKeyword(keyword) // Verwendet die Methode, um Zitate basierend auf dem Schlüsselwort zu suchen
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    // Liefert alle verfügbaren Zitate, optional mit Limit
+    suspend fun getAllQuotes(limit: Int = 10): List<Quote> {
+        return try {
+            apiService.getAllQuotes(limit) // Ruft eine bestimmte Anzahl von Zitaten ab
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    // Liefert das Zitat des Tages
+    suspend fun getQuoteOfTheDay(): Quote? {
+        return try {
+            val response = apiService.getQuoteOfTheDay()
+            response.firstOrNull() // Nimmt das erste Zitat aus der Liste
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // Liefert eine Liste aller verfügbaren Autoren
+    suspend fun getAuthors(): List<Author> {
+        return try {
+            apiService.getAuthors() // Ruft eine Liste der Autoren ab
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    // Liefert die Liste der Schlüsselwörter
+    suspend fun getKeywords(): List<Keyword> {
+        return try {
+            val response = apiService.getKeywords("70L87470TF537222S") // API-Schlüssel übergeben
+            response.map { Keyword(it) } // Umwandeln der Strings in Keyword-Objekte
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    // Speichert ein einzelnes Zitat in der lokalen Datenbank
+    suspend fun insertQuote(quote: Quote) {
+        quoteDao.insertQuote(quote)
+    }
+
+    // Speichert mehrere Zitate in der lokalen Datenbank
+    suspend fun insertQuotes(quotes: List<Quote>) {
+        quoteDao.insertQuotes(quotes)
+    }
+
+    // Löscht ein Zitat aus der lokalen Datenbank
+    suspend fun deleteQuote(quote: Quote) {
+        quoteDao.deleteQuote(quote)
+    }
+
+    // Ruft ein Zitat nach ID aus der lokalen Datenbank ab
+    suspend fun getQuoteById(id: Int): Quote? {
+        return quoteDao.getQuoteById(id)
     }
 }

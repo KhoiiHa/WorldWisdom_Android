@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.AuthorDetail
+package com.example.projektworldwisdom.authordetail
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,29 +25,47 @@ class AuthorDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Fehlerbehandlung
+
+        // Beobachte das authorQuote LiveData und aktualisiere die UI
+                viewModel.authorQuote.observe(viewLifecycleOwner) { quote ->
+                    quote?.let {
+                        binding.authorQuote.text = it.content
+                    }
+                }
+
+        // Klick-Listener für den Button zum Laden eines neuen Zitats
+        binding.loadNewQuoteButton.setOnClickListener {
+            authorSlug?.let { viewModel.loadRandomQuoteByAuthor(it) }
+        }
+
+        // Beobachtet Fehler-Updates
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-
-                viewModel._error.value = null
+                viewModel.clearError() // Fehler nach Anzeige zurücksetzen
             }
         }
 
-        // die ID oder den Namen des Autors aus den Argumenten
-        val authorId = arguments?.getString("authorId") // Oder authorName
+        // Holen Sie die Autor-ID oder den Namen aus den Argumenten
+        val authorId = arguments?.getString("authorId")
 
-        // Lade die Autoren-Details
+        // Wenn die Autor-ID vorhanden ist, laden Sie die Autor-Details
         authorId?.let { viewModel.loadAuthorDetails(it) }
 
-        // Beobachtet die authorDetails LiveData und aktualisiere es
+        // Beobachten Sie die Autor-Details
         viewModel.authorDetails.observe(viewLifecycleOwner) { author ->
             author?.let {
+                // Autor-Details in den Views anzeigen
                 binding.authorName.text = it.name
-                binding.authorBio.text = it.bio
+                binding.authorBio.text = it.link
                 binding.authorQuoteCount.text = "Anzahl der Zitate: ${it.quoteCount}"
             }
         }
 
+        // Beobachtet den Ladezustand
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            // Hier können Sie eine Ladeanzeige oder einen Fortschrittsbalken einfügen, wenn isLoading true ist
+            // Beispiel: binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 }

@@ -41,7 +41,7 @@
     </fragment>
     <fragment
         android:id="@+id/authorDetailsFragment"
-        android:name="com.example.projektworldwisdom.AuthorDetail.AuthorDetailsFragment"
+        android:name="com.example.projektworldwisdom.authordetail.AuthorDetailsFragment"
         android:label="AuthorDetailsFragment" />
     <fragment
         android:id="@+id/allQuotesFragment2"

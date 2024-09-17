@@ -4,13 +4,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 
-@Entity
+@Entity(tableName = "authors_table")
 data class Author(
     @PrimaryKey
     val id: Int = 0,
     @Json(name = "a") val name: String,
     @Json(name = "t") val tag: String,
     @Json(name = "l") val link: String,
-    val quoteCount: Int // quoteCount als Int
+    val quoteCount: Int,
+    val imageUrl: String? = null // imageUrl hinzufügen (optional)
 )
 

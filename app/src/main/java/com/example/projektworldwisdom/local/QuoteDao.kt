@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Note
 import com.example.projektworldwisdom.model.Quote
 
@@ -18,6 +19,22 @@ interface QuoteDao {
     // Einfügen mehrerer Zitate
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuotes(quotes: List<Quote>)
+
+    // Fügt eine Liste von Autoren in die lokale Datenbank ein
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAuthors(authors: List<Author>)
+
+    // Ruft alle Autoren aus der lokalen Datenbank ab
+    @Query("SELECT * FROM authors_table")
+    suspend fun getAllAuthors(): List<Author>
+
+    // Löscht einen bestimmten Autor aus der lokalen Datenbank
+    @Delete
+    suspend fun deleteAuthor(author: Author)
+
+    // Löscht alle Autoren aus der lokalen Datenbank
+    @Query("DELETE FROM authors_table")
+    suspend fun deleteAllAuthors()
 
     // Abrufen aller Zitate mit Limit
     @Query("SELECT * FROM quotes LIMIT :limit")

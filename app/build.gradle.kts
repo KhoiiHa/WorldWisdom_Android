@@ -74,9 +74,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 
-//    // Moshi
-//    implementation("com.squareup.moshi:moshi:1.15.1")
-//    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+    // Moshi
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
 
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

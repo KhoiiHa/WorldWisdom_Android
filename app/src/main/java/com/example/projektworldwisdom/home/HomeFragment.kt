@@ -48,38 +48,31 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        // RecyclerView einrichten
         quoteAdapter = QuoteAdapter(emptyList())
-        binding.quotesList?.let { recyclerView ->
-            recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            recyclerView.adapter = quoteAdapter
+        binding.quotesList?.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = quoteAdapter
         }
 
-        // Klick-Listener für Zitate
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
-                // Zeige das Zitat in einem Dialog oder neuen Fragment an, falls erforderlich
-                Toast.makeText(requireContext(), "${quote.q} — ${quote.a}", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(requireContext(), "${quote.content} — ${quote.author}", Toast.LENGTH_LONG).show()
             }
         })
     }
 
     private fun setupObservers() {
-        // Ladeanzeige standardmäßig anzeigen
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // LiveData beobachten und UI aktualisieren
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             if (quotes != null) {
                 if (quotes.isNotEmpty()) {
                     val firstQuote = quotes[0]
-                    binding.affirmationText.text = firstQuote.q // Zitattext anzeigen
-                    binding.affirmationAuthor.text = "- ${firstQuote.a}" // Autor anzeigen
+                    binding.affirmationText.text = firstQuote.content // Zitattext anzeigen
+                    binding.affirmationAuthor.text = "- ${firstQuote.author}" // Autor anzeigen
                 } else {
-                    // Handle den Fall, dass keine Zitate geladen wurden
                     binding.affirmationText.text = "Keine Zitate gefunden."
                     binding.affirmationAuthor.text = ""
                 }
@@ -87,27 +80,23 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Fehlerbehandlung
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                viewModel.clearError() // Fehlermeldung auf null setzen
+                viewModel.clearError()
             }
         }
 
-        // Zitat des Tages beobachten
-        viewModel.affirmation.observe(viewLifecycleOwner) { quote ->
+        viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
             if (quote != null) {
-                binding.affirmationText.text = quote.q
-                binding.affirmationAuthor.text = "- ${quote.a}"
+                binding.affirmationText.text = quote.content
+                binding.affirmationAuthor.text = "- ${quote.author}"
             } else {
-                // Handle den Fall, dass kein Zitat des Tages geladen wurde
                 binding.affirmationText.text = "Keine Zitate des Tages gefunden."
                 binding.affirmationAuthor.text = ""
             }
         }
 
-        // Schlüsselwörter beobachten
         viewModel.keywords.observe(viewLifecycleOwner) { keywords ->
             // Hier kannst du mit den Schlüsselwörtern arbeiten, z.B. in einer Dropdown-Liste anzeigen
             // Beispiel: Update einer Spinner oder einer anderen Ansicht mit den Keywords
@@ -115,36 +104,34 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Klick-Listener für Filter
         binding.filterSociety.setOnClickListener {
-            viewModel.loadQuotesByTag("society")
+            viewModel.loadQuotesByKeyword("society")
         }
 
         binding.filterSuccess.setOnClickListener {
-            viewModel.loadQuotesByTag("success")
+            viewModel.loadQuotesByKeyword("success")
         }
 
         binding.filterWork.setOnClickListener {
-            viewModel.loadQuotesByTag("work")
+            viewModel.loadQuotesByKeyword("work")
         }
 
         binding.filterWisdom.setOnClickListener {
-            viewModel.loadQuotesByTag("wisdom")
+            viewModel.loadQuotesByKeyword("wisdom")
         }
 
         binding.filterGratitude.setOnClickListener {
-            viewModel.loadQuotesByTag("gratitude")
+            viewModel.loadQuotesByKeyword("gratitude")
         }
 
 //        // Klick-Listener für alle Zitate
 //        binding.filterAll.setOnClickListener {
 //            viewModel.loadAllQuotesHome()
 //        }
-//
+
 //        // Klick-Listener für Schlüsselwörter
 //        binding.loadKeywordsButton.setOnClickListener {
 //            viewModel.loadKeywords()
 //        }
-//    }
     }
 }

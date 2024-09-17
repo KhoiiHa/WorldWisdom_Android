@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.remote
 
 import com.example.projektworldwisdom.model.Author
+import com.example.projektworldwisdom.model.AuthorInfo
 import com.example.projektworldwisdom.model.Quote
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -37,33 +38,49 @@ interface WorldWisdomApiService {
     // Gibt mehrere zufällige Zitate zurück (auch einzelne Zitate)
     //Beispiel: https://zenquotes.io/api/quotes/random?count=5
     @GET("quotes/random")
-    suspend fun getMultipleRandomQuotes(@Query("count") count: Int? = null): List<Quote>
+    suspend fun getMultipleRandomQuotes(
+        @Query("count") count: Int? = null,
+        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
+    ): List<Quote>
+
 
     // Liefert eine Liste aller verfügbaren Zitate.
     // Beispiel: https://zenquotes.io/api/quotes?limit=10
     @GET("quotes")
-    suspend fun getAllQuotes(@Query("limit") limit: Int = 10): List<Quote>
+    suspend fun getAllQuotes(
+        @Query("limit") limit: Int = 10,
+        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
+    ): List<Quote>
 
     // Liefert das Zitat des Tages.
     // Beispiel: https://zenquotes.io/api/today
     @GET("today")
-    suspend fun getQuoteOfTheDay(): List<Quote>
+    suspend fun getQuoteOfTheDay(
+        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
+    ): List<Quote>
 
     // Liefert eine Liste von Zitaten, die mit dem angegebenen Tag verknüpft sind.
     // Beispiel: https://zenquotes.io/api/quotes/tag/success
-    @GET("quotes/")
-    suspend fun searchQuotesByKeyword(@Query("keyword") keyword: String): List<Quote>
+    @GET("quotes/{keyword}")
+    suspend fun searchQuotesByKeyword(
+        @Query("keyword") keyword: String,
+        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
+    ): List<Quote>
 
     // Liefert eine Liste aller verfügbaren Autoren.
     // Beispiel: https://zenquotes.io/api/authors
     @GET("authors")
-    suspend fun getAuthors(): List<Author>
+    suspend fun getAuthors(
+        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
+    ): List<AuthorInfo>
 
     // Liefert eine Liste aller verfügbaren Keywords.
     // Beispiel: https://zenquotes.io/api/keywords
     // Liefert eine Liste aller verfügbaren Keywords (mit API-Schlüssel als Query-Parameter für Premium-Version).
     @GET("keywords")
-    suspend fun getKeywords(@Query("api_key") apiKey: String): List<String>
+    suspend fun getKeywords(
+        @Query("api_key") apiKey: String = API_KEY // Direkt im Interface definieren
+    ): List<String>
 }
 
 object WorldWisdomApi {

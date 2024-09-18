@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Project WorldWisdom</string>
+    <string name="base_url">https://zenquotes.io/api/</string>
+    <string name="api_key">70L87470TF537222S</string>
+    <string name="error_no_author_id">Autor-ID nicht gefunden</string>
+
 </resources>

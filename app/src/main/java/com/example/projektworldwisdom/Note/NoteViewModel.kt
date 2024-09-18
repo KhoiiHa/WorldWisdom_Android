@@ -22,6 +22,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
             try {
                 val note = repository.getNoteById(noteId)
                 _noteContent.value = note?.content ?: ""
+                _error.value = null // Fehler zurücksetzen, falls vorhanden
             } catch (e: Exception) {
                 _error.value = "Fehler beim Laden der Notiz: ${e.message}"
                 Log.e("NoteViewModel", "Error loading note", e)
@@ -33,6 +34,7 @@ class NoteViewModel(private val repository: NoteRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.insertNote(Note(id = noteId, content = content))
+                _error.value = null
             } catch (e: Exception) {
                 _error.value = "Fehler beim Speichern der Notiz: ${e.message}"
                 Log.e("NoteViewModel", "Error saving note", e)

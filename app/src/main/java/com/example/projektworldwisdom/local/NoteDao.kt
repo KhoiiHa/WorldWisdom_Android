@@ -9,9 +9,10 @@ import com.example.projektworldwisdom.model.Note
 
 @Dao
 interface NoteDao {
+
     // Einfügen eines einzelnen Notiz
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: Note)
+    suspend fun insertNote(note: Note)
 
     // Abrufen aller Notizen
     @Query("SELECT * FROM notes")

@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import com.example.projektworldwisdom.databinding.FragmentNoteBinding
 import com.example.projektworldwisdom.local.NoteRepository
 import com.example.projektworldwisdom.local.QuoteDatabase
+import com.google.android.material.snackbar.Snackbar
 
 class NoteFragment : Fragment() {
 
@@ -39,6 +40,8 @@ class NoteFragment : Fragment() {
         binding.noteEditText.addTextChangedListener {
             val content = it.toString()
             noteViewModel.saveNoteContent(noteId, content)
+            // Nach dem Speichern neu laden, um die UI zu aktualisieren
+            noteViewModel.loadNoteContent(noteId)
         }
 
         arguments?.getInt("noteId")?.let {
@@ -46,8 +49,17 @@ class NoteFragment : Fragment() {
             noteViewModel.loadNoteContent(noteId)
         }
 
+        // Beobachte nun `noteContent` im ViewModel, um die UI zu aktualisieren
         noteViewModel.noteContent.observe(viewLifecycleOwner) { content ->
             binding.noteEditText.setText(content)
+        }
+
+        // Beobachte auch `error`, um Fehler anzuzeigen
+        noteViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            if (errorMessage != null) {
+                // Fehler anzeigen (z.B. Snackbar oder Toast)
+                Snackbar.make(view, errorMessage, Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -56,10 +68,7 @@ class NoteFragment : Fragment() {
 
         val content = binding.noteEditText.text.toString()
         noteViewModel.saveNoteContent(noteId, content)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        // Nach dem Speichern in onPause ebenfalls neu laden
+        noteViewModel.loadNoteContent(noteId)
     }
 }

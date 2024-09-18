@@ -24,9 +24,14 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthors(authors: List<Author>)
 
+    // Einfügen eines einzelnen Autors
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAuthor(author: Author)
+
+
     // Ruft alle Autoren aus der lokalen Datenbank ab
     @Query("SELECT * FROM authors_table")
-    suspend fun getAllAuthors(): List<Author>
+    fun getAllAuthors(): List<Author>
 
     // Löscht einen bestimmten Autor aus der lokalen Datenbank
     @Delete
@@ -43,6 +48,14 @@ interface QuoteDao {
     // Abrufen eines Zitats nach ID
     @Query("SELECT * FROM quotes WHERE id = :id")
     suspend fun getQuoteById(id: Int): Quote?
+
+    // Abrufen von Zitaten nach Autor-ID
+    @Query("SELECT * FROM quotes WHERE authorId = :authorId")
+    suspend fun getQuotesByAuthorId(authorId: Int): List<Quote>
+
+    // Abrufen eines Autors nach Slug
+    @Query("SELECT * FROM authors_table WHERE tag = :authorSlug")
+    suspend fun getAuthorBySlug(authorSlug: String): Author?
 
     // Abrufen von Zitaten nach Schlüsselwort
     @Query("SELECT * FROM quotes WHERE content LIKE '%' || :keyword || '%'")

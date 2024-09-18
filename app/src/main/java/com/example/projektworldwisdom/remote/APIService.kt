@@ -1,7 +1,6 @@
 package com.example.projektworldwisdom.remote
 
 import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.model.AuthorInfo
 import com.example.projektworldwisdom.model.Quote
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -12,6 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 private const val BASE_URL = "https://zenquotes.io/api/"
 private const val API_KEY = "70L87470TF537222S"
@@ -34,6 +34,12 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 interface WorldWisdomApiService {
+
+    // Allgemeines Format für API-Anfragen
+    @GET
+    suspend fun getApiResponse(
+        @Url url: String
+    ): List<Quote>
 
     // Gibt mehrere zufällige Zitate zurück (auch einzelne Zitate)
     //Beispiel: https://zenquotes.io/api/quotes/random?count=5
@@ -67,12 +73,20 @@ interface WorldWisdomApiService {
         @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
     ): List<Quote>
 
+    // Liefert eine Liste von Zitaten eines bestimmten Autors.
+    // Beispiel: https://zenquotes.io/api/quotes/author/[author-name]/[your_key]
+    @GET("quotes/author/{authorName}/{apiKey}")
+    suspend fun getQuotesByAuthor(
+        @Path("authorName") authorName: String,
+        @Path("apiKey") apiKey: String = API_KEY // API-Schlüssel als Pfadparameter
+    ): List<Quote>
+
     // Liefert eine Liste aller verfügbaren Autoren.
-    // Beispiel: https://zenquotes.io/api/authors
-    @GET("authors")
+    // Beispiel: https://zenquotes.io/api/authors/[YOUR_KEY]
+    @GET("authors/{apiKey}")
     suspend fun getAuthors(
-        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
-    ): List<AuthorInfo>
+        @Path("apiKey") apiKey: String = API_KEY // API-Schlüssel als Pfadparameter
+    ): List<Author>
 
     // Liefert eine Liste aller verfügbaren Keywords.
     // Beispiel: https://zenquotes.io/api/keywords

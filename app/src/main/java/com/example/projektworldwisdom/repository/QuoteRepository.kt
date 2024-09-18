@@ -6,6 +6,7 @@ import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
+import com.example.projektworldwisdom.BuildConfig
 
 class QuoteRepository(
     private val quoteDao: QuoteDao,
@@ -54,15 +55,37 @@ class QuoteRepository(
     // Liefert Zitate, die mit dem angegebenen Schlüsselwort verknüpft sind
     suspend fun getQuotesByKeyword(keyword: String): List<Quote> {
         return try {
-            val quotes = apiService.searchQuotesByKeyword(keyword)
-            insertQuotes(quotes) // Speichert die Zitate in der lokalen Datenbank
-            quotes
+            val author = getAuthorBySlug(keyword)
+
+            if (author != null) {
+                val localQuotes = quoteDao.getQuotesByAuthorId(author.id)
+                if (localQuotes.isNotEmpty()) {
+                    return localQuotes
+                } else {
+                    // API-Aufruf für Zitate eines bestimmten Autors
+                    val apiUrl = "https://zenquotes.io/api/quotes/author/${author.name}/${BuildConfig.API_KEY}"
+                    val apiQuotes = apiService.getApiResponse(apiUrl)
+
+                    apiQuotes.forEach { it.authorId = author.id }
+                    insertQuotes(apiQuotes)
+                    return apiQuotes
+                }
+            } else {
+                // Allgemeine Suche nach Zitaten
+                val apiUrl = "https://zenquotes.io/api/quotes/${BuildConfig.API_KEY}?keyword=$keyword"
+                val quotes = apiService.getApiResponse(apiUrl)
+                insertQuotes(quotes)
+                return quotes
+            }
+
         } catch (e: Exception) {
+            // Fehlerbehandlung
+            Log.e("QuoteRepository", "Error getting quotes by keyword", e)
+
             // Fallback auf die lokale Datenbank
-            quoteDao.getQuotesByKeyword(keyword)
+            return quoteDao.getQuotesByKeyword(keyword)
         }
     }
-
 
 
     // Liefert das Zitat des Tages
@@ -80,16 +103,36 @@ class QuoteRepository(
         }
     }
 
+    // Ruft einen Autor anhand seines Slugs aus der Datenbank ab
+    suspend fun getAuthorBySlug(authorSlug: String): Author? {
+        return try {
+            quoteDao.getAuthorBySlug(authorSlug)
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error getting author by slug", e)
+            null
+        }
+    }
+
+
     // Liefert eine Liste aller verfügbaren Autoren
     suspend fun getAuthors(): List<Author> {
         return try {
-            val authors = apiService.getAuthors()
+            val authors = apiService.getAuthors() // Rufe getAuthors ohne API-Schlüssel als Query-Parameter auf
             insertAuthors(authors) // Speichern in der lokalen Datenbank
             authors
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error fetching authors", e)
             // Fallback auf die lokale Datenbank
             quoteDao.getAllAuthors()
+        }
+    }
+
+    // Fügt einen neuen Autor in die Datenbank ein
+    suspend fun addAuthor(author: Author) {
+        try {
+            quoteDao.insertAuthor(author)
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error inserting author", e)
         }
     }
 

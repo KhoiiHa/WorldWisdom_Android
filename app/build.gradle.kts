@@ -1,3 +1,4 @@
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,6 +20,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // API-Schlüssel aus local.properties laden
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
+
+
     }
 
     buildTypes {
@@ -67,6 +75,8 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
+    //Coil
+    implementation("io.coil-kt:coil:2.7.0")
 
 
     //Retrofit
@@ -84,6 +94,7 @@ dependencies {
 
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation ("com.google.firebase:firebase-common-ktx") // Firebase Common KTX
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx")

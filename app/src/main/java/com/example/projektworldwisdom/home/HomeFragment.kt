@@ -105,29 +105,29 @@ class HomeFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.filterSociety.setOnClickListener {
-            viewModel.loadQuotesByKeyword("society")
+            viewModel.loadQuotesByKeyword("change")
         }
 
         binding.filterSuccess.setOnClickListener {
-            viewModel.loadQuotesByKeyword("success")
+            viewModel.loadQuotesByKeyword("Death")
         }
 
         binding.filterWork.setOnClickListener {
-            viewModel.loadQuotesByKeyword("work")
+            viewModel.loadQuotesByKeyword("freedom")
         }
 
         binding.filterWisdom.setOnClickListener {
-            viewModel.loadQuotesByKeyword("wisdom")
+            viewModel.loadQuotesByKeyword("Work")
         }
 
         binding.filterGratitude.setOnClickListener {
             viewModel.loadQuotesByKeyword("gratitude")
         }
 
-//        // Klick-Listener für alle Zitate
-//        binding.filterAll.setOnClickListener {
-//            viewModel.loadAllQuotesHome()
-//        }
+        // Klick-Listener für alle Zitate
+        binding.filterAlle.setOnClickListener {
+            viewModel.loadAllQuotesHome()
+        }
 
 //        // Klick-Listener für Schlüsselwörter
 //        binding.loadKeywordsButton.setOnClickListener {

@@ -80,5 +80,9 @@ interface QuoteDao {
     // Löschen eines Zitats
     @Delete
     suspend fun deleteQuote(quote: Quote)
+
+    // Sucht nach Zitaten, deren Autor dem angegebenen Muster entspricht
+    @Query("SELECT * FROM quotes WHERE author LIKE :author")
+    suspend fun searchQuotesByAuthor(author: String): List<Quote>
 }
 

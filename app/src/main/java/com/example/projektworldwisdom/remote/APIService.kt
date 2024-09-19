@@ -51,11 +51,11 @@ interface WorldWisdomApiService {
 
 
     // Liefert eine Liste aller verfügbaren Zitate.
-    // Beispiel: https://zenquotes.io/api/quotes?limit=10
+    // Beispiel: https://zenquotes.io/api/quotes?limit=25
     @GET("quotes")
     suspend fun getAllQuotes(
-        @Query("limit") limit: Int = 10,
-        @Query("api_key") apiKey: String = API_KEY // API-Schlüssel hinzugefügt
+        @Query("limit") limit: Int = 25,
+        @Query("api_key") apiKey: String = API_KEY
     ): List<Quote>
 
     // Liefert das Zitat des Tages.

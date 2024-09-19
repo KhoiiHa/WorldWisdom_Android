@@ -31,7 +31,7 @@ class LoginFragment : Fragment() {
 
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
-                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment2())
+                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
             }
 
         }

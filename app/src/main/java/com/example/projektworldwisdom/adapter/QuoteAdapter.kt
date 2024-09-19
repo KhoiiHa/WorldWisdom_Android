@@ -7,9 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.databinding.ItemQuoteBinding
 import com.example.projektworldwisdom.model.Quote
 
-class QuoteAdapter(private var quotes: List<Quote>) : RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
+class QuoteAdapter(private var quotes: List<Quote>) :
+    RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
 
-    inner class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class QuoteViewHolder(val binding: ItemQuoteBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
 
     // Interface für den Klick-Listener
@@ -28,6 +30,8 @@ class QuoteAdapter(private var quotes: List<Quote>) : RecyclerView.Adapter<Quote
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
         val binding = ItemQuoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return QuoteViewHolder(binding)
+
+
     }
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {

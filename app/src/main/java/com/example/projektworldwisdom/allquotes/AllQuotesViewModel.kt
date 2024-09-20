@@ -25,25 +25,20 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
     val searchKeyword: LiveData<String> get() = _searchKeyword
 
     init {
-        // Initial alle Zitate laden
         loadAllQuotes()
     }
 
     fun loadAllQuotes() {
         viewModelScope.launch {
             _isLoading.postValue(true)
+            _error.postValue(null) // Fehlerstatus zurücksetzen
+
             try {
                 val allQuotes = WorldWisdomApi.retrofitService.getAllQuotes()
-                _quotes.postValue(allQuotes)
                 repository.insertQuotes(allQuotes)
+                _quotes.postValue(allQuotes)
             } catch (e: Exception) {
-                val localQuotes = repository.getAllQuotesFromLocal()
-                if (localQuotes.isNotEmpty()) {
-                    _quotes.postValue(localQuotes)
-                } else {
-                    _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
-                    Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
-                }
+                handleLoadingError(e)
             } finally {
                 _isLoading.postValue(false)
             }
@@ -52,33 +47,49 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
 
     fun filterByKeyword(keyword: String) {
         viewModelScope.launch {
-            _isLoading.value = true // Ladeanzeige starten
+            _isLoading.postValue(true)
+            _error.postValue(null) // Fehlerstatus zurücksetzen
 
             try {
                 val filteredQuotes = if (keyword == "All") {
-                    repository.getAllQuotes() // Alle Zitate laden (API zuerst, dann lokal)
+                    repository.getAllQuotes()
                 } else {
-                    repository.getQuotesByKeyword(keyword) // Gefilterte Zitate laden (API zuerst, dann lokal)
+                    repository.getQuotesByKeyword(keyword)
                 }
                 _quotes.value = filteredQuotes
             } catch (e: Exception) {
-                _error.value = "Fehler beim Filtern der Zitate: ${e.message}"
-                Log.e("AllQuotesViewModel", "Fehler beim Filtern der Zitate", e)
+                handleLoadingError(e)
             } finally {
-                _isLoading.value = false // Ladeanzeige stoppen
+                _isLoading.postValue(false)
             }
         }
     }
 
-    fun searchByAuthor(author: String) {
-        _searchKeyword.value = author
+    fun searchByAuthor(authorName: String) {
+        _searchKeyword.value = authorName
         viewModelScope.launch {
             _isLoading.postValue(true)
+            _error.postValue(null) // Fehlerstatus zurücksetzen
 
-            val searchResults = repository.searchQuotesByAuthor(author)
-            _quotes.postValue(searchResults)
+            try {
+                val searchResults = repository.searchQuotesByAuthor(authorName)
+                _quotes.postValue(searchResults)
+            } catch (e: Exception) {
+                handleLoadingError(e)
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
 
-            _isLoading.postValue(false)
+    private suspend fun handleLoadingError(e: Exception) {
+        // Hier kannst du die Fehlerbehandlung zentralisieren
+        val localQuotes = repository.getAllQuotesFromLocal()
+        if (localQuotes.isNotEmpty()) {
+            _quotes.postValue(localQuotes)
+        } else {
+            _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
+            Log.e("AllQuotesViewModel", "Fehler beim Laden der Zitate", e)
         }
     }
 }

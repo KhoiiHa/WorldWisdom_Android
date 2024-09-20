@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
@@ -43,23 +44,26 @@ class HomeFragment : Fragment() {
         setupObservers()
         setupClickListeners()
 
-        // Lade das Zitat des Tages beim Start des Fragments
-        viewModel.loadQuoteOfTheDay()
     }
 
     private fun setupRecyclerView() {
         quoteAdapter = QuoteAdapter(emptyList())
-        binding.quotesList?.apply {
+        binding.quotesList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = quoteAdapter
         }
 
+        // Klick-Listener für einzelne Zitate
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
-                Toast.makeText(requireContext(), "${quote.content} — ${quote.author}", Toast.LENGTH_LONG).show()
+                findNavController().navigate(
+                    HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(quote.authorName)
+                )
             }
         })
+
     }
+
 
     private fun setupObservers() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -67,15 +71,9 @@ class HomeFragment : Fragment() {
         }
 
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            if (quotes != null) {
-                if (quotes.isNotEmpty()) {
-                    val firstQuote = quotes[0]
-                    binding.affirmationText.text = firstQuote.content // Zitattext anzeigen
-                    binding.affirmationAuthor.text = "- ${firstQuote.author}" // Autor anzeigen
-                } else {
-                    binding.affirmationText.text = "Keine Zitate gefunden."
-                    binding.affirmationAuthor.text = ""
-                }
+            if (quotes.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "Keine Zitate gefunden.", Toast.LENGTH_SHORT).show()
+            } else {
                 quoteAdapter.updateData(quotes)
             }
         }
@@ -89,40 +87,55 @@ class HomeFragment : Fragment() {
 
         viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
             if (quote != null) {
+                // Setze den Zitattext
                 binding.affirmationText.text = quote.content
-                binding.affirmationAuthor.text = "- ${quote.author}"
+
+                // Verwende die Methode, um den Autor basierend auf dem Namen abzurufen
+                viewModel.getAuthorByName(quote.authorName).observe(viewLifecycleOwner) { authorName ->
+                    // Setze den Autorennamen in das Textfeld, falls er verfügbar ist
+                    binding.affirmationAuthor.text = if (!authorName.isNullOrEmpty()) {
+                        "- $authorName"
+                    } else {
+                        "- Unbekannter Autor"
+                    }
+                }
             } else {
+                // Kein Zitat des Tages gefunden
                 binding.affirmationText.text = "Keine Zitate des Tages gefunden."
                 binding.affirmationAuthor.text = ""
             }
         }
 
         viewModel.keywords.observe(viewLifecycleOwner) { keywords ->
-            // Hier kannst du mit den Schlüsselwörtern arbeiten, z.B. in einer Dropdown-Liste anzeigen
-            // Beispiel: Update einer Spinner oder einer anderen Ansicht mit den Keywords
+            // Hier die Keywords in einer Spinner oder Dropdown-Liste anzeigen
+            // Beispiel:
+            val keywordList = keywords.map { it.keyword } // Assuming each Keyword has a 'keyword' property
+            // Update UI, um die Keywords darzustellen
+            // z.B. mit einem Spinner:
+            // binding.keywordSpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, keywordList)
         }
     }
 
     private fun setupClickListeners() {
-        binding.filterSociety.setOnClickListener {
-            viewModel.loadQuotesByKeyword("change")
-        }
+//        binding.filterSociety.setOnClickListener {
+//            viewModel.loadQuotesByKeyword("change")
+//        }
 
-        binding.filterSuccess.setOnClickListener {
-            viewModel.loadQuotesByKeyword("Death")
-        }
+//        binding.filterSuccess.setOnClickListener {
+//            viewModel.loadQuotesByKeyword("Death")
+//        }
 
-        binding.filterWork.setOnClickListener {
-            viewModel.loadQuotesByKeyword("freedom")
-        }
+//        binding.filterWork.setOnClickListener {
+//            viewModel.loadQuotesByKeyword("freedom")
+//        }
 
-        binding.filterWisdom.setOnClickListener {
-            viewModel.loadQuotesByKeyword("Work")
-        }
+//        binding.filterWisdom.setOnClickListener {
+//            viewModel.loadQuotesByKeyword("Work")
+//        }
 
-        binding.filterGratitude.setOnClickListener {
-            viewModel.loadQuotesByKeyword("gratitude")
-        }
+//        binding.filterGratitude.setOnClickListener {
+//            viewModel.loadQuotesByKeyword("gratitude")
+//        }
 
         // Klick-Listener für alle Zitate
         binding.filterAlle.setOnClickListener {

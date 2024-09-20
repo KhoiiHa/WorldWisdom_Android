@@ -15,6 +15,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Ladeanzeige für das Laden der Autor-Details -->
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
@@ -22,14 +23,16 @@
             android:layout_gravity="center"
             android:visibility="@{viewModel.isLoading ? android.view.View.VISIBLE : android.view.View.GONE}" />
 
+        <!-- Autor Name -->
         <TextView
             android:id="@+id/author_name"
-            android:layout_width="1dp"
-            android:layout_height="27dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@{viewModel.authorDetails.name != null ? viewModel.authorDetails.name : `Autorname wird geladen...`}"
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- Autor Link (nur anzeigen, wenn verfügbar) -->
         <TextView
             android:id="@+id/author_link"
             android:layout_width="wrap_content"
@@ -39,6 +42,7 @@
             android:text="@{viewModel.authorDetails.link != null ? viewModel.authorDetails.link : `Link wird geladen...`}"
             android:visibility="@{viewModel.authorDetails.link != null &amp;&amp; !viewModel.authorDetails.link.isEmpty() ? android.view.View.VISIBLE : android.view.View.GONE}" />
 
+        <!-- Zitat des Autors -->
         <TextView
             android:id="@+id/author_quote"
             android:layout_width="wrap_content"
@@ -46,6 +50,7 @@
             android:layout_marginTop="16dp"
             android:text="@{viewModel.authorQuote.content != null ? viewModel.authorQuote.content : `Zitat wird geladen...`}" />
 
+        <!-- Ladeanzeige für das Zitat -->
         <ProgressBar
             android:id="@+id/quote_progress_bar"
             android:layout_width="wrap_content"
@@ -54,6 +59,7 @@
             android:layout_marginTop="8dp"
             android:visibility="@{viewModel.isQuoteLoading ? android.view.View.VISIBLE : android.view.View.GONE}" />
 
+        <!-- Button für das Laden eines neuen Zitats -->
         <Button
             android:id="@+id/load_new_quote_button"
             android:layout_width="wrap_content"
@@ -61,13 +67,13 @@
             android:layout_marginTop="16dp"
             android:text="Neues Zitat laden" />
 
+        <!-- Autor Bild (anzeigen, wenn verfügbar) -->
         <ImageView
             android:id="@+id/author_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars"
-            android:visibility="@{viewModel.authorDetails.imageUrl != null ? android.view.View.VISIBLE : android.view.View.GONE}"
-            />
+            android:layout_marginTop="16dp"
+            android:visibility="@{viewModel.authorDetails.imageUrl != null ? android.view.View.VISIBLE : android.view.View.GONE}" />
 
     </LinearLayout>
 </layout>

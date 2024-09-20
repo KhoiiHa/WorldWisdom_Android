@@ -49,7 +49,7 @@ class AllQuotesFragment : Fragment() {
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
                 findNavController().navigate(
-                    AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(quote.author)
+                    AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(quote.authorName)
                 )
             }
         })

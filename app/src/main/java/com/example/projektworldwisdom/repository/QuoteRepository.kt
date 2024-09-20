@@ -6,7 +6,6 @@ import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
-import com.example.projektworldwisdom.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,60 +16,69 @@ class QuoteRepository(
 
 
     // Liefert alle verfügbaren Zitate, optional mit Limit
-    suspend fun getAllQuotes(limit: Int = 25): List<Quote> {
+    suspend fun getAllQuotes(): List<Quote> {
         return try {
-            val quotes = apiService.getAllQuotes(limit)
-            insertQuotes(quotes)
-            quotes
+            val quotes = apiService.getAllQuotes() // API-Aufruf zur Abholung der Zitate
+            insertQuotes(quotes) // Zitate in die lokale Datenbank einfügen
+            quotes // Rückgabe der Zitate
         } catch (e: Exception) {
             // Fallback auf die lokale Datenbank
             withContext(Dispatchers.IO) { // Datenbankabfrage im IO-Kontext ausführen
-                quoteDao.getAllQuotes(limit)
+                quoteDao.getAllQuotes() // Abruf der Zitate aus der lokalen Datenbank
             }
         }
     }
 
-    suspend fun searchQuotesByAuthor(author: String): List<Quote> {
+    // Liefert das Zitat des Tages
+    suspend fun getQuoteOfTheDay(): Quote? {
+        return try {
+            // Abrufen des Zitats des Tages von der API
+            val quote = apiService.getQuoteOfTheDay()
+            // Das erste Zitat (einzelnes Zitat) verarbeiten
+            insertQuote(quote)
+            quote
+        } catch (e: Exception) { // Fange alle Exceptions ab
+            Log.e(
+                "QuoteRepository",
+                "Fehler beim Abrufen des Zitats des Tages von der API, Fallback auf lokale Datenbank: ${e.message}",
+                e
+            )
+            withContext(Dispatchers.IO) {
+                quoteDao.getQuoteOfTheDay() // Fallback auf lokale Datenbank
+            }
+        }
+    }
+
+    suspend fun getQuotesByAuthor(authorName: String): List<Quote> {
+        return try {
+            // Versuche, Zitate von der API abzurufen
+            apiService.getQuotesByAuthor(authorName)
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error getting quotes by author from API", e)
+
+            // Fallback: Hole Zitate aus der lokalen Datenbank
+            try {
+                quoteDao.getQuotesByAuthor(authorName)
+            } catch (dbException: Exception) {
+                Log.e("QuoteRepository", "Error getting quotes by author from local database", dbException)
+                emptyList() // Gibt eine leere Liste zurück, falls auch der DB-Zugriff fehlschlägt
+            }
+        }
+    }
+
+
+    // Liefert eine Liste von Zitaten eines bestimmten Autors
+    suspend fun searchQuotesByAuthor(authorName: String): List<Quote> {
         return withContext(Dispatchers.IO) {
             try {
-                apiService.getQuotesByAuthor(authorName = author)
+                apiService.getQuotesByAuthor(authorName) // Direkt den Autorennamen verwenden
             } catch (e: Exception) {
-                Log.e(
-                    "QuoteRepository",
-                    "Fehler beim Abrufen von Zitaten von der API, Fallback auf lokale Datenbank: ${e.message}",
-                    e
-                )
-                quoteDao.searchQuotesByAuthor(author)
+                Log.e("QuoteRepository", "Fehler beim Abrufen von Zitaten von der API: ${e.message}", e)
+                quoteDao.searchQuotesByAuthor(authorName) // Lokale Suche implementieren
             }
         }
     }
 
-    // Liefert ein zufälliges Zitat
-    suspend fun getRandomQuote(): Quote? {
-        return try {
-            val response = apiService.getMultipleRandomQuotes(1)
-            val quote = response.firstOrNull()
-            if (quote != null) {
-                insertQuote(quote) // Speichert das Zitat in der lokalen Datenbank
-            }
-            quote
-        } catch (e: Exception) {
-            // Fallback auf die lokale Datenbank
-            quoteDao.getRandomQuote()
-        }
-    }
-
-    // Liefert mehrere zufällige Zitate
-    suspend fun getMultipleRandomQuotes(count: Int): List<Quote> {
-        return try {
-            val quotes = apiService.getMultipleRandomQuotes(count)
-            insertQuotes(quotes) // Speichert die Zitate in der lokalen Datenbank
-            quotes
-        } catch (e: Exception) {
-            // Fallback auf die lokale Datenbank
-            quoteDao.getMultipleRandomQuotes(count)
-        }
-    }
 
     // Liefert Zitate, die mit dem angegebenen Schlüsselwort verknüpft sind
     suspend fun getQuotesByKeyword(keyword: String): List<Quote> {
@@ -96,29 +104,12 @@ class QuoteRepository(
         }
     }
 
-
-    // Liefert das Zitat des Tages
-    suspend fun getQuoteOfTheDay(): Quote? {
+    suspend fun getAuthorByName(authorName: String): Author? {
         return try {
-            val response = apiService.getQuoteOfTheDay()
-            val quote = response.firstOrNull()
-            if (quote != null) {
-                insertQuote(quote) // Speichert das Zitat in der lokalen Datenbank
-            }
-            quote
+            quoteDao.getAuthorByName(authorName) // Annahme: es gibt eine entsprechende DAO-Methode
         } catch (e: Exception) {
-            // Fallback auf die lokale Datenbank
-            quoteDao.getQuoteOfTheDay()
-        }
-    }
-
-    // Ruft einen Autor anhand seines Slugs aus der Datenbank ab
-    suspend fun getAuthorBySlug(authorSlug: String): Author? {
-        return try {
-            quoteDao.getAuthorBySlug(authorSlug)
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error getting author by slug", e)
-            null
+            Log.e("QuoteRepository", "Error getting author by name", e)
+            null // Rückgabe von null im Fehlerfall
         }
     }
 
@@ -150,9 +141,10 @@ class QuoteRepository(
     suspend fun getKeywords(): List<Keyword> {
         return try {
             val response = apiService.getKeywords("70L87470TF537222S") // API-Schlüssel übergeben
-            response.map { Keyword(it) } // Umwandeln der Strings in Keyword-Objekte
+            response.map { Keyword(keyword = it) } // Umwandeln der Strings in Keyword-Objekte
         } catch (e: Exception) {
-            emptyList()
+            Log.e("QuoteRepository", "Error fetching keywords", e)
+            emptyList() // Gibt eine leere Liste zurück, falls ein Fehler auftritt
         }
     }
 
@@ -211,7 +203,7 @@ class QuoteRepository(
     // Ruft alle Zitate aus der lokalen Datenbank ab
     suspend fun getAllQuotesFromLocal(): List<Quote> {
         return try {
-            quoteDao.getAllQuotes(15)
+            quoteDao.getAllQuotes()
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error getting all quotes", e)
             emptyList()
@@ -220,7 +212,11 @@ class QuoteRepository(
 
     // Löscht ein Zitat aus der lokalen Datenbank
     suspend fun deleteQuote(quote: Quote) {
-        quoteDao.deleteQuote(quote)
+        try {
+            quoteDao.deleteQuote(quote)
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error deleting quote", e)
+        }
     }
 
     // Ruft ein Zitat nach ID aus der lokalen Datenbank ab

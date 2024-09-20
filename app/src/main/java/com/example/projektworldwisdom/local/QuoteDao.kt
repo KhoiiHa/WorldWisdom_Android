@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.projektworldwisdom.model.Author
+import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Note
 import com.example.projektworldwisdom.model.Quote
 
@@ -28,40 +29,40 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthor(author: Author)
 
+    // Abrufen von Zitat
+    @Query("SELECT * FROM quotes WHERE authorName = :authorName")
+    suspend fun getQuotesByAuthor(authorName: String): List<Quote>
 
     // Ruft alle Autoren aus der lokalen Datenbank ab
     @Query("SELECT * FROM authors_table")
     fun getAllAuthors(): List<Author>
 
-    // Löscht einen bestimmten Autor aus der lokalen Datenbank
-    @Delete
-    suspend fun deleteAuthor(author: Author)
+    // Abrufen eines Autors nach Name
+    @Query("SELECT * FROM authors_table WHERE name = :authorName")
+    suspend fun getAuthorByName(authorName: String): Author?
+
+    // Abrufen von Zitaten eines bestimmten Autors aus der lokalen Datenbank
+    @Query("SELECT * FROM quotes WHERE authorName = :authorName")
+    suspend fun searchQuotesByAuthor(authorName: String): List<Quote>
 
     // Löscht alle Autoren aus der lokalen Datenbank
     @Query("DELETE FROM authors_table")
     suspend fun deleteAllAuthors()
 
-    // Abrufen aller Zitate mit Limit
-    @Query("SELECT * FROM quotes LIMIT :limit")
-    suspend fun getAllQuotes(limit: Int): List<Quote>
+    // Abrufen aller Zitate ohne Limit
+    @Query("SELECT * FROM quotes")
+    suspend fun getAllQuotes(): List<Quote>
 
     // Abrufen eines Zitats nach ID
     @Query("SELECT * FROM quotes WHERE id = :id")
     suspend fun getQuoteById(id: Int): Quote?
 
-    // Abrufen von Zitaten nach Autor-ID
-    @Query("SELECT * FROM quotes WHERE authorId = :authorId")
-    suspend fun getQuotesByAuthorId(authorId: Int): List<Quote>
-
-    // Abrufen eines Autors nach Slug
-    @Query("SELECT * FROM authors_table WHERE tag = :authorSlug")
-    suspend fun getAuthorBySlug(authorSlug: String): Author?
 
     // Abrufen von Zitaten nach Schlüsselwort
     @Query("SELECT * FROM quotes WHERE content LIKE '%' || :keyword || '%'")
     suspend fun getQuotesByKeyword(keyword: String): List<Quote>
 
-    // Abrufen des Zitats des Tages
+    // Abrufen des Zitats des Tages aus der lokalen Datenbank
     @Query("SELECT * FROM quotes WHERE isQuoteOfTheDay = 1 LIMIT 1")
     suspend fun getQuoteOfTheDay(): Quote?
 
@@ -77,12 +78,18 @@ interface QuoteDao {
     @Query("SELECT * FROM quotes WHERE isFavorite = 1")
     suspend fun getFavoriteQuotes(): List<Quote>
 
+    // Ruft alle Schlüsselwörter aus der lokalen Datenbank ab
+    @Query("SELECT * FROM keywords_table") // Passe den Tabellennamen an, falls nötig
+    suspend fun getAllKeywords(): List<Keyword>
+
     // Löschen eines Zitats
     @Delete
     suspend fun deleteQuote(quote: Quote)
 
-    // Sucht nach Zitaten, deren Autor dem angegebenen Muster entspricht
-    @Query("SELECT * FROM quotes WHERE author LIKE :author")
-    suspend fun searchQuotesByAuthor(author: String): List<Quote>
+    // Löscht einen bestimmten Autor aus der lokalen Datenbank
+    @Delete
+    suspend fun deleteAuthor(author: Author)
+
+
 }
 

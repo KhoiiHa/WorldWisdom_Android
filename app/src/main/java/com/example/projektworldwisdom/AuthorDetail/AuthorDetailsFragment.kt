@@ -20,13 +20,15 @@ class AuthorDetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentAuthorDetailsBinding
 
-    // ViewModel mit der Factory initialisieren (nur für dieses Fragment)
-    private val viewModel: AuthorDetailsViewModel by viewModels {
+    // ViewModel mit der Factory initialisieren
+    private val viewModel: AuthorDetailsViewModel by viewModels { createFactory() }
+
+    private fun createFactory(): AuthorDetailsViewModelFactory {
         val apiService = WorldWisdomApi.retrofitService
         val database = QuoteDatabase.getDatabase(requireContext())
         val quoteDao = database.quoteDao()
         val repository = QuoteRepository(quoteDao, apiService)
-        AuthorDetailsViewModelFactory(repository)
+        return AuthorDetailsViewModelFactory(repository)
     }
 
     override fun onCreateView(
@@ -37,6 +39,7 @@ class AuthorDetailsFragment : Fragment() {
         binding = FragmentAuthorDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,54 +52,69 @@ class AuthorDetailsFragment : Fragment() {
         // Klick-Listener für den Button zum Laden eines neuen Zitats
         binding.loadNewQuoteButton.setOnClickListener {
             viewModel.authorDetails.value?.tag?.let { tag ->
-                viewModel.loadRandomQuoteByAuthor(tag)
+                viewModel.loadRandomQuoteByAuthor(tag) // Lade ein zufälliges Zitat des Autors
             } ?: run {
-                // Fehlerbehandlung, wenn slug null ist
-                Toast.makeText(requireContext(), "Autor-Details nicht verfügbar", Toast.LENGTH_SHORT).show()
+                // Fehlerbehandlung, wenn der tag null ist
+                Toast.makeText(
+                    requireContext(),
+                    "Autor-Details nicht verfügbar",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
-        // Beobachtet Fehler-Updates
+        // Beobachtet Fehler-Updates und zeigt eine Toast-Nachricht an
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                viewModel.clearError()
+                viewModel.clearError() // Fehler nach Anzeige zurücksetzen
             }
         }
 
-        // Holt die Autor-ID oder den Namen aus den Argumenten
-        val authorId = arguments?.getString("authorId")
+        // Holt den Autorennamen aus den Argumenten
+        val authorName = arguments?.getString("authorName")
 
-        // Wenn die Autor-ID vorhanden ist, lade Autor-Details
-        if (authorId != null) {
-            viewModel.loadAuthorDetails(authorId)
+        // Wenn der Autorenname vorhanden ist, lade die Autor-Details
+        authorName?.let {
+            viewModel.loadAuthorDetails(it)
             binding.progressBar.visibility = View.VISIBLE // Ladeanzeige anzeigen
-        } else {
-            // Fehlerbehandlung, wenn authorId null ist
-            Toast.makeText(requireContext(), getString(R.string.error_no_author_id), Toast.LENGTH_SHORT).show()
+        } ?: run {
+            // Fehlerbehandlung, wenn der Autorenname null ist
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_no_author_id),
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        // Beobachten die Autor-Details
+        // Beobachte die Autor-Details
         viewModel.authorDetails.observe(viewLifecycleOwner) { author ->
             author?.let {
                 // Autor-Details in den Views anzeigen
                 binding.authorName.text = it.name
                 binding.authorLink.text = it.link
-//                binding.authorQuoteCount.text = "Anzahl der Zitate: ${it.quoteCount}"
+                // binding.authorQuoteCount.text = "Anzahl der Zitate: ${it.quoteCount}" // Wenn gewünscht, kann die Zitatanzahl angezeigt werden
                 binding.authorImage.load(it.imageUrl) {
                     crossfade(true)
-                    placeholder(R.drawable.ic_launcher_background) // Ersetze durch ein passenderes Platzhalterbild
-                    error(R.drawable.ic_launcher_background)     // Ersetze durch ein passenderes Fehlerbild
+                    placeholder(R.drawable.ic_launcher_background) // Benutzerdefiniertes Platzhalterbild
+                    error(R.drawable.ic_launcher_background)            // Benutzerdefiniertes Fehlerbild
                 }
+            } ?: run {
+                // Fehlerbehandlung, falls keine Autor-Details gefunden werden
+                Toast.makeText(
+                    requireContext(),
+                    "Autor-Details konnten nicht geladen werden",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
-        // Beobachtet den allgemeinen Ladezustand
+        // Beobachte den allgemeinen Ladezustand
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Beobachtet den Ladezustand für Zitate und aktualisiert die Ladeanzeige
+        // Beobachte den Ladezustand für Zitate
         viewModel.isQuoteLoading.observe(viewLifecycleOwner) { isQuoteLoading ->
             binding.quoteProgressBar.visibility = if (isQuoteLoading) View.VISIBLE else View.GONE
         }

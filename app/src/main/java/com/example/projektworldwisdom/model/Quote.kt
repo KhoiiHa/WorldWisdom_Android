@@ -10,7 +10,7 @@ import com.squareup.moshi.Json
         ForeignKey(
             entity = Author::class,
             parentColumns = ["id"],
-            childColumns = ["authorId"],
+            childColumns = ["authorName"],
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -19,8 +19,7 @@ data class Quote(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0, // Eindeutige ID für jedes Zitat
     @Json(name = "q") val content: String, // Zitattext
-    @Json(name = "a") var author: String, // Autorname
-    var authorId: Int, // Verknüpfung mit der Author-Entity
+    @Json(name = "author") val authorName: String, // Verknüpfung mit dem Autorennamen
     @Json(name = "c") val characterCount: Int, // Zeichenanzahl
     @Json(name = "h") val html: String? = null, // vorformatiertes HTML-Zitat (optional)
     @Json(name = "i") val authorImageUrl: String? = null, // Neues Feld für Autorbild-URL

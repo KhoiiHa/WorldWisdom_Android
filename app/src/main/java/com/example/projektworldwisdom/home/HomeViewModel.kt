@@ -1,5 +1,6 @@
 package com.example.projektworldwisdom.home
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.repository.QuoteRepository
@@ -54,9 +55,8 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             } catch (e: Exception) {
                 // Fange alle Fehler ab und setze die Fehlermeldung
                 _error.postValue("Fehler beim Laden des Zitats: ${e.message}")
-                // Fallback: Hole das Zitat des Tages aus der lokalen Datenbank
-                val localQuote = repository.getQuoteOfTheDayFromLocal()
-                _dailyAffirmation.postValue(localQuote)
+
+                _dailyAffirmation.postValue(null)
             } finally {
                 _isLoading.postValue(false) // Ladezustand zurücksetzen
             }
@@ -124,38 +124,36 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
     }
 
 
-    fun loadKeywords() {
-        viewModelScope.launch {
-            _isLoading.postValue(true) // Ladeindikator starten
-            try {
-                // Versuche, die Schlüsselwörter aus dem Repository abzurufen
-                val result = repository.getKeywords()
-                _keywords.postValue(result) // Setze die abgerufenen Schlüsselwörter
-                _error.postValue(null) // Fehlernachricht zurücksetzen
-            } catch (e: Exception) {
-                // Bei einem Fehler setze die Fehlermeldung
-                _error.postValue("Fehler beim Laden der Schlüsselwörter: ${e.message}")
-            } finally {
-                _isLoading.postValue(false) // Ladeindikator stoppen
-            }
-        }
-    }
-
     fun searchByAuthor(authorName: String) {
         viewModelScope.launch {
-            _isLoading.postValue(true)
+            _isLoading.postValue(true) // Ladeindikator starten
+            clearError() // Fehlerstatus zurücksetzen
+
+            if (authorName.isBlank()) {
+                _error.postValue("Bitte geben Sie einen gültigen Autorennamen ein.") // Validierung
+                _isLoading.postValue(false) // Ladeindikator stoppen
+                return@launch
+            }
+
             try {
                 val quotes = repository.searchQuotesByAuthor(authorName)
-                _quotes.postValue(quotes)
                 if (quotes.isEmpty()) {
-                    _error.postValue("Keine Zitate für den Autor '$authorName' gefunden.")
+                    // Fallback: Hole Zitate des Autors aus der lokalen Datenbank
+                    val localQuotes = repository.getQuotesByAuthor(authorName)
+                    if (localQuotes.isNotEmpty()) {
+                        _quotes.postValue(localQuotes)
+                        _error.postValue(null) // Fehlermeldung zurücksetzen
+                    } else {
+                        _error.postValue("Keine Zitate für den Autor '$authorName' gefunden.")
+                    }
                 } else {
-                    _error.postValue(null)
+                    _quotes.postValue(quotes)
+                    _error.postValue(null) // Fehlermeldung zurücksetzen
                 }
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Laden der Zitate für den Autor: ${e.message}")
             } finally {
-                _isLoading.postValue(false)
+                _isLoading.postValue(false) // Ladeindikator stoppen
             }
         }
     }
@@ -163,9 +161,16 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
     fun loadAuthors() {
         viewModelScope.launch {
             _isLoading.postValue(true) // Ladeindikator starten
+            clearError() // Fehlerstatus zurücksetzen
+
             try {
                 val authors = repository.fetchAuthors() // Autoren abrufen
-                _authors.postValue(authors) // Autoren in der LiveData speichern
+                if (authors.isEmpty()) {
+                    _error.postValue("Keine Autoren gefunden.") // Fehlermeldung, wenn keine Autoren vorhanden sind
+                } else {
+                    _authors.postValue(authors) // Autoren in der LiveData speichern
+                    _error.postValue(null) // Fehlermeldung zurücksetzen
+                }
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Laden der Autoren: ${e.message}")
             } finally {
@@ -177,8 +182,13 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
     fun getAuthorByName(authorName: String): LiveData<String?> {
         val authorNameLiveData = MutableLiveData<String?>()
         viewModelScope.launch {
-            val author = repository.getAuthorByName(authorName) // Hier den Namen verwenden
-            authorNameLiveData.postValue(author?.name)
+            try {
+                val author = repository.getAuthorByName(authorName) // Autor abrufen
+                authorNameLiveData.postValue(author?.name) // Namen setzen oder null, wenn nicht gefunden
+            } catch (e: Exception) {
+                authorNameLiveData.postValue(null) // Setze auf null bei einem Fehler
+                Log.e("HomeViewModel", "Fehler beim Abrufen des Autors: ${e.message}")
+            }
         }
         return authorNameLiveData
     }

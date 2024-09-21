@@ -13,31 +13,31 @@ import com.example.projektworldwisdom.model.Quote
 @Dao
 interface QuoteDao {
 
-    // Einfügen eines einzelnen Zitats
+    // Fügt ein einzelnes Zitat in die Datenbank ein oder aktualisiert es, falls es bereits existiert.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuote(quote: Quote)
 
-    // Einfügen mehrerer Zitate
+    // Fügt mehrere Zitate in die Datenbank ein oder aktualisiert sie, falls sie bereits existieren.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuotes(quotes: List<Quote>)
 
-    // Fügt eine Liste von Autoren in die lokale Datenbank ein
+    // Fügt eine Liste von Autoren in die Datenbank ein oder aktualisiert sie, falls sie bereits existieren.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthors(authors: List<Author>)
 
-    // Einfügen eines einzelnen Autors
+    // Fügt einen einzelnen Autor in die Datenbank ein oder aktualisiert ihn, falls er bereits existiert.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthor(author: Author)
 
-    // Abrufen von Zitat
+    // Ruft alle Zitate aus der Datenbank ab, die mit dem angegebenen Autorennamen verknüpft sind.
     @Query("SELECT * FROM quotes WHERE authorName = :authorName")
     suspend fun getQuotesByAuthor(authorName: String): List<Quote>
 
     // Ruft alle Autoren aus der lokalen Datenbank ab
     @Query("SELECT * FROM authors_table")
-    fun getAllAuthors(): List<Author>
+    suspend fun getAllAuthors(): List<Author>
 
-    // Abrufen eines Autors nach Name
+    // Abrufen eines Autors nach Name (sichergestellt, dass das Feld korrekt ist)
     @Query("SELECT * FROM authors_table WHERE name = :authorName")
     suspend fun getAuthorByName(authorName: String): Author?
 
@@ -45,51 +45,48 @@ interface QuoteDao {
     @Query("SELECT * FROM quotes WHERE authorName = :authorName")
     suspend fun searchQuotesByAuthor(authorName: String): List<Quote>
 
-    // Löscht alle Autoren aus der lokalen Datenbank
+    // Löschen aller Autoren aus der lokalen Datenbank
     @Query("DELETE FROM authors_table")
     suspend fun deleteAllAuthors()
 
-    // Abrufen aller Zitate ohne Limit
+    // Abrufen aller Zitate aus der lokalen Datenbank.
     @Query("SELECT * FROM quotes")
     suspend fun getAllQuotes(): List<Quote>
 
-    // Abrufen eines Zitats nach ID
+    // Abrufen eines Zitats aus der lokalen Datenbank anhand der angegebenen ID.
     @Query("SELECT * FROM quotes WHERE id = :id")
     suspend fun getQuoteById(id: Int): Quote?
 
-
-    // Abrufen von Zitaten nach Schlüsselwort
+    // Abrufen von Zitaten aus der lokalen Datenbank, die das angegebene Schlüsselwort im Inhalt enthalten.
     @Query("SELECT * FROM quotes WHERE content LIKE '%' || :keyword || '%'")
     suspend fun getQuotesByKeyword(keyword: String): List<Quote>
 
-    // Abrufen des Zitats des Tages aus der lokalen Datenbank
+    // Abrufen des Zitats des Tages aus der lokalen Datenbank, das als solches markiert ist.
     @Query("SELECT * FROM quotes WHERE isQuoteOfTheDay = 1 LIMIT 1")
     suspend fun getQuoteOfTheDay(): Quote?
 
-    // Abrufen mehrerer zufälliger Zitate
+    // Abrufen mehrerer zufälliger Zitate aus der lokalen Datenbank, begrenzt durch die angegebene Anzahl.
     @Query("SELECT * FROM quotes ORDER BY RANDOM() LIMIT :count")
     suspend fun getMultipleRandomQuotes(count: Int): List<Quote>
 
-    // Abrufen eines zufälligen Zitats
+    // Abrufen eines zufälligen Zitats aus der lokalen Datenbank.
     @Query("SELECT * FROM quotes ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomQuote(): Quote?
 
-    // Abrufen von Favoriten-Zitaten
+    // Abrufen aller Favoriten-Zitate aus der lokalen Datenbank.
     @Query("SELECT * FROM quotes WHERE isFavorite = 1")
     suspend fun getFavoriteQuotes(): List<Quote>
 
     // Ruft alle Schlüsselwörter aus der lokalen Datenbank ab
-    @Query("SELECT * FROM keywords_table") // Passe den Tabellennamen an, falls nötig
+    @Query("SELECT * FROM keywords_table")
     suspend fun getAllKeywords(): List<Keyword>
 
-    // Löschen eines Zitats
+    // Löschen eines bestimmten Zitats aus der lokalen Datenbank.
     @Delete
     suspend fun deleteQuote(quote: Quote)
 
-    // Löscht einen bestimmten Autor aus der lokalen Datenbank
+    // Löschen eines bestimmten Autors aus der lokalen Datenbank.
     @Delete
     suspend fun deleteAuthor(author: Author)
-
-
 }
 

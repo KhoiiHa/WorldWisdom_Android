@@ -6,12 +6,11 @@ import com.squareup.moshi.Json
 
 @Entity(tableName = "authors_table")
 data class Author(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     @Json(name = "a") val name: String, // Name des Autors
     @Json(name = "t") val tag: String, // Tag des Autors
     @Json(name = "l") val link: String, // Link zu den Zitaten des Autors
-    val quoteCount: Int, // Anzahl der Zitate des Autors
-    val imageUrl: String? = null // Bild-URL des Autors (optional)
+    @Json(name = "i") val imageUrl: String? = null // Bild-URL des Autors (optional)
 )
 

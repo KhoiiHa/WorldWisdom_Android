@@ -15,7 +15,7 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 private const val BASE_URL = "https://zenquotes.io/api/"
-private const val API_KEY = "70L87470TF537222S"
+private const val API_KEY = "787963bc6b2630495d3d9f25bba4a331"
 
 private val gson: Gson = GsonBuilder()
     .create()
@@ -30,59 +30,70 @@ private val client = OkHttpClient.Builder()
 
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create(gson))
-    .baseUrl("$BASE_URL$API_KEY/")
+    .baseUrl(BASE_URL)
     .client(client)
     .build()
 
 interface WorldWisdomApiService {
 
     // Liefert eine Liste von 50 zufälligen Zitaten
+    // https://zenquotes.io/api/quotes?api_key=YOUR_KEY
     @GET("quotes")
-    suspend fun getAllQuotes(): List<Quote>
+    suspend fun getAllQuotes(@Query("api_key") apiKey: String = API_KEY): List<Quote>
 
     // Liefert das Zitat des Tages
+    // https://zenquotes.io/api/today?api_key=YOUR_KEY
     @GET("today")
-    suspend fun getQuoteOfTheDay(): Quote
+    suspend fun getQuoteOfTheDay(@Query("api_key") apiKey: String = API_KEY): Quote
 
-    // Liefert eine Liste von Zitaten, die mit dem angegebenen Tag verknüpft sind.
-    @GET("quotes/tag/{keyword}")
-    suspend fun searchQuotesByKeyword(
-        @Path("keyword") keyword: String,
-        @Query("api_key") apiKey: String = API_KEY
-    ): List<Quote>
+    // Liefert ein zufälliges Zitat
+    // https://zenquotes.io/api/random?api_key=YOUR_KEY
+    @GET("random")
+    suspend fun getRandomQuote(@Query("api_key") apiKey: String = API_KEY): Quote
+
+    // Liefert ein zufälliges inspirierendes Bild
+    // https://zenquotes.io/api/image?api_key=YOUR_KEY
+    @GET("image")
+    suspend fun getRandomInspirationalImage(@Query("api_key") apiKey: String = API_KEY): Image
+
+    // Liefert eine Liste aller verfügbaren Autoren.
+    // https://zenquotes.io/api/authors?api_key=YOUR_KEY
+    @GET("authors")
+    suspend fun getAuthors(@Query("api_key") apiKey: String = API_KEY): List<Author>
 
     // Liefert eine Liste von Zitaten eines bestimmten Autors.
+    // https://zenquotes.io/api/quotes/author/sun-tzu?api_key=YOUR_KEY
     @GET("quotes/author/{authorName}")
     suspend fun getQuotesByAuthor(
         @Path("authorName") authorName: String,
         @Query("api_key") apiKey: String = API_KEY
     ): List<Quote>
 
-    // Liefert eine Liste aller verfügbaren Autoren.
-    @GET("authors")
-    suspend fun getAuthors(
-        @Query("api_key") apiKey: String = API_KEY
-    ): List<Author>
-
-    // Generiert ein Zitat-Bild eines bestimmten Autors.
+    // Liefert ein Zitat-Bild eines bestimmten Autors.
+    // https://zenquotes.io/api/image/author/sun-tzu?api_key=YOUR_KEY
     @GET("image/author/{authorName}")
     suspend fun getQuoteImageByAuthor(
         @Path("authorName") authorName: String,
         @Query("api_key") apiKey: String = API_KEY
     ): Image
 
+    // Filtert Zitate nach unterstützten Schlüsselwörtern.
+    // https://zenquotes.io/api/quotes?api_key=YOUR_KEY&keyword=change
+    @GET("quotes")
+    suspend fun filterQuotesByKeyword(
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("keyword") keyword: String
+    ): List<Quote>
+
     // Generiert ein Zitatbild basierend auf unterstützten Keywords.
+    // https://zenquotes.io/api/image?api_key=YOUR_KEY&keyword=change
     @GET("image")
     suspend fun getImageByKeyword(
-        @Query("keyword") keyword: String,
-        @Query("api_key") apiKey: String = API_KEY
-    ): List<Image>
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("keyword") keyword: String
+    ): Image
 
-    // Liefert eine Liste aller verfügbaren Keywords.
-    @GET("keywords")
-    suspend fun getKeywords(
-        @Query("api_key") apiKey: String = API_KEY
-    ): List<String>
+
 }
 
 object WorldWisdomApi {

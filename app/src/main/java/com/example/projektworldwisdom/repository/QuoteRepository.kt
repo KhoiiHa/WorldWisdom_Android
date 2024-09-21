@@ -3,6 +3,7 @@ package com.example.projektworldwisdom.repository
 import android.util.Log
 import com.example.projektworldwisdom.local.QuoteDao
 import com.example.projektworldwisdom.model.Author
+import com.example.projektworldwisdom.model.Image
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
@@ -84,9 +85,9 @@ class QuoteRepository(
     suspend fun getQuotesByKeyword(keyword: String): List<Quote> {
         return try {
             // Versuche zuerst, die Zitate von der API abzurufen
-            val apiQuotes = apiService.searchQuotesByKeyword(keyword)
+            val apiQuotes = apiService.filterQuotesByKeyword(keyword = keyword)
 
-            // Wenn die API erfolgreich war, gib die Ergebnisse zurück
+            // Wenn die API erfolgreich war und Ergebnisse liefert, gib die Ergebnisse zurück
             if (apiQuotes.isNotEmpty()) {
                 apiQuotes
             } else {
@@ -128,6 +129,27 @@ class QuoteRepository(
         }
     }
 
+    // Generiert ein Zitatbild basierend auf dem angegebenen Schlüsselwort
+    suspend fun getImageByKeyword(keyword: String): Image? {
+        return try {
+            apiService.getImageByKeyword(keyword = keyword) // Bild basierend auf dem Schlüsselwort abrufen
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Fehler beim Abrufen des Zitatbildes von der API: ${e.message}", e)
+            null // Rückgabe von null im Fehlerfall
+        }
+    }
+
+    // Liefert eine Liste aller verfügbaren Autoren von der API.
+    suspend fun fetchAuthors(): List<Author> {
+        return try {
+            apiService.getAuthors()
+        } catch (e: Exception) {
+            // Fehlerbehandlung
+            Log.e("QuoteRepository", "Error fetching authors", e)
+            emptyList() // Oder eine andere geeignete Fehlerbehandlung
+        }
+    }
+
     // Fügt einen neuen Autor in die Datenbank ein
     suspend fun addAuthor(author: Author) {
         try {
@@ -137,16 +159,6 @@ class QuoteRepository(
         }
     }
 
-    // Liefert die Liste der Schlüsselwörter
-    suspend fun getKeywords(): List<Keyword> {
-        return try {
-            val response = apiService.getKeywords("70L87470TF537222S") // API-Schlüssel übergeben
-            response.map { Keyword(keyword = it) } // Umwandeln der Strings in Keyword-Objekte
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching keywords", e)
-            emptyList() // Gibt eine leere Liste zurück, falls ein Fehler auftritt
-        }
-    }
 
     // Speichert ein einzelnes Zitat in der lokalen Datenbank
     private suspend fun insertQuote(quote: Quote) {
@@ -247,13 +259,5 @@ class QuoteRepository(
         }
     }
 
-    suspend fun fetchAuthors(): List<Author> {
-        return try {
-            apiService.getAuthors()
-        } catch (e: Exception) {
-            // Fehlerbehandlung
-            Log.e("QuoteRepository", "Error fetching authors", e)
-            emptyList() // Oder eine andere geeignete Fehlerbehandlung
-        }
-    }
+
 }

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -48,9 +49,14 @@ class AllQuotesFragment : Fragment() {
         quoteAdapter = QuoteAdapter(emptyList())
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
-                findNavController().navigate(
-                    AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(quote.authorName)
-                )
+                quote.authorName?.let { authorName ->
+                    findNavController().navigate(
+                        AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(authorName)
+                    )
+                } ?: run {
+                    // Zum Beispiel: eine Toast-Nachricht anzeigen
+                    Toast.makeText(context, "Autorname nicht verfügbar", Toast.LENGTH_SHORT).show()
+                }
             }
         })
 

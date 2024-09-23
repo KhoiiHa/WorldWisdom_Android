@@ -41,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:text="@{viewModel.userName}"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="User Name" /> <!-- Platzhaltertext für Designansicht -->
 
         </LinearLayout>
 
@@ -89,14 +90,16 @@
                 android:layout_height="wrap_content"
                 android:text="Quote of the Day"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="Quote of the Day" /> <!-- Platzhaltertext für Designansicht -->
 
             <TextView
                 android:id="@+id/affirmation_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@{viewModel.affirmationText}"  />
+                android:text="@{viewModel.affirmationText}"
+                tools:text="Your inspirational quote goes here." /> <!-- Platzhaltertext -->
 
             <TextView
                 android:id="@+id/affirmation_author"
@@ -104,7 +107,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="@{`- ` + viewModel.affirmationAuthor}"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="- Author Name" /> <!-- Platzhaltertext -->
 
         </LinearLayout>
 

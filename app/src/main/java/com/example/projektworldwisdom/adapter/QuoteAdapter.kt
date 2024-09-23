@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.adapter
 
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -38,22 +39,18 @@ class QuoteAdapter(private var quotes: List<Quote>) :
         val currentQuote = quotes[position]
 
         // Fehlerbehandlung für fehlenden Inhalt
-        if (currentQuote.content.isNullOrBlank()) {
-            holder.binding.quoteText.text = "Zitat nicht verfügbar"
-        } else {
-            holder.binding.quoteText.text = currentQuote.content
-        }
+        holder.binding.quoteText.text = currentQuote.content?.takeIf { it.isNotBlank() } ?: "Zitat nicht verfügbar"
 
-        if (currentQuote.authorName == null) {
-            holder.binding.quoteAuthor.text = "- Unbekannter Autor"
-        } else {
-            holder.binding.quoteAuthor.text = "- ${currentQuote.authorName}"
-        }
+        // Autorname mit Null-Sicherheitsprüfung
+        holder.binding.quoteAuthor.text = currentQuote.authorName?.let { "- $it" } ?: "- Unbekannter Autor"
 
         // Klick-Listener hinzufügen
         holder.itemView.setOnClickListener {
             listener?.onItemClick(currentQuote)
         }
+
+        // Optional: Log-Ausgabe
+        Log.d("QuoteAdapter", "Binding quote: ${currentQuote.content} by ${currentQuote.authorName}")
     }
 
     override fun getItemCount(): Int {

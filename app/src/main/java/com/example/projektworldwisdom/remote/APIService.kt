@@ -30,31 +30,31 @@ private val client = OkHttpClient.Builder()
 
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create(gson))
-    .baseUrl(BASE_URL)
+    .baseUrl("http://localhost/") // Basis-URL der Mock-API
     .client(client)
     .build()
 
 interface WorldWisdomApiService {
 
-    // Liefert eine Liste von 50 zufälligen Zitaten
-    // https://zenquotes.io/api/quotes?api_key=YOUR_KEY
+    // Liefert eine Liste von 50 zufälligen Zitaten (kein API-Key erforderlich)
+    //https://zenquotes.io/api/quotes
     @GET("quotes")
-    suspend fun getAllQuotes(@Query("api_key") apiKey: String = API_KEY): List<Quote>
+    suspend fun getAllQuotes(): List<Quote>
 
-    // Liefert das Zitat des Tages
-    // https://zenquotes.io/api/today?api_key=YOUR_KEY
+    // Liefert das Zitat des Tages (kein API-Key erforderlich)
+    //https://zenquotes.io/api/today
     @GET("today")
-    suspend fun getQuoteOfTheDay(@Query("api_key") apiKey: String = API_KEY): Quote
+    suspend fun getQuoteOfTheDay(): List<Quote>
 
-    // Liefert ein zufälliges Zitat
-    // https://zenquotes.io/api/random?api_key=YOUR_KEY
+    // Liefert ein zufälliges Zitat (kein API-Key erforderlich)
+    //https://zenquotes.io/api/random
     @GET("random")
-    suspend fun getRandomQuote(@Query("api_key") apiKey: String = API_KEY): Quote
+    suspend fun getRandomQuote(): Quote
 
-    // Liefert ein zufälliges inspirierendes Bild
-    // https://zenquotes.io/api/image?api_key=YOUR_KEY
+    // Liefert ein zufälliges inspirierendes Bild (kein API-Key erforderlich)
+    //https://zenquotes.io/api/image
     @GET("image")
-    suspend fun getRandomInspirationalImage(@Query("api_key") apiKey: String = API_KEY): Image
+    suspend fun getRandomInspirationalImage(): Image
 
     // Liefert eine Liste aller verfügbaren Autoren.
     // https://zenquotes.io/api/authors?api_key=YOUR_KEY

@@ -13,7 +13,7 @@ import com.example.projektworldwisdom.model.Note
 import com.example.projektworldwisdom.model.Quote
 
 
-@Database(entities = [Quote::class, Note::class, Author::class, Keyword::class], version = 1)
+@Database(entities = [Quote::class, Note::class, Author::class, Keyword::class], version = 4)
 abstract class QuoteDatabase : RoomDatabase() {
     abstract fun quoteDao(): QuoteDao
     abstract fun noteDao(): NoteDao

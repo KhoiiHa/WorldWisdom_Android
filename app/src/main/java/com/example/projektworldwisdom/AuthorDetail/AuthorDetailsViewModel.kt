@@ -42,7 +42,7 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
             _isLoading.postValue(true)
             try {
                 // Versuche, die Liste aller Autoren vom Repository abzurufen
-                val allAuthors: List<Author> = repository.getAuthors()
+                val allAuthors: List<Author> = repository.getAllAuthors()
                 val apiAuthor = allAuthors.firstOrNull { it.tag == authorSlug }
 
                 if (apiAuthor != null) {

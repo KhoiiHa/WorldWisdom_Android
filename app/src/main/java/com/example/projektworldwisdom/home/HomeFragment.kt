@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,12 +57,17 @@ class HomeFragment : Fragment() {
         // Klick-Listener für einzelne Zitate
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
-                findNavController().navigate(
-                    HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(quote.authorName)
-                )
+                val authorName = quote.authorName
+                if (authorName != null) {
+                    findNavController().navigate(
+                        HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorName)
+                    )
+                } else {
+                    // Behandlung, wenn authorName null ist
+                    Toast.makeText(context, "Autorname nicht verfügbar", Toast.LENGTH_SHORT).show()
+                }
             }
         })
-
     }
 
 
@@ -71,80 +77,83 @@ class HomeFragment : Fragment() {
         }
 
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
+            Log.d("Fragment", "Received quotes: $quotes")
             if (quotes.isNullOrEmpty()) {
                 Toast.makeText(requireContext(), "Keine Zitate gefunden.", Toast.LENGTH_SHORT).show()
             } else {
                 quoteAdapter.updateData(quotes)
+                Log.d("Fragment", "Updated adapter with quotes: $quotes")
             }
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                viewModel.clearError()
+                viewModel.clearError() // Fehler nach der Anzeige löschen
             }
         }
+
 
         viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
             if (quote != null) {
                 // Setze den Zitattext
                 binding.affirmationText.text = quote.content
 
-                // Verwende die Methode, um den Autor basierend auf dem Namen abzurufen
-                viewModel.getAuthorByName(quote.authorName).observe(viewLifecycleOwner) { authorName ->
-                    // Setze den Autorennamen in das Textfeld, falls er verfügbar ist
-                    binding.affirmationAuthor.text = if (!authorName.isNullOrEmpty()) {
-                        "- $authorName"
-                    } else {
-                        "- Unbekannter Autor"
+                // Hole den Autorennamen nur, wenn er nicht null oder leer ist
+                val authorName = quote.authorName
+                if (!authorName.isNullOrEmpty()) {
+                    viewModel.getAuthorByName(authorName).observe(viewLifecycleOwner) { author ->
+                        binding.affirmationAuthor.text = author ?: "- Unbekannter Autor"
                     }
+                } else {
+                    binding.affirmationAuthor.text = "- Unbekannter Autor"
                 }
             } else {
                 // Kein Zitat des Tages gefunden
                 binding.affirmationText.text = "Keine Zitate des Tages gefunden."
-                binding.affirmationAuthor.text = ""
+                binding.affirmationAuthor.text = "- Unbekannter Autor" // Konsistent bleiben
             }
         }
 
-        viewModel.keywords.observe(viewLifecycleOwner) { keywords ->
-            // Hier die Keywords in einer Spinner oder Dropdown-Liste anzeigen
-            // Beispiel:
-            val keywordList = keywords.map { it.keyword } // Assuming each Keyword has a 'keyword' property
-            // Update UI, um die Keywords darzustellen
-            // z.B. mit einem Spinner:
-            // binding.keywordSpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, keywordList)
-        }
+//        viewModel.keywords.observe(viewLifecycleOwner) { keywords ->
+//            // Hier die Keywords in einer Spinner oder Dropdown-Liste anzeigen
+//            // Beispiel:
+//            val keywordList = keywords.map { it.keyword } // Assuming each Keyword has a 'keyword' property
+//            // Update UI, um die Keywords darzustellen
+//            // z.B. mit einem Spinner:
+//            // binding.keywordSpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, keywordList)
+//        }
     }
 
     private fun setupClickListeners() {
-//        binding.filterSociety.setOnClickListener {
-//            viewModel.loadQuotesByKeyword("change")
-//        }
+        binding.filterSociety.setOnClickListener {
+            viewModel.loadQuotesByKeyword("Gesellschaft")
+        }
 
-//        binding.filterSuccess.setOnClickListener {
-//            viewModel.loadQuotesByKeyword("Death")
-//        }
+        binding.filterSuccess.setOnClickListener {
+            viewModel.loadQuotesByKeyword("Erfolg")
+        }
 
-//        binding.filterWork.setOnClickListener {
-//            viewModel.loadQuotesByKeyword("freedom")
-//        }
+        binding.filterWork.setOnClickListener {
+            viewModel.loadQuotesByKeyword("Arbeit")
+        }
 
-//        binding.filterWisdom.setOnClickListener {
-//            viewModel.loadQuotesByKeyword("Work")
-//        }
+        binding.filterWisdom.setOnClickListener {
+            viewModel.loadQuotesByKeyword("Weisheit")
+        }
 
-//        binding.filterGratitude.setOnClickListener {
-//            viewModel.loadQuotesByKeyword("gratitude")
-//        }
+        binding.filterGratitude.setOnClickListener {
+            viewModel.loadQuotesByKeyword("Dankbarkeit")
+        }
 
         // Klick-Listener für alle Zitate
         binding.filterAlle.setOnClickListener {
             viewModel.loadAllQuotesHome()
         }
 
-//        // Klick-Listener für Schlüsselwörter
-//        binding.loadKeywordsButton.setOnClickListener {
-//            viewModel.loadKeywords()
-//        }
+        // Optional: Klick-Listener für Schlüsselwörter
+        // binding.loadKeywordsButton.setOnClickListener {
+        //     viewModel.loadKeywords()
+        // }
     }
 }

@@ -34,11 +34,11 @@ interface QuoteDao {
     suspend fun getQuotesByAuthor(authorName: String): List<Quote>
 
     // Ruft alle Autoren aus der lokalen Datenbank ab
-    @Query("SELECT * FROM authors_table")
+    @Query("SELECT * FROM authors")
     suspend fun getAllAuthors(): List<Author>
 
     // Abrufen eines Autors nach Name (sichergestellt, dass das Feld korrekt ist)
-    @Query("SELECT * FROM authors_table WHERE name = :authorName")
+    @Query("SELECT * FROM authors WHERE name = :authorName LIMIT 1")
     suspend fun getAuthorByName(authorName: String): Author?
 
     // Abrufen von Zitaten eines bestimmten Autors aus der lokalen Datenbank
@@ -46,7 +46,7 @@ interface QuoteDao {
     suspend fun searchQuotesByAuthor(authorName: String): List<Quote>
 
     // Löschen aller Autoren aus der lokalen Datenbank
-    @Query("DELETE FROM authors_table")
+    @Query("DELETE FROM authors")
     suspend fun deleteAllAuthors()
 
     // Abrufen aller Zitate aus der lokalen Datenbank.

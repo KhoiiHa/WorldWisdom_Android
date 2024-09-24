@@ -45,16 +45,18 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
         }
     }
 
-    fun filterByKeyword(keyword: String) {
+    fun filterByKeyword(keywords: List<String>) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             _error.postValue(null) // Fehlerstatus zurücksetzen
 
             try {
-                val filteredQuotes = if (keyword == "All") {
+                val filteredQuotes = if (keywords.isEmpty()) {
+                    // Wenn die Liste leer ist, alle Zitate abrufen
                     repository.getAllQuotes()
                 } else {
-                    repository.getQuotesByKeyword(keyword)
+                    // Zitate anhand der angegebenen Schlüsselwörter abrufen
+                    repository.getQuotesByKeywords(keywords)
                 }
                 _quotes.value = filteredQuotes
             } catch (e: Exception) {

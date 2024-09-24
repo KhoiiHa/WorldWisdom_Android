@@ -14,7 +14,6 @@ class QuoteAdapter(private var quotes: List<Quote>) :
     inner class QuoteViewHolder(val binding: ItemQuoteBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-
     // Interface für den Klick-Listener
     interface OnItemClickListener {
         fun onItemClick(quote: Quote)
@@ -31,8 +30,6 @@ class QuoteAdapter(private var quotes: List<Quote>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
         val binding = ItemQuoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return QuoteViewHolder(binding)
-
-
     }
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
@@ -46,19 +43,20 @@ class QuoteAdapter(private var quotes: List<Quote>) :
 
         // Klick-Listener hinzufügen
         holder.itemView.setOnClickListener {
-            listener?.onItemClick(currentQuote)
+            listener?.onItemClick(currentQuote) // Übergebe das aktuelle Quote-Objekt
         }
 
-        // Optional: Log-Ausgabe
-        Log.d("QuoteAdapter", "Binding quote: ${currentQuote.content} by ${currentQuote.authorName}")
+        // Log-Ausgabe anpassen
+        Log.d("QuoteAdapter", "Quote bound: '${currentQuote.content ?: "Kein Zitat"}' by '${currentQuote.authorName ?: "Unbekannter Autor"}'")
     }
 
     override fun getItemCount(): Int {
         return quotes.size
     }
 
+    // Methode zum Aktualisieren der Daten und Benachrichtigen der Änderungen
     fun updateData(newQuotes: List<Quote>) {
         this.quotes = newQuotes
-        notifyDataSetChanged()
+        notifyDataSetChanged() // Informiere die RecyclerView über die Änderungen
     }
 }

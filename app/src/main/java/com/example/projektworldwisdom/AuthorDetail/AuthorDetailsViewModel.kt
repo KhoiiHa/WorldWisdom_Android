@@ -16,38 +16,44 @@ import java.io.IOException
 
 class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewModel() {
 
+    // LiveData für Autor-Details
     private val _authorDetails = MutableLiveData<Author?>()
     val authorDetails: LiveData<Author?> = _authorDetails
 
+    // LiveData für das aktuelle Zitat des Autors
     private val _authorQuote = MutableLiveData<Quote?>()
     val authorQuote: LiveData<Quote?> = _authorQuote
 
+    // LiveData für Ladezustände
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _isQuoteLoading = MutableLiveData<Boolean>(false)
     val isQuoteLoading: LiveData<Boolean> = _isQuoteLoading
 
+    // LiveData für Fehlernachrichten
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
+    // Löscht Fehlernachrichten
     fun clearError() {
         _error.postValue(null)
     }
 
+    // Setzt das initiale Zitat
+    fun setInitialQuote(quote: Quote) {
+        _authorQuote.postValue(quote)
+    }
 
-
+    // Lädt die Autorendetails anhand des Slugs
     fun loadAuthorDetails(authorSlug: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
+            Log.d("AuthorDetailsViewModel", "Loading author details for slug: $authorSlug") // Logging des Slugs
             try {
-                // Versuche, die Liste aller Autoren vom Repository abzurufen
-                val allAuthors: List<Author> = repository.getAllAuthors()
-                val apiAuthor = allAuthors.firstOrNull { it.tag == authorSlug }
-
-                if (apiAuthor != null) {
-                    _authorDetails.postValue(apiAuthor)
-                    loadRandomQuoteByAuthor(apiAuthor.name) // Lade ein Zitat, wenn der Autor gefunden wurde
+                val author = repository.getAuthorByName(authorSlug)
+                if (author != null) {
+                    _authorDetails.postValue(author)
                 } else {
                     _error.postValue("Autor nicht gefunden")
                 }
@@ -60,13 +66,13 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
         }
     }
 
-    fun loadRandomQuoteByAuthor(authorName: String) {
+    // Lädt ein neues Zitat desselben Autors
+    fun loadNewQuote() {
+        val authorName = _authorDetails.value?.name ?: return
         viewModelScope.launch {
             _isQuoteLoading.postValue(true)
             try {
-                // Versuche, die Zitate des Autors von der API abzurufen
                 val authorQuotes = repository.getQuotesByAuthor(authorName)
-
                 if (authorQuotes.isNotEmpty()) {
                     _authorQuote.postValue(authorQuotes.random())
                 } else {

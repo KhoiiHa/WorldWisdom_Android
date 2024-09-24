@@ -142,6 +142,7 @@ class QuoteRepository(
 
             Log.d("QuoteRepository", "API Response for author $authorName: $quotes")
 
+            // Überprüfen, ob die Liste der Zitate nicht leer ist
             if (quotes.isNotEmpty()) {
                 quotes // Rückgabe der gefundenen Zitate
             } else {
@@ -149,33 +150,25 @@ class QuoteRepository(
                 emptyList() // Rückgabe einer leeren Liste, wenn keine Zitate gefunden wurden
             }
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen der Zitate für Autor $authorName", e)
+            Log.e("QuoteRepository", "Error fetching quotes for author $authorName", e)
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
         }
     }
 
     suspend fun searchQuotesByAuthor(authorName: String): List<Quote> {
-        return try {
-            // Abrufen der Zitate eines bestimmten Autors von der Mock API
-            val quotes = MockApi.getQuotesByAuthor(authorName)
-            Log.d("QuoteRepository", "Fetched ${quotes.size} quotes for author '$authorName'")
-            quotes
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen der Zitate für den Autor '$authorName'", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
+        return getQuotesByAuthor(authorName) // Verwende die Funktion getQuotesByAuthor für Konsistenz
     }
 
 
-    suspend fun getQuotesByKeyword(keyword: String): List<Quote> {
+    suspend fun getQuotesByKeywords(keywords: List<String>): List<Quote> {
         return try {
-            // Abrufen der gefilterten Zitate von der Mock API mit einem einzelnen Keyword
-            val filteredQuotes = MockApi.filterQuotesByKeywords(listOf(keyword))
+            // Abrufen der gefilterten Zitate von der Mock API mit mehreren Keywords
+            val filteredQuotes = MockApi.filterQuotesByKeywords(keywords)
 
-            Log.d("QuoteRepository", "Filtered quotes by keyword '$keyword': $filteredQuotes")
+            Log.d("QuoteRepository", "Filtered quotes by keywords '$keywords': $filteredQuotes")
             filteredQuotes
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Filtern der Zitate nach dem Schlüsselwort '$keyword'", e)
+            Log.e("QuoteRepository", "Error filtering quotes by keywords '$keywords'", e)
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
         }
     }
@@ -196,10 +189,20 @@ class QuoteRepository(
         }
     }
 
-    // Ruft einen Autor anhand seines Namens ab
+    // Ruft einen Autor anhand seines Namens ab, zuerst von der MockAPI, dann aus der Datenbank
     suspend fun getAuthorByName(authorName: String): Author? {
         return try {
-            quoteDao.getAuthorByName(authorName) // Abfrage in der lokalen Datenbank
+            // Zuerst versuche, den Autor von der MockAPI abzurufen
+            val apiAuthor = MockApi.getAuthorByName(authorName)
+            if (apiAuthor != null) {
+                // Optional: Speichere den Autor in der Datenbank, wenn er von der API abgerufen wurde
+                quoteDao.insertAuthor(apiAuthor)
+                return apiAuthor // Gib den Autor von der API zurück
+            } else {
+                // Wenn der Autor nicht von der API abgerufen werden konnte, versuche es in der lokalen Datenbank
+                val author = quoteDao.getAuthorByName(authorName)
+                return author // Gib den Autor aus der lokalen DB zurück, wenn gefunden
+            }
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error fetching author by name", e)
             null // Rückgabe von null im Fehlerfall

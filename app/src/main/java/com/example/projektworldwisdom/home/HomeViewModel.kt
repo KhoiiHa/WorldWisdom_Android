@@ -2,7 +2,6 @@ package com.example.projektworldwisdom.home
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.repository.QuoteRepository
 import com.example.projektworldwisdom.model.Quote
@@ -39,20 +38,16 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         loadAllQuotesHome() // Initiales Laden aller Zitate
     }
 
-
     fun loadQuoteOfTheDay() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             clearError() // Fehlerstatus zurücksetzen
 
             try {
-                // Versuche, das Zitat des Tages von der API abzurufen
                 val quote = repository.getQuoteOfTheDay() ?: repository.getQuoteOfTheDayFromLocal()
                 _dailyAffirmation.postValue(quote)
             } catch (e: Exception) {
-                // Fange alle Fehler ab und setze die Fehlermeldung
                 _error.postValue("Fehler beim Laden des Zitats: ${e.message}")
-
                 _dailyAffirmation.postValue(null)
             } finally {
                 _isLoading.postValue(false) // Ladezustand zurücksetzen
@@ -61,88 +56,66 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
     }
 
     fun loadAllQuotesHome() {
-        // Starte einen neuen Coroutine-Block im ViewModelScope
         viewModelScope.launch {
-            // Setze den Ladeindikator auf true
             _isLoading.postValue(true)
             try {
-                // Versuche, alle Zitate aus dem Repository abzurufen
                 val allQuotes = repository.getAllQuotes()
+                Log.d("HomeViewModel", "Fetched quotes: $allQuotes")
 
-                // Log für die abgerufenen Zitate
-                Log.d("QuoteViewModel", "Fetched quotes: $allQuotes")
-
-                // Überprüfe, ob keine Zitate gefunden wurden
                 if (allQuotes.isEmpty()) {
-                    // Setze eine Fehlermeldung, wenn keine Zitate gefunden wurden
                     _error.postValue("Keine Zitate gefunden.")
                 } else {
-                    // Setze die abgerufenen Zitate in die LiveData
                     _quotes.postValue(allQuotes)
                 }
-            } catch (e: Exception) { // Fange alle Fehler ab (Netzwerk und API)
-                // Setze die Fehlermeldung für Fehler
+            } catch (e: Exception) {
                 _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
-                // Setze den Ladeindikator auf false
                 _isLoading.postValue(false)
             }
         }
     }
 
+    private fun handleQuotesResponse(quotes: List<Quote>, keyword: String) {
+        if (quotes.isEmpty()) {
+            _error.postValue("Keine Zitate für das Schlüsselwort '$keyword' gefunden.")
+        } else {
+            _quotes.postValue(quotes)
+            _error.postValue(null) // Fehlermeldung zurücksetzen
+        }
+    }
 
-    fun loadQuotesByKeyword(keyword: String) {
-        // Starte einen neuen Coroutine-Block im ViewModelScope
+    fun loadQuotesByKeywords(keywords: List<String>) {
         viewModelScope.launch {
-            // Setze den Ladeindikator auf true
-            _isLoading.postValue(true) // Ladeindikator starten
+            _isLoading.postValue(true)
             try {
-                // Versuche, Zitate nach dem angegebenen Schlüsselwort abzurufen
-                val quotes = repository.getQuotesByKeyword(keyword)
-                if (quotes.isEmpty()) {
-                    // Wenn keine Zitate gefunden werden, setze eine Fehlermeldung
-                    _error.postValue("Keine Zitate für das Schlüsselwort '$keyword' gefunden.")
-                } else {
-                    // Wenn Zitate gefunden werden, setze die Liste der Zitate
-                    _quotes.postValue(quotes)
-                    _error.postValue(null) // Fehlermeldung zurücksetzen
-                }
-            } catch (e: IOException) {
-                // Fange Netzwerkfehler ab und setze die Fehlermeldung
-                _error.postValue("Netzwerkfehler: ${e.message}")
-            } catch (e: HttpException) {
-                // Fange API-spezifische Fehler ab und setze die Fehlermeldung
-                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
+                // Abrufen der Zitate von der Repository unter Verwendung der Liste von Keywords
+                val quotes = repository.getQuotesByKeywords(keywords)
+                // Übergabe der Zitate und der Keywords an die Funktion
+                handleQuotesResponse(quotes, keywords.joinToString(", ")) // Verwendung der Keywords als String
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
-                // Setze den Ladeindikator auf false
-                _isLoading.postValue(false) // Ladeindikator stoppen
+                _isLoading.postValue(false)
             }
         }
     }
 
-
     fun searchByAuthor(authorName: String) {
         viewModelScope.launch {
-            _isLoading.postValue(true) // Ladeindikator starten
-            clearError() // Fehlerstatus zurücksetzen
+            _isLoading.postValue(true)
+            clearError()
 
             if (authorName.isBlank()) {
-                _error.postValue("Bitte geben Sie einen gültigen Autorennamen ein.") // Validierung
-                _isLoading.postValue(false) // Ladeindikator stoppen
+                _error.postValue("Bitte geben Sie einen gültigen Autorennamen ein.")
+                _isLoading.postValue(false)
                 return@launch
             }
 
             try {
                 val quotes = repository.searchQuotesByAuthor(authorName)
                 if (quotes.isEmpty()) {
-                    // Fallback: Hole Zitate des Autors aus der lokalen Datenbank
                     val localQuotes = repository.getQuotesByAuthor(authorName)
-                    if (localQuotes.isNotEmpty()) {
-                        _quotes.postValue(localQuotes)
-                        _error.postValue(null) // Fehlermeldung zurücksetzen
-                    } else {
-                        _error.postValue("Keine Zitate für den Autor '$authorName' gefunden.")
-                    }
+                    handleQuotesResponse(localQuotes, authorName)
                 } else {
                     _quotes.postValue(quotes)
                     _error.postValue(null) // Fehlermeldung zurücksetzen
@@ -150,34 +123,30 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Laden der Zitate für den Autor: ${e.message}")
             } finally {
-                _isLoading.postValue(false) // Ladeindikator stoppen
+                _isLoading.postValue(false)
             }
         }
     }
 
     fun searchByKeyword(keyword: String) {
         viewModelScope.launch {
-            _isLoading.postValue(true) // Ladeindikator starten
-            clearError() // Fehlerstatus zurücksetzen
+            _isLoading.postValue(true)
+            clearError()
 
             if (keyword.isBlank()) {
-                _error.postValue("Bitte geben Sie ein gültiges Schlüsselwort ein.") // Validierung
-                _isLoading.postValue(false) // Ladeindikator stoppen
+                _error.postValue("Bitte geben Sie ein gültiges Schlüsselwort ein.")
+                _isLoading.postValue(false)
                 return@launch
             }
 
             try {
-                val quotes = repository.getQuotesByKeyword(keyword)
-                if (quotes.isEmpty()) {
-                    _error.postValue("Keine Zitate für das Schlüsselwort '$keyword' gefunden.")
-                } else {
-                    _quotes.postValue(quotes)
-                    _error.postValue(null) // Fehlermeldung zurücksetzen
-                }
+                // Hier wird das Keyword in eine Liste umgewandelt, um es der Funktion zu übergeben
+                val quotes = repository.getQuotesByKeywords(listOf(keyword))
+                handleQuotesResponse(quotes, keyword) // Verwende nur die Zitate, ohne das Keyword zu übergeben
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Laden der Zitate für das Schlüsselwort: ${e.message}")
             } finally {
-                _isLoading.postValue(false) // Ladeindikator stoppen
+                _isLoading.postValue(false)
             }
         }
     }
@@ -186,21 +155,19 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         val authorNameLiveData = MutableLiveData<String?>()
 
         if (authorName.isBlank()) {
-            authorNameLiveData.postValue(null) // Setze auf null, wenn der Autorname ungültig ist
+            authorNameLiveData.postValue(null)
             return authorNameLiveData
         }
 
         viewModelScope.launch {
             try {
-                val author = repository.getAuthorByName(authorName) // Autor abrufen
-                authorNameLiveData.postValue(author?.name) // Namen setzen oder null, wenn nicht gefunden
+                val author = repository.getAuthorByName(authorName)
+                authorNameLiveData.postValue(author?.name)
             } catch (e: Exception) {
-                authorNameLiveData.postValue(null) // Setze auf null bei einem Fehler
+                authorNameLiveData.postValue(null)
                 Log.e("HomeViewModel", "Fehler beim Abrufen des Autors: ${e.message}")
             }
         }
         return authorNameLiveData
     }
-
-
 }

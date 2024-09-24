@@ -51,7 +51,7 @@ class AllQuotesFragment : Fragment() {
             override fun onItemClick(quote: Quote) {
                 quote.authorName?.let { authorName ->
                     findNavController().navigate(
-                        AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(authorName)
+                        AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(authorName, quote)
                     )
                 } ?: run {
                     // Zum Beispiel: eine Toast-Nachricht anzeigen
@@ -84,7 +84,14 @@ class AllQuotesFragment : Fragment() {
 
             // OnClickListener hinzufügen, um Filter anzuwenden
             textView.setOnClickListener {
-                viewModel.filterByKeyword(option)
+                // Überprüfen, ob die Option "All" ist
+                if (option == "All") {
+                    // Alle Zitate abrufen (keine Filterung)
+                    viewModel.filterByKeyword(emptyList()) // Leere Liste für alle Zitate
+                } else {
+                    // Eine Liste mit der aktuellen Option erstellen
+                    viewModel.filterByKeyword(listOf(option))
+                }
             }
 
             binding.filterContainer.addView(textView)

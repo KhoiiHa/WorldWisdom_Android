@@ -6,6 +6,7 @@ plugins {
     id("com.google.gms.google-services")
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -69,6 +70,8 @@ dependencies {
     //Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
     //Room
     implementation("androidx.room:room-runtime:2.6.1")

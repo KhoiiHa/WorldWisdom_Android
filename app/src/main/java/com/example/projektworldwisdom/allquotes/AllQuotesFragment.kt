@@ -54,7 +54,6 @@ class AllQuotesFragment : Fragment() {
                         AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(authorName, quote)
                     )
                 } ?: run {
-                    // Zum Beispiel: eine Toast-Nachricht anzeigen
                     Toast.makeText(context, "Autorname nicht verfügbar", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -70,52 +69,58 @@ class AllQuotesFragment : Fragment() {
             if (quotes != null) {
                 quoteAdapter.updateData(quotes)
             } else {
-                // Fehler anzeigen
                 Snackbar.make(view, "Fehler beim Laden der Zitate", Snackbar.LENGTH_SHORT).show()
             }
         }
 
-        // Filteroptionen hinzufügen
-        val filterOptions = listOf("All", "Success", "Work", "Love", "Life")
-        for (option in filterOptions) {
-            val textView = TextView(requireContext())
-            textView.text = option
-            textView.setPadding(16, 8, 16, 8)
-
-            // OnClickListener hinzufügen, um Filter anzuwenden
-            textView.setOnClickListener {
-                // Überprüfen, ob die Option "All" ist
-                if (option == "All") {
-                    // Alle Zitate abrufen (keine Filterung)
-                    viewModel.filterByKeyword(emptyList()) // Leere Liste für alle Zitate
-                } else {
-                    // Eine Liste mit der aktuellen Option erstellen
-                    viewModel.filterByKeyword(listOf(option))
-                }
-            }
-
-            binding.filterContainer.addView(textView)
+        // Beobachtung der Suchergebnisse
+        viewModel.searchKeyword.observe(viewLifecycleOwner) { _ ->
+            // Suchergebnisse werden automatisch durch updateFilteredQuotes im ViewModel aktualisiert
         }
 
-        // Suchfunktion verknüpfen (außerhalb der Schleife)
+        // Beobachtung der verfügbaren Schlüsselwörter
+        viewModel.availableKeywords.observe(viewLifecycleOwner) { keywords ->
+            binding.filterContainer.removeAllViews() // Vorherige Filter-Views entfernen
+
+            // Überprüfen, ob keywords nicht null ist
+            keywords?.let {
+                it.forEach { keyword ->
+                    val textView = TextView(requireContext()).apply {
+                        text = keyword
+                        setPadding(16, 8, 16, 8)
+
+                        // OnClickListener hinzufügen, um Filter anzuwenden
+                        setOnClickListener {
+                            val currentSelectedKeywords = viewModel.selectedKeywords.value?.toMutableList() ?: mutableListOf()
+
+                            if (currentSelectedKeywords.contains(keyword)) {
+                                currentSelectedKeywords.remove(keyword) // Entferne das Keyword, wenn es bereits ausgewählt ist
+                            } else {
+                                currentSelectedKeywords.add(keyword) // Füge das Keyword hinzu, wenn es nicht ausgewählt ist
+                            }
+
+                            viewModel.filterByKeyword(currentSelectedKeywords) // Aktualisiere die ausgewählten Schlüsselwörter
+                        }
+                    }
+                    binding.filterContainer.addView(textView)
+                }
+            } ?: run {
+                Snackbar.make(view, "Keine Schlüsselwörter verfügbar", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        // Suchfunktion verknüpfen
         binding.searchEditText.addTextChangedListener { editable ->
             viewModel.searchByAuthor(editable.toString())
         }
 
-        // Ladeanzeige und Fehlerbehandlung (außerhalb der Schleife)
+        // Ladeanzeige und Fehlerbehandlung
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                // Ladeanzeige anzeigen (z. B. ProgressBar)
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                // Ladeanzeige ausblenden
-                binding.progressBar.visibility = View.GONE
-            }
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             if (errorMessage != null) {
-                // Fehlermeldung anzeigen (z. B. Snackbar oder Toast)
                 Snackbar.make(view, errorMessage, Snackbar.LENGTH_SHORT).show()
             }
         }

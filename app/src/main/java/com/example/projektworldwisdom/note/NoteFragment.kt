@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.Note
+package com.example.projektworldwisdom.note
 
 import android.os.Bundle
 import android.view.LayoutInflater

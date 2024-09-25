@@ -18,5 +18,7 @@ data class Quote(
     val authorImageUrl: String? = null, // Bild-URL des Autors (optional)
     val isQuoteOfTheDay: Boolean = false, // Zitat des Tages
     val isFavorite: Boolean = false, // Favoriten-Zitat
-    val keywords: List<String> = emptyList() // Neue Liste für Keywords
+    val isSaved: Boolean = false, // Neues Feld, um zu speichern, ob das Zitat gespeichert ist
+    val keywords: List<String> = emptyList(), // Neue Liste für Keywords
+    val comments: String? = null
 ) : Parcelable

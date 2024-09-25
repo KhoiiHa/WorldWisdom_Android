@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.Note
+package com.example.projektworldwisdom.note
 
 import android.util.Log
 import androidx.lifecycle.LiveData

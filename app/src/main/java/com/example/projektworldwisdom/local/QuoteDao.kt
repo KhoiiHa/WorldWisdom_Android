@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Note
@@ -88,5 +89,12 @@ interface QuoteDao {
     // Löschen eines bestimmten Autors aus der lokalen Datenbank.
     @Delete
     suspend fun deleteAuthor(author: Author)
+
+    @Update
+    suspend fun updateQuote(quote: Quote)
+
+    // Abrufen aller Favoriten-Zitate aus der lokalen Datenbank.
+    @Query("SELECT * FROM quotes WHERE isSaved = 1")
+    suspend fun getAllSavedQuotes(): List<Quote>
 }
 

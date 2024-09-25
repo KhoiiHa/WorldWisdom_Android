@@ -2,8 +2,10 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/homeFragment"
+    >
 
+    <!-- HomeFragment -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.projektworldwisdom.home.HomeFragment"
@@ -14,8 +16,12 @@
         <action
             android:id="@+id/action_homeFragment_to_allQuotesFragment"
             app:destination="@id/allQuotesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_collectionsFragment"
+            app:destination="@id/collectionsFragment" />
     </fragment>
 
+    <!-- LoginFragment -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.projektworldwisdom.login.LoginFragment"
@@ -28,6 +34,7 @@
             app:destination="@id/homeFragment" />
     </fragment>
 
+    <!-- RegisterFragment -->
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.projektworldwisdom.register.RegisterFragment"
@@ -37,6 +44,7 @@
             app:destination="@id/homeFragment" />
     </fragment>
 
+    <!-- AuthorDetailsFragment -->
     <fragment
         android:id="@+id/authorDetailsFragment"
         android:name="com.example.projektworldwisdom.authordetail.AuthorDetailsFragment"
@@ -52,6 +60,7 @@
             app:destination="@id/allQuotesFragment" />
     </fragment>
 
+    <!-- AllQuotesFragment -->
     <fragment
         android:id="@+id/allQuotesFragment"
         android:name="com.example.projektworldwisdom.allquotes.AllQuotesFragment"
@@ -67,4 +76,21 @@
             android:id="@+id/action_allQuotesFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+
+    <!-- NoteFragment -->
+
+    <!-- CollectionsFragment -->
+    <fragment
+        android:id="@+id/collectionsFragment"
+        android:name="com.example.projektworldwisdom.collections.CollectionsFragment"
+        android:label="CollectionsFragment">
+        <action
+            android:id="@+id/action_collectionsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/noteFragment"
+        android:name="com.example.projektworldwisdom.note.NoteFragment"
+        android:label="NoteFragment" />
+
 </navigation>

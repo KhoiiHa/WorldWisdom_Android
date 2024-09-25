@@ -18,7 +18,6 @@ class QuoteRepository(
 ) {
 
 
-
     suspend fun getAllQuotes(): List<Quote> {
         return try {
             val quotes = MockApi.getAllQuotes()
@@ -59,7 +58,10 @@ class QuoteRepository(
                 insertQuote(quote) // Gültiges Zitat in die Datenbank einfügen
                 quote
             } else {
-                Log.e("QuoteRepository", "No quotes received from API") // Log, wenn keine Zitate zurückgegeben werden
+                Log.e(
+                    "QuoteRepository",
+                    "No quotes received from API"
+                ) // Log, wenn keine Zitate zurückgegeben werden
                 null // Falls keine Zitate zurückgegeben werden
             }
         } catch (e: Exception) {
@@ -74,6 +76,20 @@ class QuoteRepository(
         }
     }
 
+    // Neue Funktion, um alle verfügbaren Schlüsselwörter abzurufen
+    suspend fun getAvailableKeywords(): List<String> {
+        return try {
+            // Angenommen, die MockApi hat eine Methode getAvailableKeywords()
+            val keywords = MockApi.getAvailableKeywords() // Beispiel für den API-Aufruf
+            Log.d("QuoteRepository", "Available keywords: $keywords")
+            keywords
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error loading available keywords", e)
+            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
+    }
+
+
     // Liefert eine Liste aller verfügbaren Autoren
     suspend fun getAllAuthors(): List<Author> {
         return try {
@@ -87,7 +103,10 @@ class QuoteRepository(
                 Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
                 authors
             } else {
-                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
+                Log.e(
+                    "AuthorRepository",
+                    "No authors received from API"
+                ) // Log, wenn keine Autoren zurückgegeben werden
                 emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
             }
         } catch (e: Exception) {
@@ -109,11 +128,18 @@ class QuoteRepository(
                 Log.d("QuoteRepository", "Received image URL: $imageUrl") // Log für das Bild
                 imageUrl
             } else {
-                Log.e("QuoteRepository", "No image URL received from API") // Log, wenn keine URL zurückgegeben wird
+                Log.e(
+                    "QuoteRepository",
+                    "No image URL received from API"
+                ) // Log, wenn keine URL zurückgegeben wird
                 null // Falls keine URL zurückgegeben wird
             }
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen des zufälligen inspirierenden Bildes von der API", e)
+            Log.e(
+                "QuoteRepository",
+                "Fehler beim Abrufen des zufälligen inspirierenden Bildes von der API",
+                e
+            )
             // Fallback kann hier eine lokale Bild-URL oder eine Standard-URL sein
             val localImageUrl = "default_image_url" // Hier eine geeignete Standard-URL setzen
             Log.d("QuoteRepository", "Returning default image URL: $localImageUrl")
@@ -176,8 +202,12 @@ class QuoteRepository(
     // Generiert ein Zitatbild basierend auf dem angegebenen Schlüsselwort
     suspend fun getImageByKeyword(keyword: String): Image? {
         return try {
-            val image = MockApi.getImageByKeyword(keyword) // Bild basierend auf dem Schlüsselwort von der MockAPI abrufen
-            Log.d("QuoteRepository", "Mock API Response for image: $image") // Log für die MockAPI-Antwort
+            val image =
+                MockApi.getImageByKeyword(keyword) // Bild basierend auf dem Schlüsselwort von der MockAPI abrufen
+            Log.d(
+                "QuoteRepository",
+                "Mock API Response for image: $image"
+            ) // Log für die MockAPI-Antwort
             image
         } catch (e: Exception) {
             Log.e(
@@ -210,15 +240,41 @@ class QuoteRepository(
     }
 
 
+    // Funktion zum Abrufen der gespeicherten Zitate
+    suspend fun getSavedQuotes(): List<Quote> {
+        return try {
+            // Ruft die gespeicherten Zitate aus der Datenbank ab
+            quoteDao.getAllSavedQuotes()
+        } catch (e: Exception) {
+            // Fehlerhandling, wenn das Abrufen fehlschlägt
+            e.printStackTrace()
+            emptyList() // Gibt eine leere Liste zurück, wenn ein Fehler auftritt
+        }
+    }
+
+
     // Liefert eine Liste aller verfügbaren Autoren von der API.
     suspend fun fetchAuthors(): List<Author> {
         return try {
             val authors = apiService.getAuthors() // Autoren von der API abrufen
-            Log.d("QuoteRepository", "API Response for authors: $authors") // Log für die API-Antwort
+            Log.d(
+                "QuoteRepository",
+                "API Response for authors: $authors"
+            ) // Log für die API-Antwort
             authors
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching authors, fallback to empty list: ${e.message}", e)
+            Log.e(
+                "QuoteRepository",
+                "Error fetching authors, fallback to empty list: ${e.message}",
+                e
+            )
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
+    }
+
+    suspend fun updateQuote(quote: Quote) {
+        withContext(Dispatchers.IO) {
+            quoteDao.updateQuote(quote)
         }
     }
 
@@ -227,14 +283,24 @@ class QuoteRepository(
         return if (!author.name.isNullOrBlank()) {
             try {
                 quoteDao.insertAuthor(author) // Autor in die Datenbank einfügen
-                Log.d("QuoteRepository", "Author added: $author") // Log für den erfolgreich hinzugefügten Autor
+                Log.d(
+                    "QuoteRepository",
+                    "Author added: $author"
+                ) // Log für den erfolgreich hinzugefügten Autor
                 true // Erfolgreiches Einfügen
             } catch (e: Exception) {
-                Log.e("QuoteRepository", "Error inserting author: ${e.message}", e) // Fehlermeldung mit spezifischem Fehler
+                Log.e(
+                    "QuoteRepository",
+                    "Error inserting author: ${e.message}",
+                    e
+                ) // Fehlermeldung mit spezifischem Fehler
                 false // Fehler beim Einfügen
             }
         } else {
-            Log.e("QuoteRepository", "Author name is null or blank, not inserting.") // Log für ungültigen Autor
+            Log.e(
+                "QuoteRepository",
+                "Author name is null or blank, not inserting."
+            ) // Log für ungültigen Autor
             false // Ungültiger Autor
         }
     }
@@ -245,14 +311,24 @@ class QuoteRepository(
         return if (!quote.content.isNullOrBlank()) {
             try {
                 quoteDao.insertQuote(quote) // Zitat in die Datenbank einfügen
-                Log.d("QuoteRepository", "Quote inserted successfully: ${quote.content}") // Log für erfolgreichen Insert
+                Log.d(
+                    "QuoteRepository",
+                    "Quote inserted successfully: ${quote.content}"
+                ) // Log für erfolgreichen Insert
                 true // Erfolgreiches Einfügen
             } catch (e: Exception) {
-                Log.e("QuoteRepository", "Error inserting quote: ${e.message}", e) // Fehlermeldung mit spezifischem Fehler
+                Log.e(
+                    "QuoteRepository",
+                    "Error inserting quote: ${e.message}",
+                    e
+                ) // Fehlermeldung mit spezifischem Fehler
                 false // Fehler beim Einfügen
             }
         } else {
-            Log.e("QuoteRepository", "Quote content is null or blank, not inserting.") // Log für leeres Zitat
+            Log.e(
+                "QuoteRepository",
+                "Quote content is null or blank, not inserting."
+            ) // Log für leeres Zitat
             false // Ungültiges Zitat
         }
     }
@@ -263,18 +339,29 @@ class QuoteRepository(
         return withContext(Dispatchers.IO) {
             try {
                 // Filtere ungültige Zitate heraus (z.B. solche ohne Inhalt)
-                val validQuotes = quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
+                val validQuotes =
+                    quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
 
                 if (validQuotes.isNotEmpty()) {
                     quoteDao.insertQuotes(validQuotes) // Gültige Zitate in die Datenbank einfügen
-                    Log.d("QuoteRepository", "Inserted ${validQuotes.size} valid quotes.") // Log für erfolgreiche Einfügung
+                    Log.d(
+                        "QuoteRepository",
+                        "Inserted ${validQuotes.size} valid quotes."
+                    ) // Log für erfolgreiche Einfügung
                     validQuotes.size // Rückgabe der Anzahl erfolgreich eingefügter Zitate
                 } else {
-                    Log.e("QuoteRepository", "No valid quotes to insert.") // Log, wenn keine gültigen Zitate vorhanden sind
+                    Log.e(
+                        "QuoteRepository",
+                        "No valid quotes to insert."
+                    ) // Log, wenn keine gültigen Zitate vorhanden sind
                     0 // Keine gültigen Zitate, Rückgabe 0
                 }
             } catch (e: Exception) {
-                Log.e("QuoteRepository", "Error inserting quotes: ${e.message}", e) // Fehlermeldung mit spezifischem Fehler
+                Log.e(
+                    "QuoteRepository",
+                    "Error inserting quotes: ${e.message}",
+                    e
+                ) // Fehlermeldung mit spezifischem Fehler
                 0 // Rückgabe 0 im Fehlerfall
             }
         }
@@ -286,18 +373,29 @@ class QuoteRepository(
         return withContext(Dispatchers.IO) {
             try {
                 // Filtere ungültige Autoren heraus (z.B. solche ohne Namen)
-                val validAuthors = authors.filter { !it.name.isNullOrBlank() } // Prüfen auf null und leer
+                val validAuthors =
+                    authors.filter { !it.name.isNullOrBlank() } // Prüfen auf null und leer
 
                 if (validAuthors.isNotEmpty()) {
                     quoteDao.insertAuthors(validAuthors) // Gültige Autoren in die Datenbank einfügen
-                    Log.d("QuoteRepository", "Inserted ${validAuthors.size} valid authors.") // Log für erfolgreiche Einfügung
+                    Log.d(
+                        "QuoteRepository",
+                        "Inserted ${validAuthors.size} valid authors."
+                    ) // Log für erfolgreiche Einfügung
                     validAuthors.size // Rückgabe der Anzahl erfolgreich eingefügter Autoren
                 } else {
-                    Log.e("QuoteRepository", "No valid authors to insert.") // Log, wenn keine gültigen Autoren vorhanden sind
+                    Log.e(
+                        "QuoteRepository",
+                        "No valid authors to insert."
+                    ) // Log, wenn keine gültigen Autoren vorhanden sind
                     0 // Keine gültigen Autoren, Rückgabe 0
                 }
             } catch (e: Exception) {
-                Log.e("QuoteRepository", "Error inserting authors: ${e.message}", e) // Fehlermeldung mit spezifischem Fehler
+                Log.e(
+                    "QuoteRepository",
+                    "Error inserting authors: ${e.message}",
+                    e
+                ) // Fehlermeldung mit spezifischem Fehler
                 0 // Rückgabe 0 im Fehlerfall
             }
         }
@@ -324,11 +422,18 @@ class QuoteRepository(
         return try {
             val quote = quoteDao.getQuoteOfTheDay()
             if (quote == null) {
-                Log.w("QuoteRepository", "No quote of the day found in local database.") // Warnung, wenn kein Zitat gefunden wird
+                Log.w(
+                    "QuoteRepository",
+                    "No quote of the day found in local database."
+                ) // Warnung, wenn kein Zitat gefunden wird
             }
             quote
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error getting quote of the day", e) // Fehlermeldung im Fehlerfall
+            Log.e(
+                "QuoteRepository",
+                "Error getting quote of the day",
+                e
+            ) // Fehlermeldung im Fehlerfall
             null
         }
     }
@@ -338,7 +443,10 @@ class QuoteRepository(
         return try {
             val quotes = quoteDao.getAllQuotes() // Alle Zitate abrufen
             if (quotes.isEmpty()) {
-                Log.w("QuoteRepository", "No quotes found in local database.") // Warnung, wenn keine Zitate gefunden werden
+                Log.w(
+                    "QuoteRepository",
+                    "No quotes found in local database."
+                ) // Warnung, wenn keine Zitate gefunden werden
             }
             quotes // Rückgabe der gefundenen Zitate
         } catch (e: Exception) {
@@ -351,7 +459,10 @@ class QuoteRepository(
     suspend fun deleteQuote(quote: Quote) {
         try {
             quoteDao.deleteQuote(quote) // Zitat aus der Datenbank löschen
-            Log.d("QuoteRepository", "Quote deleted successfully: ${quote.content}") // Log für erfolgreichen Löschvorgang
+            Log.d(
+                "QuoteRepository",
+                "Quote deleted successfully: ${quote.content}"
+            ) // Log für erfolgreichen Löschvorgang
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error deleting quote", e) // Fehlermeldung im Fehlerfall
         }
@@ -362,9 +473,15 @@ class QuoteRepository(
         return try {
             val quote = quoteDao.getQuoteById(id) // Zitat nach ID abrufen
             if (quote != null) {
-                Log.d("QuoteRepository", "Quote retrieved successfully: ${quote.content}") // Log für erfolgreiches Abrufen
+                Log.d(
+                    "QuoteRepository",
+                    "Quote retrieved successfully: ${quote.content}"
+                ) // Log für erfolgreiches Abrufen
             } else {
-                Log.e("QuoteRepository", "No quote found for id: $id") // Log, wenn kein Zitat gefunden wurde
+                Log.e(
+                    "QuoteRepository",
+                    "No quote found for id: $id"
+                ) // Log, wenn kein Zitat gefunden wurde
             }
             quote // Rückgabe des Zitats oder null
         } catch (e: Exception) {
@@ -377,7 +494,10 @@ class QuoteRepository(
     suspend fun deleteAuthor(author: Author) {
         try {
             val rowsDeleted = quoteDao.deleteAuthor(author) // Den Rückgabewert speichern
-            Log.d("QuoteRepository", "Author deleted successfully: ${author.name}, Rows deleted: $rowsDeleted") // Log für den Löschvorgang
+            Log.d(
+                "QuoteRepository",
+                "Author deleted successfully: ${author.name}, Rows deleted: $rowsDeleted"
+            ) // Log für den Löschvorgang
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error deleting author", e) // Fehlermeldung im Fehlerfall
         }
@@ -387,7 +507,10 @@ class QuoteRepository(
     suspend fun deleteAllAuthors() {
         try {
             val rowsDeleted = quoteDao.deleteAllAuthors() // Den Rückgabewert speichern
-            Log.d("QuoteRepository", "All authors deleted successfully, Rows deleted: $rowsDeleted") // Log für den Löschvorgang
+            Log.d(
+                "QuoteRepository",
+                "All authors deleted successfully, Rows deleted: $rowsDeleted"
+            ) // Log für den Löschvorgang
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error deleting all authors", e) // Fehlermeldung im Fehlerfall
         }

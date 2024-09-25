@@ -55,6 +55,7 @@ object MockApi {
             Quote(content = "Die Gesellschaft wird nicht durch die Anzahl der Reichen gemessen, sondern durch das Wohl der Schwachen.", authorName = "Martin Luther King Jr.", keywords = listOf("Gesellschaft", "Wohl")),
             Quote(content = "Erfolg ist das Ergebnis harter Arbeit, Ausdauer und der Fähigkeit, Rückschläge zu überwinden.", authorName = "Henry Ford", keywords = listOf("Erfolg", "Ausdauer")),
             Quote(content = "Weisheit beginnt mit Staunen.", authorName = "Sokrates", keywords = listOf("Weisheit", "Staunen"))
+
         )
     }
 
@@ -117,6 +118,15 @@ object MockApi {
             }
         }
     }
+
+
+    // Liefert eine Liste aller verfügbaren Schlüsselwörter
+    fun getAvailableKeywords(): List<String> {
+        val allQuotes = getAllQuotes()
+        return allQuotes.flatMap { it.keywords }.distinct()
+    }
+
+
     // Generiert ein Zitatbild basierend auf dem angegebenen Schlüsselwort
     fun getImageByKeyword(keyword: String): Image? {
         return when (keyword.lowercase()) {

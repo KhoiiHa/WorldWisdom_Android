@@ -14,15 +14,12 @@ class QuoteAdapter(private var quotes: List<Quote>) :
     inner class QuoteViewHolder(val binding: ItemQuoteBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    // Interface für den Klick-Listener
     interface OnItemClickListener {
         fun onItemClick(quote: Quote)
     }
 
-    // Variable zum Speichern des Klick-Listeners
     private var listener: OnItemClickListener? = null
 
-    // Methode zum Setzen des Klick-Listeners
     fun setOnItemClickListener(listener: OnItemClickListener) {
         this.listener = listener
     }
@@ -35,28 +32,18 @@ class QuoteAdapter(private var quotes: List<Quote>) :
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
         val currentQuote = quotes[position]
 
-        // Fehlerbehandlung für fehlenden Inhalt
-        holder.binding.quoteText.text = currentQuote.content?.takeIf { it.isNotBlank() } ?: "Zitat nicht verfügbar"
-
-        // Autorname mit Null-Sicherheitsprüfung
+        holder.binding.quoteTextView.text = currentQuote.content?.takeIf { it.isNotBlank() } ?: "Zitat nicht verfügbar"
         holder.binding.quoteAuthor.text = currentQuote.authorName?.let { "- $it" } ?: "- Unbekannter Autor"
 
-        // Klick-Listener hinzufügen
         holder.itemView.setOnClickListener {
-            listener?.onItemClick(currentQuote) // Übergebe das aktuelle Quote-Objekt
+            listener?.onItemClick(currentQuote)
         }
-
-        // Log-Ausgabe anpassen
-        Log.d("QuoteAdapter", "Quote bound: '${currentQuote.content ?: "Kein Zitat"}' by '${currentQuote.authorName ?: "Unbekannter Autor"}'")
     }
 
-    override fun getItemCount(): Int {
-        return quotes.size
-    }
+    override fun getItemCount(): Int = quotes.size
 
-    // Methode zum Aktualisieren der Daten und Benachrichtigen der Änderungen
     fun updateData(newQuotes: List<Quote>) {
         this.quotes = newQuotes
-        notifyDataSetChanged() // Informiere die RecyclerView über die Änderungen
+        notifyDataSetChanged()
     }
 }

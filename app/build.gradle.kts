@@ -54,15 +54,15 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
+    implementation("com.google.android.material:material:1.9.0")
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.5")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.5")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
+
+    // Test-Abhängigkeiten
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

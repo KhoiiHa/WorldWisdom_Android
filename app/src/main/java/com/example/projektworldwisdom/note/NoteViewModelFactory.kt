@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.Note
+package com.example.projektworldwisdom.note
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

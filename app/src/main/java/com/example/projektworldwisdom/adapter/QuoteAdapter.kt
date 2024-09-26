@@ -1,18 +1,19 @@
 package com.example.projektworldwisdom.adapter
 
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.databinding.ItemQuoteBinding
+import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Quote
 
-class QuoteAdapter(private var quotes: List<Quote>) :
-    RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
+class QuoteAdapter(
+    private var quotes: List<Quote> = emptyList(),
+    private var authors: List<Author> = emptyList()
+) : RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
 
-    inner class QuoteViewHolder(val binding: ItemQuoteBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    inner class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
 
     interface OnItemClickListener {
         fun onItemClick(quote: Quote)
@@ -32,9 +33,20 @@ class QuoteAdapter(private var quotes: List<Quote>) :
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
         val currentQuote = quotes[position]
 
-        holder.binding.quoteTextView.text = currentQuote.content?.takeIf { it.isNotBlank() } ?: "Zitat nicht verfügbar"
-        holder.binding.quoteAuthor.text = currentQuote.authorName?.let { "- $it" } ?: "- Unbekannter Autor"
+        // Verwende die Map, um den passenden Autor schnell zu finden
+        val currentAuthor = currentQuote.authorName?.let { authorName ->
+            authors.associateBy { it.name }[authorName]
+        }
 
+        // Zitat anzeigen
+        holder.binding.quoteTextView.text = currentQuote.content?.takeIf { it.isNotBlank() }
+            ?: "Zitat nicht verfügbar"
+
+        // Autor und Tag anzeigen
+        holder.binding.quoteAuthor.text = currentAuthor?.name?.let { "- $it" } ?: "- Unbekannter Autor"
+        holder.binding.tagTextView.text = currentAuthor?.tag ?: "Beruf nicht verfügbar"
+
+        // Klick-Ereignis
         holder.itemView.setOnClickListener {
             listener?.onItemClick(currentQuote)
         }
@@ -42,8 +54,12 @@ class QuoteAdapter(private var quotes: List<Quote>) :
 
     override fun getItemCount(): Int = quotes.size
 
-    fun updateData(newQuotes: List<Quote>) {
-        this.quotes = newQuotes
-        notifyDataSetChanged()
+    // Funktion, um die Daten zu aktualisieren
+    fun updateData(newQuotes: List<Quote>, newAuthors: List<Author>) {
+        if (this.quotes != newQuotes || this.authors != newAuthors) {
+            this.quotes = newQuotes
+            this.authors = newAuthors
+            notifyDataSetChanged() // Überlege Verwendung von DiffUtil für bessere Performance
+        }
     }
 }

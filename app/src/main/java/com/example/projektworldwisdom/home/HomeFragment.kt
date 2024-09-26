@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,7 +22,6 @@ import kotlin.text.Typography.quote
 
 class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by activityViewModels<HomeViewModel> {
-        // Initialisierung des ViewModels mit der Repository-Abhängigkeit
         val apiService = WorldWisdomApi.retrofitService
         val database = QuoteDatabase.getDatabase(requireContext())
         val quoteDao = database.quoteDao()
@@ -37,7 +37,6 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflating des Layouts für das Fragment
         binding = FragmentHomeBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -48,10 +47,12 @@ class HomeFragment : Fragment() {
         setupRecyclerView()  // Initialisierung der RecyclerView
         setupObservers()     // Einrichten der Observer für LiveData
         setupClickListeners() // Einrichten der Klick-Listener für Filter
+        setupSearchView()    // Einrichten der Suchleiste
     }
 
     private fun setupRecyclerView() {
-        quoteAdapter = QuoteAdapter(emptyList()) // Adapter mit einer leeren Liste initialisieren
+        quoteAdapter = QuoteAdapter(emptyList(), emptyList())
+
         binding.quotesList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = quoteAdapter
@@ -63,6 +64,7 @@ class HomeFragment : Fragment() {
                 val authorName = quote.authorName ?: "Unbekannter Autor"
                 Log.d("HomeFragment", "Navigating to AuthorDetailsFragment with Author: $authorName, Quote: ${quote.content}")
 
+                // Navigiere zu AuthorDetailsFragment
                 findNavController().navigate(
                     HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorName, quote)
                 )
@@ -71,23 +73,30 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Observer für Ladezustand
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Observer für die Zitate
+        var cachedQuotes: List<Quote>? = null
+
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            Log.d("Fragment", "Received quotes: $quotes")
-            if (quotes.isNullOrEmpty()) {
-                Toast.makeText(requireContext(), "Keine Zitate gefunden.", Toast.LENGTH_SHORT).show()
+            Log.d("HomeFragment", "Received quotes: $quotes")
+            cachedQuotes = quotes // Zitate zwischenspeichern
+
+            viewModel.loadAllAuthors() // Autoren laden
+        }
+
+        viewModel.authors.observe(viewLifecycleOwner) { authors ->
+            Log.d("HomeFragment", "Received authors: $authors")
+
+            if (cachedQuotes.isNullOrEmpty() || authors.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "Keine Zitate oder Autoren gefunden.", Toast.LENGTH_SHORT).show()
             } else {
-                quoteAdapter.updateData(quotes)
-                Log.d("Fragment", "Updated adapter with quotes: $quotes")
+                quoteAdapter.updateData(cachedQuotes ?: emptyList(), authors ?: emptyList())
+                Log.d("HomeFragment", "Updated adapter with quotes and authors")
             }
         }
 
-        // Observer für Fehlernachrichten
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
@@ -95,17 +104,15 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Observer für das Zitat des Tages
         viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
             if (quote != null) {
                 binding.affirmationText.text = quote.content
                 val authorName = quote.authorName ?: "- Unbekannter Autor"
                 binding.affirmationAuthor.text = authorName
 
-                // Autorinformationen abrufen
                 if (authorName.isNotBlank()) {
                     viewModel.getAuthorByName(authorName).observe(viewLifecycleOwner) { author ->
-                        binding.affirmationAuthor.text = author ?: "- Unbekannter Autor"
+                        binding.affirmationAuthor.text = author?.name ?: "- Unbekannter Autor"
                     }
                 }
             } else {
@@ -117,9 +124,8 @@ class HomeFragment : Fragment() {
 
     private fun setupClickListeners() {
         val keywordClickListener = View.OnClickListener { view ->
-            val keywords = mutableListOf<String>() // Liste für die Keywords erstellen
+            val keywords = mutableListOf<String>()
 
-            // Filter basierend auf dem angeklickten View
             when (view.id) {
                 R.id.filter_society -> keywords.add("Gesellschaft")
                 R.id.filter_success -> keywords.add("Erfolg")
@@ -128,18 +134,16 @@ class HomeFragment : Fragment() {
                 R.id.filter_gratitude -> keywords.add("Dankbarkeit")
                 R.id.filter_all -> {
                     viewModel.loadAllQuotesHome()
-                    return@OnClickListener // Beende die Funktion hier
+                    return@OnClickListener
                 }
                 else -> return@OnClickListener
             }
 
-            // Überprüfen, ob Keywords hinzugefügt wurden und die Zitate laden
             if (keywords.isNotEmpty()) {
-                viewModel.loadQuotesByKeywords(keywords) // Verwende die Funktion für mehrere Keywords
+                viewModel.loadQuotesByKeywords(keywords)
             }
         }
 
-        // Klick-Listener für die Filter-Buttons
         binding.filterSociety.setOnClickListener(keywordClickListener)
         binding.filterSuccess.setOnClickListener(keywordClickListener)
         binding.filterWork.setOnClickListener(keywordClickListener)
@@ -147,4 +151,65 @@ class HomeFragment : Fragment() {
         binding.filterGratitude.setOnClickListener(keywordClickListener)
         binding.filterAll.setOnClickListener { viewModel.loadAllQuotesHome() }
     }
+
+    // Neues Setup für die Suchleiste
+    private fun setupSearchView() {
+        val searchView = binding.searchBar // Angenommene ID deiner Suchleiste
+        val suggestions = mutableListOf<String>()
+
+        // Lade Autoren und Zitate für die Vorschläge
+        viewModel.authors.observe(viewLifecycleOwner) { authors ->
+            if (authors != null) {
+                suggestions.addAll(authors.map { it.name })
+            }
+            if (authors != null) {
+                suggestions.addAll(authors.map { it.tag })
+            }
+            suggestions.addAll(viewModel.quotes.value?.flatMap { it.keywords } ?: emptyList())
+
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, suggestions)
+            searchView.setAdapter(adapter)
+
+            searchView.setOnItemClickListener { parent, view, position, id ->
+                val selectedOption = adapter.getItem(position)
+                handleSearchSelection(selectedOption)
+            }
+        }
+    }
+
+    // Funktion zur Verarbeitung der Suchauswahl
+    private fun handleSearchSelection(selectedOption: String?) {
+        when {
+            selectedOption != null -> {
+                // Überprüfe, ob es ein Autor ist
+                val author = viewModel.authors.value?.find { it.name == selectedOption }
+                author?.let {
+                    // Navigiere zum AuthorDetailsFragment mit dem Autorennamen und einem Beispiel-Zitat
+                    findNavController().navigate(
+                        HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
+                            it.name,
+                            Quote(authorName = it.name, content = "Beispiel-Zitat") // Beispiel-Zitat hier einfügen
+                        )
+                    )
+                    return // Beende die Funktion nach der Navigation
+                }
+
+                // Überprüfe auf Tags
+                val tag = viewModel.authors.value?.find { it.tag == selectedOption }
+                tag?.let {
+                    // Navigiere zur Suche mit dem Tag
+                    viewModel.searchByTag(selectedOption) // Suche nach Zitaten mit dem Tag
+                    // Hier könnte auch eine Rückkehr oder zusätzliche Logik hinzugefügt werden
+                }
+
+                // Überprüfe auf Keywords
+                val keyword = viewModel.quotes.value?.flatMap { it.keywords }?.find { it == selectedOption }
+                if (keyword != null) {
+                    // Navigiere zur Suche mit dem Keyword
+                    viewModel.searchByKeyword(keyword) // Suche nach Zitaten mit dem Keyword
+                }
+            }
+        }
+    }
+
 }

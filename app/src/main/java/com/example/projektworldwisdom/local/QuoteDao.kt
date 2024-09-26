@@ -30,7 +30,7 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthor(author: Author)
 
-    // Ruft alle Zitate aus der Datenbank ab, die mit dem angegebenen Autorennamen verknüpft sind.
+    // Liefert alle Zitate eines bestimmten Autors
     @Query("SELECT * FROM quotes WHERE authorName = :authorName")
     suspend fun getQuotesByAuthor(authorName: String): List<Quote>
 
@@ -96,5 +96,9 @@ interface QuoteDao {
     // Abrufen aller Favoriten-Zitate aus der lokalen Datenbank.
     @Query("SELECT * FROM quotes WHERE isSaved = 1")
     suspend fun getAllSavedQuotes(): List<Quote>
+
+    // Liefert alle Autoren basierend auf einem Tag
+    @Query("SELECT * FROM authors WHERE tag = :tag")
+    suspend fun getAuthorsByTag(tag: String): List<Author>
 }
 

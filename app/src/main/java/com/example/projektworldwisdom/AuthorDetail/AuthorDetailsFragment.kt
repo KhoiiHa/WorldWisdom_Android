@@ -8,8 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import coil.load
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentAuthorDetailsBinding
@@ -18,10 +20,12 @@ import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.example.projektworldwisdom.repository.QuoteRepository
 import androidx.navigation.fragment.navArgs
 import com.example.projektworldwisdom.mockApi.MockApi
+import com.google.android.material.snackbar.Snackbar
 
 class AuthorDetailsFragment : Fragment() {
 
-    private lateinit var binding: FragmentAuthorDetailsBinding
+    private var _binding: FragmentAuthorDetailsBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: AuthorDetailsViewModel by viewModels { createFactory() }
 
     private fun createFactory(): AuthorDetailsViewModelFactory {
@@ -37,14 +41,14 @@ class AuthorDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAuthorDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentAuthorDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Holt die Argumente aus den Safe Args
+        // Hole die Argumente aus den Safe Args
         val args: AuthorDetailsFragmentArgs by navArgs()
         val authorName = args.authorName
         val quote = args.quote
@@ -52,13 +56,11 @@ class AuthorDetailsFragment : Fragment() {
         // Log zur Überprüfung des authorName
         Log.d("AuthorDetailsFragment", "Lade Autor-Details für: $authorName")
 
-        // Setze das initiale Zitat im ViewModel, wenn das Zitat vorhanden ist
-        quote?.let {
-            viewModel.setInitialQuote(it)
-        }
+        // Setze das initiale Zitat im ViewModel
+        viewModel.setInitialQuote(quote)
 
         // Lade Autor-Details (Umwandlung in authorSlug)
-        val authorSlug = convertNameToSlug(authorName)
+        val authorSlug = authorName.lowercase().replace(" ", "-")
 
         // Log zur Überprüfung des authorSlug
         Log.d("AuthorDetailsFragment", "Generated slug for author: $authorSlug")
@@ -67,44 +69,28 @@ class AuthorDetailsFragment : Fragment() {
 
         // Beobachte die Autor-Details
         viewModel.authorDetails.observe(viewLifecycleOwner) { author ->
-            if (author != null) {
-                binding.authorName.text = author.name
+            author?.apply {
+                binding.authorName.text = name
+                binding.authorTag.text = tag ?: "Kein Tag verfügbar"
 
-                // Überprüfe, ob der Link nicht leer ist, bevor du ihn anzeigst
-                if (!author.link.isNullOrEmpty()) {
-                    binding.authorLink.text = author.link
-                    binding.authorLink.setOnClickListener {
-                        // Öffne den Link im Browser
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(author.link))
-                        startActivity(intent)
-                    }
-                } else {
-                    binding.authorLink.text = "Kein Link verfügbar"
+                // Link nur anzeigen, wenn vorhanden und nicht leer
+                binding.authorLink.isVisible = !link.isNullOrEmpty()
+                binding.authorLink.text = link
+                binding.authorLink.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                    startActivity(intent)
                 }
 
-                // Zeige das Bild des Autors an
-                binding.authorImage.load(author.imageUrl) {
+                // Lade das Bild des Autors mit Coil oder Glide (hier beispielhaft mit Coil)
+                binding.authorImage.load(imageUrl) {
                     crossfade(true)
                     placeholder(R.drawable.ic_launcher_background)
                     error(R.drawable.ic_launcher_background)
                 }
 
-                // Zeige das Tag des Autors an
-                binding.authorTag.text = author.tag ?: "Kein Tag verfügbar"
-
                 Log.d("AuthorDetailsFragment", "Autor-Details geladen: $author")
-
-                // Füge hier die Logik zum Abrufen und Anzeigen der Zitate hinzu
-                val allQuotes = MockApi.getAllQuotes() // Alle Zitate abrufen
-                val authorQuotes =
-                    allQuotes.filter { it.authorName == author.name } // Zitate für den Autor filtern
-
-                // Setze das erste Zitat (falls vorhanden)
-                if (authorQuotes.isNotEmpty()) {
-                    viewModel.setInitialQuote(authorQuotes.first())
-                }
-
-            } else {
+            } ?: run {
+                // Fehlerfall behandeln, wenn author null ist
                 Toast.makeText(
                     requireContext(),
                     "Autor-Details konnten nicht geladen werden",
@@ -117,15 +103,15 @@ class AuthorDetailsFragment : Fragment() {
         // Beobachte Fehler-Updates
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                viewModel.clearError() // Fehler zurücksetzen
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                viewModel.clearError()
                 Log.e("AuthorDetailsFragment", "Fehler: $it")
             }
         }
 
-        // Beobachte Ladezustände
+        // Beobachte Ladezustände für Autordetails
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            // Aktualisiere die Sichtbarkeit der Ladeanzeige für Autordetails (falls vorhanden)
         }
 
         // Klick-Listener für den Button zum Laden eines neuen Zitats
@@ -145,12 +131,17 @@ class AuthorDetailsFragment : Fragment() {
 
         // Beobachte Ladezustand für Zitate
         viewModel.isQuoteLoading.observe(viewLifecycleOwner) { isQuoteLoading ->
-            binding.quoteProgressBar.visibility = if (isQuoteLoading) View.VISIBLE else View.GONE
+            // Aktualisiere die Sichtbarkeit der Ladeanzeige für Zitate (falls vorhanden)
+        }
+
+        // Zurück-Button verknüpfen
+        binding.backButton.setOnClickListener {
+            findNavController().navigateUp()
         }
     }
 
-    // Hilfsfunktion zur Umwandlung des Namens in einen Slug
-    private fun convertNameToSlug(name: String): String {
-        return name.lowercase().replace(" ", "-") // Beispiel für Bindestriche
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

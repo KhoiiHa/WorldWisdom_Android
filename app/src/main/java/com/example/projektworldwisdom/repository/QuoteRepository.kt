@@ -18,12 +18,14 @@ class QuoteRepository(
 ) {
 
 
+    // Liefert eine Liste aller Zitate
     suspend fun getAllQuotes(): List<Quote> {
         return try {
+            // Abrufen aller Zitate von der Mock API
             val quotes = MockApi.getAllQuotes()
             Log.d("QuoteRepository", "Mock API Response for all quotes: $quotes")
-            insertQuotes(quotes)
-            quotes
+            insertQuotes(quotes) // Speichere die Zitate in der lokalen Datenbank
+            quotes // Rückgabe der Zitate von der API
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Fehler beim Abrufen aller Zitate von der Mock-API", e)
 
@@ -101,12 +103,9 @@ class QuoteRepository(
 
             if (authors.isNotEmpty()) {
                 Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
-                authors
+                authors // Rückgabe der Autoren
             } else {
-                Log.e(
-                    "AuthorRepository",
-                    "No authors received from API"
-                ) // Log, wenn keine Autoren zurückgegeben werden
+                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
                 emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
             }
         } catch (e: Exception) {
@@ -181,18 +180,51 @@ class QuoteRepository(
         }
     }
 
+    // Sucht Zitate anhand des Autorennamens
     suspend fun searchQuotesByAuthor(authorName: String): List<Quote> {
-        return getQuotesByAuthor(authorName) // Verwende die Funktion getQuotesByAuthor für Konsistenz
+        return try {
+            // Verwende die Funktion getQuotesByAuthor für Konsistenz
+            getQuotesByAuthor(authorName)
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Fehler beim Suchen der Zitate für Autor: $authorName", e)
+            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
     }
 
 
+    // Liefert Zitate basierend auf einem bestimmten Tag
+    suspend fun getQuotesByTag(tag: String): List<Quote> {
+        return try {
+            // Schritt 1: Abrufen der Autoren, die den passenden Tag haben
+            val authorsWithTag = quoteDao.getAuthorsByTag(tag)
+
+            if (authorsWithTag.isNotEmpty()) {
+                // Schritt 2: Für jeden Autor mit dem passenden Tag, seine Zitate abrufen
+                val quotesByTag = mutableListOf<Quote>()
+                for (author in authorsWithTag) {
+                    // Abrufen der Zitate basierend auf dem Autorennamen
+                    val quotes = quoteDao.getQuotesByAuthor(author.name)
+                    quotesByTag.addAll(quotes)
+                }
+                quotesByTag // Rückgabe der Liste der Zitate
+            } else {
+                emptyList() // Wenn keine Autoren mit dem Tag gefunden wurden
+            }
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Fehler beim Abrufen von Zitaten basierend auf dem Tag", e)
+            emptyList() // Fehlerbehandlung, leere Liste zurückgeben
+        }
+    }
+
+
+    // Liefert Zitate gefiltert nach Keywords
     suspend fun getQuotesByKeywords(keywords: List<String>): List<Quote> {
         return try {
             // Abrufen der gefilterten Zitate von der Mock API mit mehreren Keywords
             val filteredQuotes = MockApi.filterQuotesByKeywords(keywords)
 
             Log.d("QuoteRepository", "Filtered quotes by keywords '$keywords': $filteredQuotes")
-            filteredQuotes
+            filteredQuotes // Rückgabe der gefilterten Zitate
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error filtering quotes by keywords '$keywords'", e)
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
@@ -339,29 +371,18 @@ class QuoteRepository(
         return withContext(Dispatchers.IO) {
             try {
                 // Filtere ungültige Zitate heraus (z.B. solche ohne Inhalt)
-                val validQuotes =
-                    quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
+                val validQuotes = quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
 
                 if (validQuotes.isNotEmpty()) {
                     quoteDao.insertQuotes(validQuotes) // Gültige Zitate in die Datenbank einfügen
-                    Log.d(
-                        "QuoteRepository",
-                        "Inserted ${validQuotes.size} valid quotes."
-                    ) // Log für erfolgreiche Einfügung
+                    Log.d("QuoteRepository", "Inserted ${validQuotes.size} valid quotes.") // Log für erfolgreiche Einfügung
                     validQuotes.size // Rückgabe der Anzahl erfolgreich eingefügter Zitate
                 } else {
-                    Log.e(
-                        "QuoteRepository",
-                        "No valid quotes to insert."
-                    ) // Log, wenn keine gültigen Zitate vorhanden sind
+                    Log.e("QuoteRepository", "No valid quotes to insert.") // Log, wenn keine gültigen Zitate vorhanden sind
                     0 // Keine gültigen Zitate, Rückgabe 0
                 }
             } catch (e: Exception) {
-                Log.e(
-                    "QuoteRepository",
-                    "Error inserting quotes: ${e.message}",
-                    e
-                ) // Fehlermeldung mit spezifischem Fehler
+                Log.e("QuoteRepository", "Error inserting quotes: ${e.message}", e) // Fehlermeldung mit spezifischem Fehler
                 0 // Rückgabe 0 im Fehlerfall
             }
         }

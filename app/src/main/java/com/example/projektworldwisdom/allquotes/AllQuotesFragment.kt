@@ -46,7 +46,7 @@ class AllQuotesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView einrichten
-        quoteAdapter = QuoteAdapter(emptyList())
+        quoteAdapter = QuoteAdapter(emptyList(), emptyList())
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
                 quote.authorName?.let { authorName ->
@@ -59,30 +59,24 @@ class AllQuotesFragment : Fragment() {
             }
         })
 
-        binding.allQuotesList.let { recyclerView ->
-            recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            recyclerView.adapter = quoteAdapter
+        binding.allQuotesList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = quoteAdapter
         }
 
         // LiveData beobachten und Adapter aktualisieren
-        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            if (quotes != null) {
-                quoteAdapter.updateData(quotes)
+        viewModel.filteredQuotes.observe(viewLifecycleOwner) { filteredQuotes ->
+            if (filteredQuotes != null) {
+                quoteAdapter.updateData(filteredQuotes, viewModel.authors.value ?: emptyList())
             } else {
-                Snackbar.make(view, "Fehler beim Laden der Zitate", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(view, "Fehler beim Laden der gefilterten Zitate", Snackbar.LENGTH_SHORT).show()
             }
-        }
-
-        // Beobachtung der Suchergebnisse
-        viewModel.searchKeyword.observe(viewLifecycleOwner) { _ ->
-            // Suchergebnisse werden automatisch durch updateFilteredQuotes im ViewModel aktualisiert
         }
 
         // Beobachtung der verfügbaren Schlüsselwörter
         viewModel.availableKeywords.observe(viewLifecycleOwner) { keywords ->
             binding.filterContainer.removeAllViews() // Vorherige Filter-Views entfernen
 
-            // Überprüfen, ob keywords nicht null ist
             keywords?.let {
                 it.forEach { keyword ->
                     val textView = TextView(requireContext()).apply {
@@ -111,7 +105,12 @@ class AllQuotesFragment : Fragment() {
 
         // Suchfunktion verknüpfen
         binding.searchEditText.addTextChangedListener { editable ->
-            viewModel.searchByAuthor(editable.toString())
+            val searchText = editable.toString()
+            if (searchText.isEmpty()) {
+                viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
+            } else {
+                viewModel.searchByAuthor(searchText)
+            }
         }
 
         // Ladeanzeige und Fehlerbehandlung
@@ -124,8 +123,5 @@ class AllQuotesFragment : Fragment() {
                 Snackbar.make(view, errorMessage, Snackbar.LENGTH_SHORT).show()
             }
         }
-
-        // Lade alle Zitate
-        viewModel.loadAllQuotes()
     }
 }

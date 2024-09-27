@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
@@ -22,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 
 class AllQuotesFragment : Fragment() {
 
+    // ViewModel für das Fragment bereitstellen
     private val viewModel: AllQuotesViewModel by viewModels {
         val apiService = WorldWisdomApi.retrofitService
         val database = QuoteDatabase.getDatabase(requireContext())
@@ -32,12 +34,14 @@ class AllQuotesFragment : Fragment() {
 
     private lateinit var binding: FragmentAllQuotesBinding
     private lateinit var quoteAdapter: QuoteAdapter
+    private lateinit var suggestionAdapter: ArrayAdapter<String>
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Inflating des Layouts für das Fragment
         binding = FragmentAllQuotesBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -46,12 +50,32 @@ class AllQuotesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView einrichten
+        setupRecyclerView()
+
+        // LiveData beobachten und Adapter aktualisieren
+        observeLiveData()
+
+        // Filter-Keywords beobachten
+        observeAvailableKeywords()
+
+        // Suchleiste verknüpfen und Vorschläge einrichten
+        setupSearchBar()
+
+        // Ladeanzeige und Fehlerbehandlung
+        setupLoadingAndErrorHandling()
+    }
+
+    private fun setupRecyclerView() {
         quoteAdapter = QuoteAdapter(emptyList(), emptyList())
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
                 quote.authorName?.let { authorName ->
+                    // Navigiere zu AuthorDetailsFragment
                     findNavController().navigate(
-                        AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(authorName, quote)
+                        AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(
+                            authorName,
+                            quote
+                        )
                     )
                 } ?: run {
                     Toast.makeText(context, "Autorname nicht verfügbar", Toast.LENGTH_SHORT).show()
@@ -63,64 +87,99 @@ class AllQuotesFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = quoteAdapter
         }
+    }
 
-        // LiveData beobachten und Adapter aktualisieren
+    private fun observeLiveData() {
         viewModel.filteredQuotes.observe(viewLifecycleOwner) { filteredQuotes ->
-            if (filteredQuotes != null) {
-                quoteAdapter.updateData(filteredQuotes, viewModel.authors.value ?: emptyList())
-            } else {
-                Snackbar.make(view, "Fehler beim Laden der gefilterten Zitate", Snackbar.LENGTH_SHORT).show()
+            filteredQuotes?.let {
+                quoteAdapter.updateData(it, viewModel.authors.value ?: emptyList())
+            } ?: run {
+                Snackbar.make(
+                    requireView(),
+                    "Fehler beim Laden der gefilterten Zitate",
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
+    }
 
-        // Beobachtung der verfügbaren Schlüsselwörter
+    private fun observeAvailableKeywords() {
         viewModel.availableKeywords.observe(viewLifecycleOwner) { keywords ->
             binding.filterContainer.removeAllViews() // Vorherige Filter-Views entfernen
 
-            keywords?.let {
-                it.forEach { keyword ->
-                    val textView = TextView(requireContext()).apply {
-                        text = keyword
-                        setPadding(16, 8, 16, 8)
+            keywords?.let { keywordList ->
+                if (keywordList.isEmpty()) {
+                    Snackbar.make(requireView(), "Keine Schlüsselwörter verfügbar", Snackbar.LENGTH_SHORT).show()
+                } else {
+                    keywordList.forEach { keyword ->
+                        val textView = TextView(requireContext()).apply {
+                            text = keyword
+                            setPadding(16, 8, 16, 8)
 
-                        // OnClickListener hinzufügen, um Filter anzuwenden
-                        setOnClickListener {
-                            val currentSelectedKeywords = viewModel.selectedKeywords.value?.toMutableList() ?: mutableListOf()
+                            // OnClickListener hinzufügen, um Filter anzuwenden
+                            setOnClickListener {
+                                val currentSelectedKeywords = viewModel.selectedKeywords.value?.toMutableList() ?: mutableListOf()
 
-                            if (currentSelectedKeywords.contains(keyword)) {
-                                currentSelectedKeywords.remove(keyword) // Entferne das Keyword, wenn es bereits ausgewählt ist
-                            } else {
-                                currentSelectedKeywords.add(keyword) // Füge das Keyword hinzu, wenn es nicht ausgewählt ist
+                                // Toggle-Logik für die Schlüsselwörter
+                                if (currentSelectedKeywords.contains(keyword)) {
+                                    currentSelectedKeywords.remove(keyword)
+                                } else {
+                                    currentSelectedKeywords.add(keyword)
+                                }
+
+                                viewModel.filterByKeyword(currentSelectedKeywords) // Aktualisiere die ausgewählten Schlüsselwörter
                             }
-
-                            viewModel.filterByKeyword(currentSelectedKeywords) // Aktualisiere die ausgewählten Schlüsselwörter
                         }
+                        binding.filterContainer.addView(textView)
                     }
-                    binding.filterContainer.addView(textView)
                 }
             } ?: run {
-                Snackbar.make(view, "Keine Schlüsselwörter verfügbar", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Fehler beim Laden der Schlüsselwörter", Snackbar.LENGTH_SHORT).show()
             }
         }
+    }
 
-        // Suchfunktion verknüpfen
+    private fun setupSearchBar() {
+        // Adapter für Vorschläge initialisieren
+        suggestionAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
+        binding.searchEditText.setAdapter(suggestionAdapter) // Autocomplete-Adapter zu AutoCompleteTextView hinzufügen
+
+        // Listener für die Suchleiste hinzufügen
         binding.searchEditText.addTextChangedListener { editable ->
             val searchText = editable.toString()
+
             if (searchText.isEmpty()) {
                 viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
+                suggestionAdapter.clear() // Vorschläge zurücksetzen
             } else {
-                viewModel.searchByAuthor(searchText)
+                // Vorschläge basierend auf dem Suchtext aktualisieren
+                updateSuggestions(searchText) // Vorschläge aktualisieren
+
+                // Suche nach Autor und Keywords
+                viewModel.searchByAuthorAndKeywords(searchText, listOf(searchText)) // Hier wird eine Liste mit einem Keyword erstellt
             }
         }
+    }
 
-        // Ladeanzeige und Fehlerbehandlung
+    private fun updateSuggestions(query: String) {
+        // Hier kannst du die Logik implementieren, um Vorschläge basierend auf den eingegebenen Daten zu generieren
+        val filteredAuthors = viewModel.authors.value?.filter { it.name.contains(query, ignoreCase = true) }
+        val filteredKeywords = viewModel.availableKeywords.value?.filter { it.contains(query, ignoreCase = true) }
+
+        val suggestions = (filteredAuthors?.map { it.name } ?: emptyList()) + (filteredKeywords ?: emptyList())
+        suggestionAdapter.clear()
+        suggestionAdapter.addAll(suggestions)
+        suggestionAdapter.notifyDataSetChanged() // Adapter benachrichtigen, dass die Daten aktualisiert wurden
+    }
+
+    private fun setupLoadingAndErrorHandling() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            if (errorMessage != null) {
-                Snackbar.make(view, errorMessage, Snackbar.LENGTH_SHORT).show()
+            errorMessage?.let {
+                Snackbar.make(requireView(), it, Snackbar.LENGTH_SHORT).show()
             }
         }
     }

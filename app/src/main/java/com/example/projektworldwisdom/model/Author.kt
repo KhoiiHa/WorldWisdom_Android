@@ -4,7 +4,7 @@ package com.example.projektworldwisdom.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @Entity(tableName = "authors") // Tabellenname für die Room-Datenbank

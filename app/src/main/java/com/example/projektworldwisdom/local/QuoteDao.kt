@@ -30,6 +30,10 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthor(author: Author)
 
+    // Abrufen aller Zitate aus der lokalen Datenbank.
+    @Query("SELECT * FROM quotes")
+    suspend fun getAllQuotes(): List<Quote>
+
     // Liefert alle Zitate eines bestimmten Autors
     @Query("SELECT * FROM quotes WHERE authorName = :authorName")
     suspend fun getQuotesByAuthor(authorName: String): List<Quote>
@@ -43,16 +47,23 @@ interface QuoteDao {
     suspend fun getAuthorByName(authorName: String): Author?
 
     // Abrufen von Zitaten eines bestimmten Autors aus der lokalen Datenbank
-    @Query("SELECT * FROM quotes WHERE authorName = :authorName")
+    @Query("SELECT * FROM quotes WHERE LOWER(authorName) = LOWER(:authorName)")
     suspend fun searchQuotesByAuthor(authorName: String): List<Quote>
+
+    // Abrufen von Zitaten, die ein bestimmtes Keyword enthalten
+    @Query("SELECT * FROM quotes WHERE :keyword IN (LOWER(keywords))")
+    suspend fun searchQuotesByKeyword(keyword: String): List<Quote>
+
+    // Kombinierte Suche nach Autor und Keyword
+    @Query("""SELECT * FROM quotes WHERE (authorName = :authorName OR :authorName IS NULL)
+    AND (keywords LIKE '%' || :keyword || '%' OR :keyword IS NULL)""")
+    suspend fun searchQuotesByAuthorAndKeyword(authorName: String?, keyword: String?): List<Quote>
 
     // Löschen aller Autoren aus der lokalen Datenbank
     @Query("DELETE FROM authors")
     suspend fun deleteAllAuthors()
 
-    // Abrufen aller Zitate aus der lokalen Datenbank.
-    @Query("SELECT * FROM quotes")
-    suspend fun getAllQuotes(): List<Quote>
+
 
     // Abrufen eines Zitats aus der lokalen Datenbank anhand der angegebenen ID.
     @Query("SELECT * FROM quotes WHERE id = :id")

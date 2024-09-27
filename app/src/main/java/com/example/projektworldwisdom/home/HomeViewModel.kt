@@ -21,33 +21,26 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    private val _author = MutableLiveData<String?>()
-    val author: LiveData<String?> = _author
-
     private val _dailyAffirmation = MutableLiveData<Quote?>()
     val dailyAffirmation: LiveData<Quote?> = _dailyAffirmation
 
-    private val _keywords = MutableLiveData<List<Keyword>>()
-    val keywords: LiveData<List<Keyword>> = _keywords
-
-    // Neu: LiveData für die Autoren
     private val _authors = MutableLiveData<List<Author>?>()
     val authors: LiveData<List<Author>?> = _authors
+
+    init {
+        loadQuoteOfTheDay() // Lade das Zitat des Tages
+        loadAllQuotesHome() // Lade alle Zitate
+        loadAllAuthors() // Lade alle Autoren
+    }
 
     fun clearError() {
         _error.value = null
     }
 
-    init {
-        loadQuoteOfTheDay() // Initiales Laden des Zitats des Tages
-        loadAllQuotesHome() // Initiales Laden aller Zitate
-        loadAllAuthors() // Neu: Autoren laden
-    }
-
     fun loadQuoteOfTheDay() {
         viewModelScope.launch {
             _isLoading.postValue(true)
-            clearError() // Fehlerstatus zurücksetzen
+            clearError()
 
             try {
                 val quote = repository.getQuoteOfTheDay() ?: repository.getQuoteOfTheDayFromLocal()
@@ -56,7 +49,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
                 _error.postValue("Fehler beim Laden des Zitats: ${e.message}")
                 _dailyAffirmation.postValue(null)
             } finally {
-                _isLoading.postValue(false) // Ladezustand zurücksetzen
+                _isLoading.postValue(false)
             }
         }
     }
@@ -81,14 +74,57 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    // Neu: Funktion zum Laden aller Autoren
+    // Neue Methode zum Speichern eines Zitats
+    fun saveQuote(quote: Quote) {
+        viewModelScope.launch {
+            try {
+                repository.saveQuote(quote) // Aufruf der Methode im Repository, um das Zitat zu speichern
+                Log.d("HomeViewModel", "Zitat erfolgreich gespeichert: $quote")
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Speichern des Zitats: ${e.message}")
+            }
+        }
+    }
+
+    fun searchByTag(tag: String) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            clearError()
+
+            try {
+                val quotes = repository.getQuotesByTag(tag) // Hier musst du die Methode im Repository implementieren
+                handleQuotesResponse(quotes, tag)
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    fun searchQuotes(query: String) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            clearError()
+
+            try {
+                val quotes = repository.getQuotesByQuery(query) // Diese Methode musst du im Repository implementieren
+                handleQuotesResponse(quotes, query)
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
     fun loadAllAuthors() {
         viewModelScope.launch {
             _isLoading.postValue(true)
-            clearError() // Fehlerstatus zurücksetzen
+            clearError()
 
             try {
-                val allAuthors = repository.getAllAuthors() // Funktion aus dem Repository verwenden
+                val allAuthors = repository.getAllAuthors()
                 if (allAuthors.isEmpty()) {
                     _error.postValue("Keine Autoren gefunden.")
                 } else {
@@ -102,23 +138,14 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    private fun handleQuotesResponse(quotes: List<Quote>, searchQuery: String) {
-        if (quotes.isEmpty()) {
-            _error.postValue("Keine Zitate für '$searchQuery' gefunden.")
-        } else {
-            _quotes.postValue(quotes)
-            _error.postValue(null) // Fehlermeldung zurücksetzen
-        }
-    }
-
-    fun loadQuotesByKeywords(keywords: List<String>) {
+    fun searchByAuthorAndKeywords(authorName: String, keywords: List<String>) {
         viewModelScope.launch {
             _isLoading.postValue(true)
+            clearError()
+
             try {
-                // Abrufen der Zitate von der Repository unter Verwendung der Liste von Keywords
                 val quotes = repository.getQuotesByKeywords(keywords)
-                // Übergabe der Zitate und der Keywords an die Funktion
-                handleQuotesResponse(quotes, keywords.joinToString(", ")) // Verwendung der Keywords als String
+                handleQuotesResponse(quotes, authorName)
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
@@ -127,121 +154,9 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    fun searchByAuthor(authorName: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            // Überprüfen, ob der Autorname gültig ist
-            if (authorName.isBlank()) {
-                _error.postValue("Bitte geben Sie einen gültigen Autorennamen ein.")
-                _isLoading.postValue(false)
-                return@launch
-            }
-
-            try {
-                // Suche nach Zitaten des Autors
-                val quotes = repository.searchQuotesByAuthor(authorName)
-                // Überprüfen, ob Zitate gefunden wurden
-                if (quotes.isNotEmpty()) {
-                    _quotes.postValue(quotes)
-                } else {
-                    // Wenn keine Zitate gefunden wurden, versuche lokale Zitate zu laden
-                    val localQuotes = repository.getQuotesByAuthor(authorName)
-                    handleQuotesResponse(localQuotes, authorName)
-                }
-                // Fehlermeldung zurücksetzen
-                _error.postValue(null)
-            } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden der Zitate für den Autor: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
-
-    fun searchByKeyword(keyword: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            if (keyword.isBlank()) {
-                _error.postValue("Bitte geben Sie ein gültiges Schlüsselwort ein.")
-                _isLoading.postValue(false)
-                return@launch
-            }
-
-            try {
-                // Hier wird das Keyword in eine Liste umgewandelt, um es der Funktion zu übergeben
-                val quotes = repository.getQuotesByKeywords(listOf(keyword))
-                handleQuotesResponse(quotes, keyword) // Verwende nur die Zitate, ohne das Keyword zu übergeben
-            } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden der Zitate für das Schlüsselwort: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
-
-    fun searchByTag(tag: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            if (tag.isBlank()) {
-                _error.postValue("Bitte geben Sie ein gültiges Tag ein.")
-                _isLoading.postValue(false)
-                return@launch
-            }
-
-            try {
-                // Suche nach Zitaten anhand des Tags
-                val quotes = repository.getQuotesByTag(tag)
-                handleQuotesResponse(quotes, tag)
-            } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden der Zitate für das Tag: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
-
-    fun searchQuotes(query: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            if (query.isBlank()) {
-                _error.postValue("Bitte geben Sie einen gültigen Suchbegriff ein.")
-                _isLoading.postValue(false)
-                return@launch
-            }
-
-            try {
-                // Suche nach Zitaten des Autors
-                val quotesByAuthor = repository.searchQuotesByAuthor(query)
-                // Suche nach Zitaten mit dem Keyword
-                val quotesByKeyword = repository.getQuotesByKeywords(listOf(query))
-                // Suche nach Zitaten mit dem Tag
-                val quotesByTag = repository.getQuotesByTag(query)
-
-                // Kombinierte Zitate (je nach deiner Logik hier)
-                val combinedQuotes = (quotesByAuthor + quotesByKeyword + quotesByTag).distinct()
-
-                handleQuotesResponse(combinedQuotes, query)
-            } catch (e: Exception) {
-                _error.postValue("Fehler bei der Suche nach Zitaten: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
-
     fun getAuthorByName(authorName: String): LiveData<Author?> {
-        // LiveData für den Autor initialisieren
         val authorLiveData = MutableLiveData<Author?>()
 
-        // Überprüfen, ob der Autorname gültig ist
         if (authorName.isBlank()) {
             authorLiveData.postValue(null)
             return authorLiveData
@@ -249,15 +164,46 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                // Abrufen des Autors aus dem Repository
                 val author = repository.getAuthorByName(authorName)
                 authorLiveData.postValue(author)
             } catch (e: Exception) {
-                // Bei einem Fehler null zurückgeben und Fehler protokollieren
                 authorLiveData.postValue(null)
                 Log.e("HomeViewModel", "Fehler beim Abrufen des Autors: ${e.message}")
             }
         }
         return authorLiveData
+    }
+
+    fun loadQuotesByKeywords(keywords: List<String>) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            clearError()
+
+            try {
+                // Rufe Zitate basierend auf den Keywords ab
+                val quotes = repository.getQuotesByKeywords(keywords)
+                if (quotes.isEmpty()) {
+                    _error.postValue("Keine Zitate für die angegebenen Keywords gefunden.")
+                } else {
+                    _quotes.postValue(quotes)
+                    _error.postValue(null) // Setze die Fehlermeldung zurück
+                }
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    private fun handleQuotesResponse(quotes: List<Quote>, searchQuery: String) {
+        if (quotes.isEmpty()) {
+            Log.d("ViewModel", "Keine Zitate für '$searchQuery' gefunden.")
+            _error.postValue("Keine Zitate für '$searchQuery' gefunden.")
+        } else {
+            Log.d("ViewModel", "Gefundene Zitate für '$searchQuery': $quotes")
+            _quotes.postValue(quotes)
+            _error.postValue(null) // Fehlermeldung zurücksetzen
+        }
     }
 }

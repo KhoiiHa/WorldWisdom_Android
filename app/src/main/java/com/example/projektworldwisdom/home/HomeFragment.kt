@@ -15,6 +15,7 @@ import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.local.QuoteDatabase
+import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.repository.QuoteRepository
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApi
@@ -37,17 +38,17 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHomeBinding.inflate(layoutInflater)
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()  // Initialisierung der RecyclerView
-        setupObservers()     // Einrichten der Observer für LiveData
-        setupClickListeners() // Einrichten der Klick-Listener für Filter
-        setupSearchView()    // Einrichten der Suchleiste
+        setupRecyclerView()
+        setupObservers()
+        setupClickListeners()
+        setupSearchView()
     }
 
     private fun setupRecyclerView() {
@@ -58,13 +59,11 @@ class HomeFragment : Fragment() {
             adapter = quoteAdapter
         }
 
-        // Klick-Listener für einzelne Zitate
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
                 val authorName = quote.authorName ?: "Unbekannter Autor"
                 Log.d("HomeFragment", "Navigating to AuthorDetailsFragment with Author: $authorName, Quote: ${quote.content}")
 
-                // Navigiere zu AuthorDetailsFragment
                 findNavController().navigate(
                     HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorName, quote)
                 )
@@ -77,45 +76,32 @@ class HomeFragment : Fragment() {
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        var cachedQuotes: List<Quote>? = null
-
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             Log.d("HomeFragment", "Received quotes: $quotes")
-            cachedQuotes = quotes // Zitate zwischenspeichern
-
-            viewModel.loadAllAuthors() // Autoren laden
+            if (!quotes.isNullOrEmpty()) {
+                quoteAdapter.updateData(quotes, viewModel.authors.value ?: emptyList())
+            } else {
+                Toast.makeText(requireContext(), "Keine Zitate gefunden.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         viewModel.authors.observe(viewLifecycleOwner) { authors ->
             Log.d("HomeFragment", "Received authors: $authors")
-
-            if (cachedQuotes.isNullOrEmpty() || authors.isNullOrEmpty()) {
-                Toast.makeText(requireContext(), "Keine Zitate oder Autoren gefunden.", Toast.LENGTH_SHORT).show()
-            } else {
-                quoteAdapter.updateData(cachedQuotes ?: emptyList(), authors ?: emptyList())
-                Log.d("HomeFragment", "Updated adapter with quotes and authors")
-            }
+            quoteAdapter.updateData(viewModel.quotes.value ?: emptyList(), authors ?: emptyList())
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                viewModel.clearError() // Fehler zurücksetzen
+                viewModel.clearError()
             }
         }
 
         viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
-            if (quote != null) {
-                binding.affirmationText.text = quote.content
-                val authorName = quote.authorName ?: "- Unbekannter Autor"
-                binding.affirmationAuthor.text = authorName
-
-                if (authorName.isNotBlank()) {
-                    viewModel.getAuthorByName(authorName).observe(viewLifecycleOwner) { author ->
-                        binding.affirmationAuthor.text = author?.name ?: "- Unbekannter Autor"
-                    }
-                }
-            } else {
+            quote?.let {
+                binding.affirmationText.text = it.content
+                binding.affirmationAuthor.text = it.authorName ?: "- Unbekannter Autor"
+            } ?: run {
                 binding.affirmationText.text = "Keine Zitate des Tages gefunden."
                 binding.affirmationAuthor.text = "- Unbekannter Autor"
             }
@@ -124,14 +110,12 @@ class HomeFragment : Fragment() {
 
     private fun setupClickListeners() {
         val keywordClickListener = View.OnClickListener { view ->
-            val keywords = mutableListOf<String>()
-
-            when (view.id) {
-                R.id.filter_society -> keywords.add("Gesellschaft")
-                R.id.filter_success -> keywords.add("Erfolg")
-                R.id.filter_work -> keywords.add("Arbeit")
-                R.id.filter_wisdom -> keywords.add("Weisheit")
-                R.id.filter_gratitude -> keywords.add("Dankbarkeit")
+            val keywords = when (view.id) {
+                R.id.filter_society -> listOf("Gesellschaft")
+                R.id.filter_success -> listOf("Erfolg")
+                R.id.filter_work -> listOf("Arbeit")
+                R.id.filter_wisdom -> listOf("Weisheit")
+                R.id.filter_gratitude -> listOf("Dankbarkeit")
                 R.id.filter_all -> {
                     viewModel.loadAllQuotesHome()
                     return@OnClickListener
@@ -150,66 +134,83 @@ class HomeFragment : Fragment() {
         binding.filterWisdom.setOnClickListener(keywordClickListener)
         binding.filterGratitude.setOnClickListener(keywordClickListener)
         binding.filterAll.setOnClickListener { viewModel.loadAllQuotesHome() }
+
+//        // Klick-Listener für den Speichern-Button
+//        binding.saveQuoteButton.setOnClickListener {
+//            val currentQuote = quoteAdapter.getSelectedQuote() // Aktuelles Zitat abrufen
+//            currentQuote?.let {
+//                saveQuote(it) // Zitat speichern
+//            } ?: run {
+//                Toast.makeText(requireContext(), "Kein Zitat ausgewählt.", Toast.LENGTH_SHORT).show()
+//            }
+//        }
     }
 
-    // Neues Setup für die Suchleiste
     private fun setupSearchView() {
-        val searchView = binding.searchBar // Angenommene ID deiner Suchleiste
+        val searchView = binding.searchBar
         val suggestions = mutableListOf<String>()
 
-        // Lade Autoren und Zitate für die Vorschläge
         viewModel.authors.observe(viewLifecycleOwner) { authors ->
             if (authors != null) {
-                suggestions.addAll(authors.map { it.name })
-            }
-            if (authors != null) {
-                suggestions.addAll(authors.map { it.tag })
-            }
-            suggestions.addAll(viewModel.quotes.value?.flatMap { it.keywords } ?: emptyList())
+                suggestions.clear()
+                suggestions.addAll(authors.map { it.name } + authors.map { it.tag })
+                suggestions.addAll(viewModel.quotes.value?.flatMap { it.keywords } ?: emptyList())
 
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, suggestions)
-            searchView.setAdapter(adapter)
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    suggestions
+                )
+                searchView.setAdapter(adapter)
 
-            searchView.setOnItemClickListener { parent, view, position, id ->
-                val selectedOption = adapter.getItem(position)
-                handleSearchSelection(selectedOption)
+                searchView.setOnItemClickListener { parent, view, position, id ->
+                    val selectedOption = adapter.getItem(position)
+                    handleSearchSelection(selectedOption)
+                }
             }
         }
     }
 
-    // Funktion zur Verarbeitung der Suchauswahl
     private fun handleSearchSelection(selectedOption: String?) {
-        when {
-            selectedOption != null -> {
-                // Überprüfe, ob es ein Autor ist
-                val author = viewModel.authors.value?.find { it.name == selectedOption }
-                author?.let {
-                    // Navigiere zum AuthorDetailsFragment mit dem Autorennamen und einem Beispiel-Zitat
-                    findNavController().navigate(
-                        HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
-                            it.name,
-                            Quote(authorName = it.name, content = "Beispiel-Zitat") // Beispiel-Zitat hier einfügen
-                        )
-                    )
-                    return // Beende die Funktion nach der Navigation
-                }
+        if (selectedOption == null) return
 
-                // Überprüfe auf Tags
-                val tag = viewModel.authors.value?.find { it.tag == selectedOption }
-                tag?.let {
-                    // Navigiere zur Suche mit dem Tag
-                    viewModel.searchByTag(selectedOption) // Suche nach Zitaten mit dem Tag
-                    // Hier könnte auch eine Rückkehr oder zusätzliche Logik hinzugefügt werden
-                }
+        val keywords = getKeywordsFromInput()
 
-                // Überprüfe auf Keywords
-                val keyword = viewModel.quotes.value?.flatMap { it.keywords }?.find { it == selectedOption }
-                if (keyword != null) {
-                    // Navigiere zur Suche mit dem Keyword
-                    viewModel.searchByKeyword(keyword) // Suche nach Zitaten mit dem Keyword
-                }
-            }
+        viewModel.authors.value?.find { it.name == selectedOption }?.let { author ->
+            viewModel.searchByAuthorAndKeywords(author.name, keywords)
+            navigateToAuthorDetails(author)
+            return
         }
+
+        viewModel.authors.value?.find { it.tag == selectedOption }?.let { tag ->
+            viewModel.searchByTag(tag.toString())
+            return
+        }
+
+        viewModel.searchQuotes(selectedOption)
     }
 
+    private fun navigateToAuthorDetails(author: Author) {
+        findNavController().navigate(
+            HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
+                author.name,
+                Quote(
+                    authorName = author.name,
+                    content = "Beispiel-Zitat" // Hier kannst du das echte Zitat einsetzen
+                )
+            )
+        )
+    }
+
+    private fun getKeywordsFromInput(): List<String> {
+        val inputText = binding.searchBar.text.toString()
+        return inputText.split(" ")
+            .filter { it.isNotEmpty() }
+            .map { it.trim() }
+    }
+
+    private fun saveQuote(quote: Quote) {
+        viewModel.saveQuote(quote) // Speichern des Zitats im ViewModel
+        Toast.makeText(requireContext(), "Zitat gespeichert!", Toast.LENGTH_SHORT).show()
+    }
 }

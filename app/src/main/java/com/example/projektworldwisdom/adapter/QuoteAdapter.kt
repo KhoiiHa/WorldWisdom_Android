@@ -20,6 +20,7 @@ class QuoteAdapter(
     }
 
     private var listener: OnItemClickListener? = null
+    private var selectedQuote: Quote? = null // Variable für das aktuell ausgewählte Zitat
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
         this.listener = listener
@@ -48,8 +49,12 @@ class QuoteAdapter(
 
         // Klick-Ereignis
         holder.itemView.setOnClickListener {
+            selectQuote(currentQuote) // Setze das ausgewählte Zitat
             listener?.onItemClick(currentQuote)
         }
+
+        // Sichtbarkeit oder Zustand basierend auf der Auswahl setzen
+        holder.itemView.isSelected = (currentQuote == selectedQuote)
     }
 
     override fun getItemCount(): Int = quotes.size
@@ -61,5 +66,16 @@ class QuoteAdapter(
             this.authors = newAuthors
             notifyDataSetChanged() // Überlege Verwendung von DiffUtil für bessere Performance
         }
+    }
+
+    // Methode zum Auswählen eines Zitats
+    fun selectQuote(quote: Quote) {
+        selectedQuote = quote
+        notifyDataSetChanged() // Aktualisiere die Anzeige, um den ausgewählten Zustand darzustellen
+    }
+
+    // Methode zum Abrufen des aktuell ausgewählten Zitats
+    fun getSelectedQuote(): Quote? {
+        return selectedQuote
     }
 }

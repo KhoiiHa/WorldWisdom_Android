@@ -26,6 +26,7 @@ class CollectionsViewModel(private val repository: QuoteRepository) : ViewModel(
     private fun loadSavedQuotes() {
         viewModelScope.launch {
             try {
+                // Verwende die vorhandene Funktion, um die gespeicherten Zitate zu laden
                 val quotes = repository.getSavedQuotes()
                 _savedQuotes.postValue(quotes)
             } catch (e: Exception) {
@@ -38,11 +39,22 @@ class CollectionsViewModel(private val repository: QuoteRepository) : ViewModel(
         viewModelScope.launch {
             try {
                 val updatedQuote = quote.copy(comments = newComment)
-                repository.updateQuote(updatedQuote)
-                loadSavedQuotes()
+                repository.updateQuote(updatedQuote) // Stelle sicher, dass diese Methode im Repository definiert ist
+                loadSavedQuotes() // Lade die gespeicherten Zitate nach dem Hinzufügen eines Kommentars neu
                 _commentAddedSuccessfully.value = true
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Speichern des Kommentars: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteQuote(quote: Quote) {
+        viewModelScope.launch {
+            try {
+                repository.deleteQuote(quote)
+                loadSavedQuotes() // Aktualisiere die Liste nach dem Löschen
+            } catch (e: Exception) {
+                _error.postValue("Fehler beim Löschen des Zitats: ${e.message}")
             }
         }
     }

@@ -44,13 +44,14 @@ class CollectionsFragment : Fragment() {
         val repository = QuoteRepository(quoteDao, apiService)
 
         // ViewModel initialisieren
-        viewModel = ViewModelProvider(this, CollectionsViewModelFactory(repository))[CollectionsViewModel::class.java]
+        viewModel = ViewModelProvider(this, CollectionsViewModelFactory(repository)).get(CollectionsViewModel::class.java)
 
         // Setze das Layout des RecyclerViews und initialisiere den Adapter
         binding.recyclerViewCollections.layoutManager = LinearLayoutManager(requireContext())
-        adapter = CollectionsAdapter { quote, comment ->
-            viewModel.addCommentToQuote(quote, comment)
-        }
+        adapter = CollectionsAdapter(
+            onCommentClick = { quote, comment -> viewModel.addCommentToQuote(quote, comment) },
+            onDeleteClick = { quote -> viewModel.deleteQuote(quote) }
+        )
         binding.recyclerViewCollections.adapter = adapter
 
         // Beobachte die gespeicherten Zitate und aktualisiere den Adapter
@@ -66,14 +67,25 @@ class CollectionsFragment : Fragment() {
             }
         }
 
+        // Beobachte Fehler vom ViewModel und zeige eine Snackbar an
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Snackbar.make(view, "Fehler: $it", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
         // Kommentar speichern
         binding.saveCommentButton.setOnClickListener {
             val selectedQuote = adapter.getSelectedQuote()
             val comment = binding.commentEditText.text.toString()
 
             if (selectedQuote != null) {
-                viewModel.addCommentToQuote(selectedQuote, comment)
-                binding.commentEditText.text?.clear()
+                if (comment.isNotBlank()) {
+                    viewModel.addCommentToQuote(selectedQuote, comment)
+                    binding.commentEditText.text?.clear()
+                } else {
+                    Toast.makeText(requireContext(), "Bitte geben Sie einen Kommentar ein.", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(requireContext(), "Bitte wählen Sie ein Zitat aus.", Toast.LENGTH_SHORT).show()
             }

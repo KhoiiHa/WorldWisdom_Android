@@ -9,7 +9,8 @@ import com.example.projektworldwisdom.databinding.ItemCollectionQuoteBinding
 import com.example.projektworldwisdom.model.Quote
 
 class CollectionsAdapter(
-    private val onCommentClick: (Quote, String) -> Unit
+    private val onCommentClick: (Quote, String) -> Unit,
+    private val onDeleteClick: (Quote) -> Unit
 ) : RecyclerView.Adapter<CollectionsAdapter.CollectionViewHolder>() {
 
     private var quotes: List<Quote> = emptyList()
@@ -24,15 +25,25 @@ class CollectionsAdapter(
 
     inner class CollectionViewHolder(val binding: ItemCollectionQuoteBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(quote: Quote) {
-            // Anzeige des Zitats, Autors und Tags mit Fehlerbehandlung
+            // Anzeige des Zitats und Autors mit Fehlerbehandlung
             binding.quoteTextView.text = "\"${quote.content ?: "Kein Zitat verfügbar"}\""
             binding.authorTextView.text = "- ${quote.authorName ?: "Unbekannt"}"
-//            binding.tagTextView.text = quote.tag ?: "Kein Tag verfügbar"
 
             // OnClickListener für den Kommentar-Button
             binding.commentButton.setOnClickListener {
-                selectedQuote = quote
+                if (selectedQuote != quote) {
+                    selectedQuote = quote // Setze das ausgewählte Zitat
+                } else {
+                    selectedQuote = null // Setze die Auswahl zurück, falls erneut geklickt
+                }
                 onCommentClick(quote, "")
+                Log.d("CollectionsAdapter", "Kommentar Button geklickt für: '${quote.content}' von '${quote.authorName}'")
+            }
+
+            // OnClickListener für den Löschen-Button
+            binding.deleteButton.setOnClickListener {
+                onDeleteClick(quote) // Aufruf der Lösch-Funktion
+                Log.d("CollectionsAdapter", "Löschen Button geklickt für: '${quote.content}' von '${quote.authorName}'")
             }
 
             // Optional: Log-Ausgabe zur Bestätigung der Bindung

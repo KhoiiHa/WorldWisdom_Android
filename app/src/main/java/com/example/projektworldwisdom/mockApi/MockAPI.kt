@@ -107,14 +107,17 @@ object MockApi {
     }
     // Liefert eine Liste von Zitaten eines bestimmten Autors
     fun getQuotesByAuthor(authorName: String): List<Quote> {
-        return getAllQuotes().filter { it.authorName.equals(authorName, ignoreCase = true) }
+        return getAllQuotes().filter {
+            it.authorName.equals(authorName, ignoreCase = true)
+        }
     }
 
+    // Filtert Zitate nach einer Liste von Keywords
     fun filterQuotesByKeywords(keywords: List<String>): List<Quote> {
         return getAllQuotes().filter { quote ->
             // Überprüfen, ob mindestens eines der Keywords in der keywords-Liste des Zitats enthalten ist
-            keywords.any { keyword ->
-                quote.keywords.contains(keyword)
+            quote.keywords.any { keyword ->
+                keywords.contains(keyword)
             }
         }
     }
@@ -122,9 +125,11 @@ object MockApi {
     // Funktion zum Abrufen von Zitaten basierend auf dem Tag des Autors
     fun getQuotesByTag(tag: String): List<Quote> {
         // Schritt 1: Rufe alle Autoren ab und filtere die Autoren nach dem übergebenen Tag
-        val matchingAuthors = getAllAuthors().filter { it.tag.equals(tag, ignoreCase = true) }
+        val matchingAuthors = getAllAuthors().filter {
+            it.tag.equals(tag, ignoreCase = true)
+        }
 
-        // Schritt 2: Erstelle eine Menge von Autorennamen, um schneller nach passenden Zitaten zu suchen
+        // Schritt 2: Erstelle eine Menge von Autorennamen
         val authorNames = matchingAuthors.map { it.name }.toSet()
 
         // Schritt 3: Rufe alle Zitate ab und filtere nach den Zitaten, deren Autor in der Autorenliste ist
@@ -136,6 +141,7 @@ object MockApi {
         val allQuotes = getAllQuotes()
         return allQuotes.flatMap { it.keywords }.distinct()
     }
+
 
 
     // Generiert ein Zitatbild basierend auf dem angegebenen Schlüsselwort
@@ -151,11 +157,13 @@ object MockApi {
         }
     }
 
-    // MockAPI - Ruft einen Autor anhand seines Namens ab
+    // Ruft einen Autor anhand seines Namens ab
     fun getAuthorByName(authorName: String): Author? {
         return try {
             // Suche in der Liste der Autoren nach einem passenden Namen
-            getAllAuthors().firstOrNull { it.name.equals(authorName, ignoreCase = true) }
+            getAllAuthors().firstOrNull {
+                it.name.equals(authorName, ignoreCase = true)
+            }
         } catch (e: Exception) {
             Log.e("MockAPI", "Error fetching author by name: $authorName", e)
             null // Rückgabe von null im Fehlerfall

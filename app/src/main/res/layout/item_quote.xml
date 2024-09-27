@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Zitat"
         android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/favoriteButton"
+        app:layout_constraintEnd_toStartOf="@+id/saveQuoteButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,19 +23,19 @@
         android:text="- Unbekannter Autor"
         android:textSize="14sp"
         android:textStyle="italic"
-        app:layout_constraintEnd_toStartOf="@+id/favoriteButton"
+        app:layout_constraintEnd_toStartOf="@+id/saveQuoteButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/quoteTextView"
         android:contentDescription="Autor des Zitats" />
 
     <ImageButton
-        android:id="@+id/favoriteButton"
+        android:id="@+id/saveQuoteButton"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:src="@drawable/ic_notifications_black_24dp"
+        android:contentDescription="Zitat speichern oder zu Favoriten hinzufügen"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Zu Favoriten hinzufügen" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tagTextView"
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="TAG"
-        app:layout_constraintEnd_toStartOf="@+id/favoriteButton"
+        app:layout_constraintEnd_toStartOf="@+id/saveQuoteButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/quoteAuthor"
         app:layout_constraintWidth_percent="0.8" />

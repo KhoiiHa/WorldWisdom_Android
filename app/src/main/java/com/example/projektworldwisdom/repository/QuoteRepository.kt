@@ -160,6 +160,68 @@ class QuoteRepository(
         }
     }
 
+    suspend fun getQuotesByQuery(query: String): List<Quote> {
+        return try {
+            // Rufe alle Zitate von der Mock API ab
+            val allQuotes = MockApi.getAllQuotes() // Diese Methode sollte alle Zitate zurückgeben
+            val filteredQuotes = allQuotes.filter { quote ->
+                // Nutze die korrekten Eigenschaften aus deinem Modell
+                quote.content?.contains(query, ignoreCase = true) == true ||
+                        quote.authorName?.contains(query, ignoreCase = true) == true ||
+                        quote.keywords.any { keyword -> keyword.contains(query, ignoreCase = true) }
+            }
+
+            Log.d("QuoteRepository", "Filtered quotes by query '$query': $filteredQuotes")
+            filteredQuotes // Rückgabe der gefilterten Zitate
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error filtering quotes by query '$query'", e)
+            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
+    }
+
+    suspend fun searchQuotesByAuthorAndKeywords(authorName: String?, keywords: List<String>, tag: String?): List<Quote> {
+        return try {
+            val matchingQuotes = mutableListOf<Quote>()
+
+            // Suche nach Zitaten des Autors
+            if (!authorName.isNullOrEmpty()) {
+                // Wenn Keywords angegeben sind, suche nach dem Autor und dem ersten Keyword
+                if (keywords.isNotEmpty()) {
+                    for (keyword in keywords) {
+                        val quotesByAuthorAndKeyword = quoteDao.searchQuotesByAuthorAndKeyword(authorName, keyword)
+                        matchingQuotes.addAll(quotesByAuthorAndKeyword)
+                    }
+                } else {
+                    // Wenn keine Keywords angegeben sind, suche nur nach Zitaten des Autors
+                    val quotesByAuthor = quoteDao.searchQuotesByAuthor(authorName)
+                    matchingQuotes.addAll(quotesByAuthor)
+                }
+            }
+
+            // Suche nach Zitaten mit den angegebenen Keywords (ohne Autor)
+            if (keywords.isNotEmpty()) {
+                for (keyword in keywords) {
+                    val quotesByKeyword = quoteDao.searchQuotesByKeyword(keyword)
+                    matchingQuotes.addAll(quotesByKeyword)
+                }
+            }
+
+            // Suche nach Autoren mit dem passenden Tag und deren Zitaten
+            if (!tag.isNullOrEmpty()) {
+                val authorsWithTag = quoteDao.getAuthorsByTag(tag)
+                for (author in authorsWithTag) {
+                    val quotesByTag = quoteDao.searchQuotesByAuthor(author.name)
+                    matchingQuotes.addAll(quotesByTag)
+                }
+            }
+
+            matchingQuotes.distinct() // Entfernt doppelte Zitate, falls welche vorhanden sind
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error fetching quotes by author, keyword, or tag", e)
+            emptyList() // Fehlerbehandlung: leere Liste zurückgeben
+        }
+    }
+
     suspend fun getQuotesByAuthor(authorName: String): List<Quote> {
         return try {
             // Abrufen der Zitate des bestimmten Autors von der Mock API
@@ -195,24 +257,21 @@ class QuoteRepository(
     // Liefert Zitate basierend auf einem bestimmten Tag
     suspend fun getQuotesByTag(tag: String): List<Quote> {
         return try {
-            // Schritt 1: Abrufen der Autoren, die den passenden Tag haben
+            // Abrufen der Autoren, die den passenden Tag haben
             val authorsWithTag = quoteDao.getAuthorsByTag(tag)
 
             if (authorsWithTag.isNotEmpty()) {
-                // Schritt 2: Für jeden Autor mit dem passenden Tag, seine Zitate abrufen
-                val quotesByTag = mutableListOf<Quote>()
-                for (author in authorsWithTag) {
-                    // Abrufen der Zitate basierend auf dem Autorennamen
-                    val quotes = quoteDao.getQuotesByAuthor(author.name)
-                    quotesByTag.addAll(quotes)
-                }
-                quotesByTag // Rückgabe der Liste der Zitate
+                // Erstelle eine Menge von Autorennamen
+                val authorNames = authorsWithTag.map { it.name }.toSet()
+                // Alle Zitate abrufen und nach Autorennamen filtern
+                val allQuotes = quoteDao.getAllQuotes()
+                allQuotes.filter { it.authorName in authorNames }
             } else {
-                emptyList() // Wenn keine Autoren mit dem Tag gefunden wurden
+                emptyList() // Wenn keine Autoren gefunden werden
             }
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Fehler beim Abrufen von Zitaten basierend auf dem Tag", e)
-            emptyList() // Fehlerbehandlung, leere Liste zurückgeben
+            emptyList() // Fehlerbehandlung
         }
     }
 
@@ -536,6 +595,17 @@ class QuoteRepository(
             Log.e("QuoteRepository", "Error deleting all authors", e) // Fehlermeldung im Fehlerfall
         }
     }
+
+    suspend fun saveQuote(quote: Quote) {
+        try {
+            quoteDao.insertQuote(quote) // Hier wird die insertQuote-Methode aus dem DAO aufgerufen
+        } catch (e: Exception) {
+            // Fehlerbehandlung, z.B. Loggen des Fehlers oder Weiterleiten an die UI
+            Log.e("QuoteRepository", "Fehler beim Speichern des Zitats: ${e.message}")
+            throw e // Optional: Ausnahme weiterwerfen, um sie in der UI zu behandeln
+        }
+    }
+
 
 }
 

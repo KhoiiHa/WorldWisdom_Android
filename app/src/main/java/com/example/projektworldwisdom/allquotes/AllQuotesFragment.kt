@@ -25,10 +25,9 @@ class AllQuotesFragment : Fragment() {
 
     // ViewModel für das Fragment bereitstellen
     private val viewModel: AllQuotesViewModel by viewModels {
-        val apiService = WorldWisdomApi.retrofitService
         val database = QuoteDatabase.getDatabase(requireContext())
         val quoteDao = database.quoteDao()
-        val repository = QuoteRepository(quoteDao, apiService)
+        val repository = QuoteRepository(quoteDao)
         AllQuotesViewModelFactory(repository)
     }
 
@@ -59,18 +58,17 @@ class AllQuotesFragment : Fragment() {
         observeAvailableKeywords()
 
         // Suchleiste verknüpfen und Vorschläge einrichten
-        setupSearchBar()
+        initializeSearchBar()
 
         // Ladeanzeige und Fehlerbehandlung
         setupLoadingAndErrorHandling()
     }
 
     private fun setupRecyclerView() {
-        quoteAdapter = QuoteAdapter(emptyList(), emptyList())
+        quoteAdapter = QuoteAdapter(emptyList(), emptyList(), viewModel::saveQuote)
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
                 quote.authorName?.let { authorName ->
-                    // Navigiere zu AuthorDetailsFragment
                     findNavController().navigate(
                         AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment(
                             authorName,
@@ -82,6 +80,11 @@ class AllQuotesFragment : Fragment() {
                 }
             }
         })
+
+        // Hier die saveQuote-Funktion als Callback hinzufügen
+        quoteAdapter.setOnSaveClickListener { quote ->
+            saveQuote(quote)
+        }
 
         binding.allQuotesList.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -139,7 +142,7 @@ class AllQuotesFragment : Fragment() {
         }
     }
 
-    private fun setupSearchBar() {
+    private fun initializeSearchBar() {
         // Adapter für Vorschläge initialisieren
         suggestionAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
         binding.searchEditText.setAdapter(suggestionAdapter) // Autocomplete-Adapter zu AutoCompleteTextView hinzufügen
@@ -147,26 +150,31 @@ class AllQuotesFragment : Fragment() {
         // Listener für die Suchleiste hinzufügen
         binding.searchEditText.addTextChangedListener { editable ->
             val searchText = editable.toString()
+            handleSearchTextChanged(searchText)
+        }
+    }
 
-            if (searchText.isEmpty()) {
-                viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
-                suggestionAdapter.clear() // Vorschläge zurücksetzen
-            } else {
-                // Vorschläge basierend auf dem Suchtext aktualisieren
-                updateSuggestions(searchText) // Vorschläge aktualisieren
+    private fun handleSearchTextChanged(searchText: String) {
+        if (searchText.isEmpty()) {
+            viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
+            suggestionAdapter.clear() // Vorschläge zurücksetzen
+        } else {
+            // Vorschläge basierend auf dem Suchtext aktualisieren
+            updateSuggestions(searchText)
 
-                // Suche nach Autor und Keywords
-                viewModel.searchByAuthorAndKeywords(searchText, listOf(searchText)) // Hier wird eine Liste mit einem Keyword erstellt
-            }
+            // Autorenvorschläge aktualisieren
+            viewModel.updateSuggestedAuthors(searchText)
+
+            // Suche nach Autor und Keywords
+            viewModel.searchByAuthorAndKeywords(searchText, listOf(searchText)) // Hier wird eine Liste mit einem Keyword erstellt
         }
     }
 
     private fun updateSuggestions(query: String) {
-        // Hier kannst du die Logik implementieren, um Vorschläge basierend auf den eingegebenen Daten zu generieren
         val filteredAuthors = viewModel.authors.value?.filter { it.name.contains(query, ignoreCase = true) }
         val filteredKeywords = viewModel.availableKeywords.value?.filter { it.contains(query, ignoreCase = true) }
 
-        val suggestions = (filteredAuthors?.map { it.name } ?: emptyList()) + (filteredKeywords ?: emptyList())
+        val suggestions = (filteredAuthors?.map { it.name } ?: emptyList()).union(filteredKeywords ?: emptyList()).toList()
         suggestionAdapter.clear()
         suggestionAdapter.addAll(suggestions)
         suggestionAdapter.notifyDataSetChanged() // Adapter benachrichtigen, dass die Daten aktualisiert wurden
@@ -182,5 +190,10 @@ class AllQuotesFragment : Fragment() {
                 Snackbar.make(requireView(), it, Snackbar.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun saveQuote(quote: Quote) {
+        viewModel.saveQuote(quote) // Speichern des Zitats im ViewModel
+        Toast.makeText(requireContext(), "Zitat gespeichert.", Toast.LENGTH_SHORT).show()
     }
 }

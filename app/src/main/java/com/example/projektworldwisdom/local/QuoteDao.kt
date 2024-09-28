@@ -1,5 +1,6 @@
 package com.example.projektworldwisdom.local
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -55,14 +56,15 @@ interface QuoteDao {
     suspend fun searchQuotesByKeyword(keyword: String): List<Quote>
 
     // Kombinierte Suche nach Autor und Keyword
-    @Query("""SELECT * FROM quotes WHERE (authorName = :authorName OR :authorName IS NULL)
-    AND (keywords LIKE '%' || :keyword || '%' OR :keyword IS NULL)""")
+    @Query(
+        """SELECT * FROM quotes WHERE (authorName = :authorName OR :authorName IS NULL)
+    AND (keywords LIKE '%' || :keyword || '%' OR :keyword IS NULL)"""
+    )
     suspend fun searchQuotesByAuthorAndKeyword(authorName: String?, keyword: String?): List<Quote>
 
     // Löschen aller Autoren aus der lokalen Datenbank
     @Query("DELETE FROM authors")
     suspend fun deleteAllAuthors()
-
 
 
     // Abrufen eines Zitats aus der lokalen Datenbank anhand der angegebenen ID.
@@ -106,7 +108,11 @@ interface QuoteDao {
 
     // Abrufen aller Favoriten-Zitate aus der lokalen Datenbank.
     @Query("SELECT * FROM quotes WHERE isSaved = 1")
-    suspend fun getAllSavedQuotes(): List<Quote>
+    fun getAllSavedQuotes(): LiveData<List<Quote>>
+
+    // Abfragen als LiveData
+    @Query("SELECT * FROM quotes WHERE isSaved = 1")
+    fun getAllSavedQuotesLiveData(): LiveData<List<Quote>>
 
     // Liefert alle Autoren basierend auf einem Tag
     @Query("SELECT * FROM authors WHERE tag = :tag")

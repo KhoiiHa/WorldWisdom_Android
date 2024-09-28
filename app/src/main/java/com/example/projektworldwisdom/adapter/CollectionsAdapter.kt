@@ -1,9 +1,12 @@
 package com.example.projektworldwisdom.adapter
 
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.databinding.ItemCollectionQuoteBinding
 import com.example.projektworldwisdom.model.Quote
@@ -17,15 +20,16 @@ class CollectionsAdapter(
     private var selectedQuote: Quote? = null
 
     fun updateData(newQuotes: List<Quote>) {
-        quotes = newQuotes
+        quotes = newQuotes // quotes ist deine Liste im Adapter
         notifyDataSetChanged()
     }
 
     fun getSelectedQuote(): Quote? = selectedQuote
 
     inner class CollectionViewHolder(val binding: ItemCollectionQuoteBinding) : RecyclerView.ViewHolder(binding.root) {
+        @SuppressLint("SetTextI18n")
         fun bind(quote: Quote) {
-            // Anzeige des Zitats und Autors mit Fehlerbehandlung
+            // Anzeige des Zitats und Autors
             binding.quoteTextView.text = "\"${quote.content ?: "Kein Zitat verfügbar"}\""
             binding.authorTextView.text = "- ${quote.authorName ?: "Unbekannt"}"
 
@@ -33,21 +37,25 @@ class CollectionsAdapter(
             binding.commentButton.setOnClickListener {
                 if (selectedQuote != quote) {
                     selectedQuote = quote // Setze das ausgewählte Zitat
+                    onCommentClick(quote, "")
                 } else {
                     selectedQuote = null // Setze die Auswahl zurück, falls erneut geklickt
                 }
-                onCommentClick(quote, "")
-                Log.d("CollectionsAdapter", "Kommentar Button geklickt für: '${quote.content}' von '${quote.authorName}'")
             }
 
             // OnClickListener für den Löschen-Button
             binding.deleteButton.setOnClickListener {
                 onDeleteClick(quote) // Aufruf der Lösch-Funktion
-                Log.d("CollectionsAdapter", "Löschen Button geklickt für: '${quote.content}' von '${quote.authorName}'")
             }
 
-            // Optional: Log-Ausgabe zur Bestätigung der Bindung
-            Log.d("CollectionsAdapter", "Binding quote: '${quote.content}' by '${quote.authorName}'")
+            // Kommentare anzeigen
+            setupComments(quote)
+        }
+
+        private fun setupComments(quote: Quote) {
+            // Hier zeigen wir die Kommentare direkt in einem TextView an
+            binding.commentsTextView.text = quote.comments.joinToString("\n") { comment -> "- $comment" }
+            binding.commentsTextView.visibility = if (quote.comments.isNotEmpty()) View.VISIBLE else View.GONE
         }
     }
 

@@ -92,7 +92,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             clearError()
 
             try {
-                val quotes = repository.getQuotesByTag(tag) // Hier musst du die Methode im Repository implementieren
+                val quotes = repository.getQuotesByTag(tag)
                 handleQuotesResponse(quotes, tag)
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
@@ -108,7 +108,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             clearError()
 
             try {
-                val quotes = repository.getQuotesByQuery(query) // Diese Methode musst du im Repository implementieren
+                val quotes = repository.getQuotesByQuery(query)
                 handleQuotesResponse(quotes, query)
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
@@ -182,12 +182,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             try {
                 // Rufe Zitate basierend auf den Keywords ab
                 val quotes = repository.getQuotesByKeywords(keywords)
-                if (quotes.isEmpty()) {
-                    _error.postValue("Keine Zitate für die angegebenen Keywords gefunden.")
-                } else {
-                    _quotes.postValue(quotes)
-                    _error.postValue(null) // Setze die Fehlermeldung zurück
-                }
+                handleQuotesResponse(quotes, keywords.joinToString(", "))
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
@@ -196,8 +191,8 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    private fun handleQuotesResponse(quotes: List<Quote>, searchQuery: String) {
-        if (quotes.isEmpty()) {
+    private fun handleQuotesResponse(quotes: List<Quote>?, searchQuery: String) {
+        if (quotes.isNullOrEmpty()) {
             Log.d("ViewModel", "Keine Zitate für '$searchQuery' gefunden.")
             _error.postValue("Keine Zitate für '$searchQuery' gefunden.")
         } else {

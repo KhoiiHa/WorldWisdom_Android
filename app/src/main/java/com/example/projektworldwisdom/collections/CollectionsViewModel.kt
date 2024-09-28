@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 
 class CollectionsViewModel(private val repository: QuoteRepository) : ViewModel() {
 
-    private val _savedQuotes = MutableLiveData<List<Quote>>()
-    val savedQuotes: LiveData<List<Quote>> = _savedQuotes
+    // LiveData, um die gespeicherten Zitate zu beobachten
+    val savedQuotes: LiveData<List<Quote>> = repository.getSavedQuotes()
 
     private val _commentAddedSuccessfully = MutableLiveData<Boolean>()
     val commentAddedSuccessfully: LiveData<Boolean> = _commentAddedSuccessfully
@@ -19,29 +19,19 @@ class CollectionsViewModel(private val repository: QuoteRepository) : ViewModel(
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
-    init {
-        loadSavedQuotes()
-    }
-
-    private fun loadSavedQuotes() {
-        viewModelScope.launch {
-            try {
-                // Verwende die vorhandene Funktion, um die gespeicherten Zitate zu laden
-                val quotes = repository.getSavedQuotes()
-                _savedQuotes.postValue(quotes)
-            } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden der gespeicherten Zitate: ${e.message}")
-            }
-        }
-    }
-
     fun addCommentToQuote(quote: Quote, newComment: String) {
         viewModelScope.launch {
             try {
-                val updatedQuote = quote.copy(comments = newComment)
-                repository.updateQuote(updatedQuote) // Stelle sicher, dass diese Methode im Repository definiert ist
-                loadSavedQuotes() // Lade die gespeicherten Zitate nach dem Hinzufügen eines Kommentars neu
-                _commentAddedSuccessfully.value = true
+                // Füge den neuen Kommentar zur Liste hinzu, falls der Kommentar nicht leer ist
+                if (newComment.isNotBlank()) {
+                    val updatedComments = quote.comments + newComment // Füge den neuen Kommentar hinzu
+                    val updatedQuote = quote.copy(comments = updatedComments) // Erstelle ein neues Quote-Objekt mit aktualisierten Kommentaren
+                    repository.updateQuote(updatedQuote) // Aktualisiere das Zitat im Repository
+                    // Nach dem Hinzufügen eines Kommentars wird die Liste automatisch aktualisiert
+                    _commentAddedSuccessfully.value = true
+                } else {
+                    _error.postValue("Kommentar darf nicht leer sein.")
+                }
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Speichern des Kommentars: ${e.message}")
             }
@@ -52,7 +42,7 @@ class CollectionsViewModel(private val repository: QuoteRepository) : ViewModel(
         viewModelScope.launch {
             try {
                 repository.deleteQuote(quote)
-                loadSavedQuotes() // Aktualisiere die Liste nach dem Löschen
+                // Nach dem Löschen wird die Liste automatisch aktualisiert
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Löschen des Zitats: ${e.message}")
             }

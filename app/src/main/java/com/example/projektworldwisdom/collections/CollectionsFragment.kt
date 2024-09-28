@@ -2,6 +2,7 @@ package com.example.projektworldwisdom.collections
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,79 +22,64 @@ import com.google.android.material.snackbar.Snackbar
 
 class CollectionsFragment : Fragment() {
 
-    private var _binding: FragmentCollectionsBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var viewModel: CollectionsViewModel
     private lateinit var adapter: CollectionsAdapter
+    private lateinit var binding: FragmentCollectionsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCollectionsBinding.inflate(inflater, container, false)
+        binding = FragmentCollectionsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Repository initialisieren
-        val quoteDao = QuoteDatabase.getDatabase(requireContext()).quoteDao()
-        val apiService = WorldWisdomApi.retrofitService
-        val repository = QuoteRepository(quoteDao, apiService)
-
-        // ViewModel initialisieren
-        viewModel = ViewModelProvider(this, CollectionsViewModelFactory(repository)).get(CollectionsViewModel::class.java)
-
-        // Setze das Layout des RecyclerViews und initialisiere den Adapter
-        binding.recyclerViewCollections.layoutManager = LinearLayoutManager(requireContext())
-        adapter = CollectionsAdapter(
-            onCommentClick = { quote, comment -> viewModel.addCommentToQuote(quote, comment) },
-            onDeleteClick = { quote -> viewModel.deleteQuote(quote) }
+        // Initialisiere den ViewModel
+        val repository =
+            QuoteRepository(quoteDao = QuoteDatabase.getDatabase(requireContext()).quoteDao())
+        viewModel = ViewModelProvider(this, CollectionsViewModelFactory(repository)).get(
+            CollectionsViewModel::class.java
         )
+
+        // Initialisiere den Adapter
+        adapter = CollectionsAdapter(
+            onCommentClick = { quote, comment ->
+                viewModel.addCommentToQuote(quote, comment)
+            },
+            onDeleteClick = { quote ->
+                viewModel.deleteQuote(quote)
+            }
+        )
+
         binding.recyclerViewCollections.adapter = adapter
 
-        // Beobachte die gespeicherten Zitate und aktualisiere den Adapter
+        // Setze den LayoutManager für die RecyclerView
+        binding.recyclerViewCollections.layoutManager = LinearLayoutManager(requireContext())
+
         viewModel.savedQuotes.observe(viewLifecycleOwner) { quotes ->
-            adapter.updateData(quotes ?: emptyList())
+            Log.d("CollectionsFragment", "Gespeicherte Zitate: $quotes")
+            adapter.updateData(quotes)
         }
 
-        // Beobachte Erfolgsmeldungen vom ViewModel und zeige eine Snackbar an
-        viewModel.commentAddedSuccessfully.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                Snackbar.make(view, "Kommentar erfolgreich hinzugefügt", Snackbar.LENGTH_SHORT).show()
-                viewModel.resetCommentAddedSuccessfully()
-            }
-        }
-
-        // Beobachte Fehler vom ViewModel und zeige eine Snackbar an
+        // Beobachte auf Fehler
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let {
-                Snackbar.make(view, "Fehler: $it", Snackbar.LENGTH_SHORT).show()
-            }
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         }
 
-        // Kommentar speichern
+        // Kommentieren Button-Klick
         binding.saveCommentButton.setOnClickListener {
             val selectedQuote = adapter.getSelectedQuote()
-            val comment = binding.commentEditText.text.toString()
-
+            val commentText = binding.commentEditText.text.toString()
             if (selectedQuote != null) {
-                if (comment.isNotBlank()) {
-                    viewModel.addCommentToQuote(selectedQuote, comment)
-                    binding.commentEditText.text?.clear()
-                } else {
-                    Toast.makeText(requireContext(), "Bitte geben Sie einen Kommentar ein.", Toast.LENGTH_SHORT).show()
-                }
+                viewModel.addCommentToQuote(selectedQuote, commentText)
+                binding.commentEditText.text.clear() // Leere das Textfeld nach dem Speichern
             } else {
-                Toast.makeText(requireContext(), "Bitte wählen Sie ein Zitat aus.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Bitte ein Zitat auswählen", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

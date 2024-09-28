@@ -1,19 +1,20 @@
 package com.example.projektworldwisdom.local
 
-import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import android.content.Context
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.projektworldwisdom.converters.Converters
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Note
 import com.example.projektworldwisdom.model.Quote
 
-
-@Database(entities = [Quote::class, Note::class, Author::class, Keyword::class], version = 4)
+@Database(entities = [Quote::class, Note::class, Author::class, Keyword::class], version = 1)
+@TypeConverters(Converters::class)
 abstract class QuoteDatabase : RoomDatabase() {
     abstract fun quoteDao(): QuoteDao
     abstract fun noteDao(): NoteDao
@@ -24,13 +25,12 @@ abstract class QuoteDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): QuoteDatabase {
             return INSTANCE ?: synchronized(this) {
-                // Prüfen, ob es bereits eine Instanz gibt, ansonsten neue erstellen
-                val instance = INSTANCE ?: Room.databaseBuilder(
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     QuoteDatabase::class.java,
                     "quote_database"
                 )
-                    .fallbackToDestructiveMigration() // Optional, falls die Datenbankstruktur geändert wird
+                    .fallbackToDestructiveMigration() // Datenbank wird bei Schemaänderungen gelöscht
                     .build()
                 INSTANCE = instance
                 instance

@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.example.projektworldwisdom.local.QuoteDao
 import com.example.projektworldwisdom.mockApi.MockApi
 import com.example.projektworldwisdom.model.Author
@@ -12,10 +13,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class QuoteRepository(
-    private val quoteDao: QuoteDao,
-    private val apiService: WorldWisdomApiService
-) {
+class QuoteRepository(private val quoteDao: QuoteDao) {
 
 
     // Liefert eine Liste aller Zitate
@@ -105,7 +103,10 @@ class QuoteRepository(
                 Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
                 authors // Rückgabe der Autoren
             } else {
-                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
+                Log.e(
+                    "AuthorRepository",
+                    "No authors received from API"
+                ) // Log, wenn keine Autoren zurückgegeben werden
                 emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
             }
         } catch (e: Exception) {
@@ -179,7 +180,11 @@ class QuoteRepository(
         }
     }
 
-    suspend fun searchQuotesByAuthorAndKeywords(authorName: String?, keywords: List<String>, tag: String?): List<Quote> {
+    suspend fun searchQuotesByAuthorAndKeywords(
+        authorName: String?,
+        keywords: List<String>,
+        tag: String?
+    ): List<Quote> {
         return try {
             val matchingQuotes = mutableListOf<Quote>()
 
@@ -188,7 +193,8 @@ class QuoteRepository(
                 // Wenn Keywords angegeben sind, suche nach dem Autor und dem ersten Keyword
                 if (keywords.isNotEmpty()) {
                     for (keyword in keywords) {
-                        val quotesByAuthorAndKeyword = quoteDao.searchQuotesByAuthorAndKeyword(authorName, keyword)
+                        val quotesByAuthorAndKeyword =
+                            quoteDao.searchQuotesByAuthorAndKeyword(authorName, keyword)
                         matchingQuotes.addAll(quotesByAuthorAndKeyword)
                     }
                 } else {
@@ -332,36 +338,10 @@ class QuoteRepository(
 
 
     // Funktion zum Abrufen der gespeicherten Zitate
-    suspend fun getSavedQuotes(): List<Quote> {
-        return try {
-            // Ruft die gespeicherten Zitate aus der Datenbank ab
-            quoteDao.getAllSavedQuotes()
-        } catch (e: Exception) {
-            // Fehlerhandling, wenn das Abrufen fehlschlägt
-            e.printStackTrace()
-            emptyList() // Gibt eine leere Liste zurück, wenn ein Fehler auftritt
-        }
+    fun getSavedQuotes(): LiveData<List<Quote>> {
+        return quoteDao.getAllSavedQuotes() // Diese Methode gibt bereits LiveData zurück
     }
 
-
-    // Liefert eine Liste aller verfügbaren Autoren von der API.
-    suspend fun fetchAuthors(): List<Author> {
-        return try {
-            val authors = apiService.getAuthors() // Autoren von der API abrufen
-            Log.d(
-                "QuoteRepository",
-                "API Response for authors: $authors"
-            ) // Log für die API-Antwort
-            authors
-        } catch (e: Exception) {
-            Log.e(
-                "QuoteRepository",
-                "Error fetching authors, fallback to empty list: ${e.message}",
-                e
-            )
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
 
     suspend fun updateQuote(quote: Quote) {
         withContext(Dispatchers.IO) {
@@ -430,18 +410,29 @@ class QuoteRepository(
         return withContext(Dispatchers.IO) {
             try {
                 // Filtere ungültige Zitate heraus (z.B. solche ohne Inhalt)
-                val validQuotes = quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
+                val validQuotes =
+                    quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
 
                 if (validQuotes.isNotEmpty()) {
                     quoteDao.insertQuotes(validQuotes) // Gültige Zitate in die Datenbank einfügen
-                    Log.d("QuoteRepository", "Inserted ${validQuotes.size} valid quotes.") // Log für erfolgreiche Einfügung
+                    Log.d(
+                        "QuoteRepository",
+                        "Inserted ${validQuotes.size} valid quotes."
+                    ) // Log für erfolgreiche Einfügung
                     validQuotes.size // Rückgabe der Anzahl erfolgreich eingefügter Zitate
                 } else {
-                    Log.e("QuoteRepository", "No valid quotes to insert.") // Log, wenn keine gültigen Zitate vorhanden sind
+                    Log.e(
+                        "QuoteRepository",
+                        "No valid quotes to insert."
+                    ) // Log, wenn keine gültigen Zitate vorhanden sind
                     0 // Keine gültigen Zitate, Rückgabe 0
                 }
             } catch (e: Exception) {
-                Log.e("QuoteRepository", "Error inserting quotes: ${e.message}", e) // Fehlermeldung mit spezifischem Fehler
+                Log.e(
+                    "QuoteRepository",
+                    "Error inserting quotes: ${e.message}",
+                    e
+                ) // Fehlermeldung mit spezifischem Fehler
                 0 // Rückgabe 0 im Fehlerfall
             }
         }
@@ -598,11 +589,11 @@ class QuoteRepository(
 
     suspend fun saveQuote(quote: Quote) {
         try {
-            quoteDao.insertQuote(quote) // Hier wird die insertQuote-Methode aus dem DAO aufgerufen
+            val updatedQuote = quote.copy(isSaved = true) // Setze isSaved auf true
+            quoteDao.insertQuote(updatedQuote) // Speichere das aktualisierte Zitat in der Datenbank
         } catch (e: Exception) {
-            // Fehlerbehandlung, z.B. Loggen des Fehlers oder Weiterleiten an die UI
             Log.e("QuoteRepository", "Fehler beim Speichern des Zitats: ${e.message}")
-            throw e // Optional: Ausnahme weiterwerfen, um sie in der UI zu behandeln
+            throw e // Optional: Ausnahme weiterwerfen
         }
     }
 

@@ -20,5 +20,5 @@ data class Quote(
     val isFavorite: Boolean = false, // Favoriten-Zitat
     val isSaved: Boolean = false, // Neues Feld, um zu speichern, ob das Zitat gespeichert ist
     val keywords: List<String> = emptyList(), // Neue Liste für Keywords
-    val comments: String? = null
+    val comments: List<String> = emptyList() // Liste für Kommentare
 ) : Parcelable

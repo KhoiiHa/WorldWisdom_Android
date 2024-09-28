@@ -40,23 +40,18 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
     private val _authors = MutableLiveData<List<Author>>()
     val authors: LiveData<List<Author>> = _authors
 
-    private val _suggestedAuthors = MutableLiveData<List<Author>>()  // Vorschläge für Autoren
+    private val _suggestedAuthors = MutableLiveData<List<Author>>()
     val suggestedAuthors: LiveData<List<Author>> = _suggestedAuthors
 
     init {
         loadAllQuotes()
         loadAvailableKeywords()
         loadAllAuthors()
-
-        // Beobachtungen für die Filterung
-        _selectedKeywords.observeForever { updateFilteredQuotes() }
-        _searchKeyword.observeForever { updateFilteredQuotes() }
     }
 
     fun loadAllQuotes() {
         viewModelScope.launch {
-            _isLoading.postValue(true)
-            _error.postValue(null)
+            setLoading(true)
             try {
                 val allQuotes = repository.getAllQuotes()
                 _quotes.postValue(allQuotes)
@@ -64,7 +59,17 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
             } catch (e: Exception) {
                 handleLoadingError(e)
             } finally {
-                _isLoading.postValue(false)
+                setLoading(false)
+            }
+        }
+    }
+
+    fun saveQuote(quote: Quote) {
+        viewModelScope.launch {
+            try {
+                repository.saveQuote(quote)
+            } catch (e: Exception) {
+                Log.e("AllQuotesViewModel", "Fehler beim Speichern des Zitats", e)
             }
         }
     }
@@ -91,7 +96,6 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
         }
     }
 
-    // Neue Methode zur Aktualisierung der Vorschläge basierend auf der Eingabe
     fun updateSuggestedAuthors(query: String) {
         viewModelScope.launch {
             if (query.isNotEmpty()) {
@@ -101,15 +105,14 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
                 } ?: emptyList()
                 _suggestedAuthors.postValue(suggestions)
             } else {
-                _suggestedAuthors.postValue(emptyList())  // Leeren, wenn die Eingabe leer ist
+                _suggestedAuthors.postValue(emptyList())
             }
         }
     }
 
     private fun updateFilteredQuotes() {
         viewModelScope.launch {
-            _isLoading.postValue(true)
-            _error.postValue(null)
+            setLoading(true)
             try {
                 val author = normalizeString(_searchKeyword.value)
                 val keywords = _selectedKeywords.value ?: emptyList()
@@ -131,7 +134,7 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
             } catch (e: Exception) {
                 handleLoadingError(e)
             } finally {
-                _isLoading.postValue(false)
+                setLoading(false)
             }
         }
     }
@@ -142,11 +145,8 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
     }
 
     fun searchByAuthorAndKeywords(authorName: String, keywords: List<String>) {
-        val lowerCaseAuthorName = normalizeString(authorName)
-        val lowerCaseKeywords = keywords.map { normalizeString(it) }
-
-        _searchKeyword.value = lowerCaseAuthorName
-        _selectedKeywords.value = lowerCaseKeywords
+        _searchKeyword.value = normalizeString(authorName)
+        _selectedKeywords.value = keywords.map { normalizeString(it) }
         updateFilteredQuotes()
     }
 
@@ -159,6 +159,10 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
             _error.postValue("Fehler beim Laden der Zitate: ${e.message}")
             Log.e("AllQuotesViewModel", "Fehler beim Laden der Zitate", e)
         }
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        _isLoading.postValue(isLoading)
     }
 
     private fun normalizeString(input: String?): String {

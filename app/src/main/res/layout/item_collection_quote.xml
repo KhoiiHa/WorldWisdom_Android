@@ -27,24 +27,39 @@
         app:layout_constraintTop_toBottomOf="@+id/quoteTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/commentButton"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/commentsTextView" />
 
     <Button
         android:id="@+id/commentButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Kommentieren"
+        android:layout_marginStart="8dp"
+        android:contentDescription="Kommentieren"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginStart="8dp" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
         android:id="@+id/deleteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Löschen"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="Löschen"
         app:layout_constraintEnd_toStartOf="@+id/commentButton"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/commentsTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Kommentare"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@+id/authorTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone" /> <!-- Anfangs unsichtbar -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,31 +12,53 @@ import java.io.IOException
 
 class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
 
+    // MutableLiveData für Zitate
     private val _quotes = MutableLiveData<List<Quote>?>()
     val quotes: LiveData<List<Quote>?> = _quotes
 
-    private val _isLoading = MutableLiveData<Boolean>(false)
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> = _error
-
-    private val _dailyAffirmation = MutableLiveData<Quote?>()
-    val dailyAffirmation: LiveData<Quote?> = _dailyAffirmation
-
+    // MutableLiveData für Autoren
     private val _authors = MutableLiveData<List<Author>?>()
     val authors: LiveData<List<Author>?> = _authors
 
+    // MutableLiveData für Tags
+    private val _tags = MutableLiveData<List<String>>()
+    val tags: LiveData<List<String>> get() = _tags
+
+    // MutableLiveData für Keywords
+    private val _keywords = MutableLiveData<List<String>>()
+    val keywords: LiveData<List<String>> get() = _keywords
+
+    // MutableLiveData für Ladezustand
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    // MutableLiveData für Fehler
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
+
+    // MutableLiveData für das Zitat des Tages
+    private val _dailyAffirmation = MutableLiveData<Quote?>()
+    val dailyAffirmation: LiveData<Quote?> = _dailyAffirmation
+
+    // MutableLiveData für Autocomplete-Vorschläge
+    private val _autocompleteSuggestions = MutableLiveData<List<String>>()
+    val autocompleteSuggestions: LiveData<List<String>> get() = _autocompleteSuggestions
+
+    // Initialisierung: Lade Daten beim Start des ViewModels
     init {
         loadQuoteOfTheDay() // Lade das Zitat des Tages
-        loadAllQuotesHome() // Lade alle Zitate
+        loadAllQuotesHome() // Lade alle Zitate für die Startseite
         loadAllAuthors() // Lade alle Autoren
+        loadAllTags() // Lade alle Tags für Autocomplete
+        loadAllKeywords() // Lade alle Keywords für Autocomplete
     }
 
+    // Funktion zum Zurücksetzen von Fehlern
     fun clearError() {
         _error.value = null
     }
 
+    // Lade das Zitat des Tages
     fun loadQuoteOfTheDay() {
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -46,46 +68,44 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
                 val quote = repository.getQuoteOfTheDay() ?: repository.getQuoteOfTheDayFromLocal()
                 _dailyAffirmation.postValue(quote)
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden des Zitats: ${e.message}")
-                _dailyAffirmation.postValue(null)
+                handleError("Fehler beim Laden des Zitats: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
+    // Lade alle Zitate für die Startseite
     fun loadAllQuotesHome() {
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
                 val allQuotes = repository.getAllQuotes()
-                Log.d("HomeViewModel", "Fetched quotes: $allQuotes")
-
                 if (allQuotes.isEmpty()) {
-                    _error.postValue("Keine Zitate gefunden.")
+                    handleError("Keine Zitate gefunden.")
                 } else {
                     _quotes.postValue(allQuotes)
                 }
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+                handleError("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
-    // Neue Methode zum Speichern eines Zitats
+    // Speichere ein Zitat
     fun saveQuote(quote: Quote) {
         viewModelScope.launch {
             try {
-                repository.saveQuote(quote) // Aufruf der Methode im Repository, um das Zitat zu speichern
-                Log.d("HomeViewModel", "Zitat erfolgreich gespeichert: $quote")
+                repository.saveQuote(quote)
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Speichern des Zitats: ${e.message}")
+                handleError("Fehler beim Speichern des Zitats: ${e.message}")
             }
         }
     }
 
+    // Suche Zitate anhand eines Tags
     fun searchByTag(tag: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -95,29 +115,31 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
                 val quotes = repository.getQuotesByTag(tag)
                 handleQuotesResponse(quotes, tag)
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+                handleError("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
-    fun searchQuotes(query: String) {
+    // Suche Zitate basierend auf Autorennamen, Keywords und Tag
+    fun searchQuotes(authorName: String?, keywords: List<String>, tag: String?) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             clearError()
 
             try {
-                val quotes = repository.getQuotesByQuery(query)
-                handleQuotesResponse(quotes, query)
+                val quotes = repository.searchQuotesByAuthorAndKeywordsAndTag(authorName, keywords, tag)
+                handleQuotesResponse(quotes, authorName ?: "Suchanfrage") // Füge die Sucheingabe als Kontext hinzu
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+                handleError("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
+    // Lade alle Autoren
     fun loadAllAuthors() {
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -126,34 +148,39 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             try {
                 val allAuthors = repository.getAllAuthors()
                 if (allAuthors.isEmpty()) {
-                    _error.postValue("Keine Autoren gefunden.")
+                    handleError("Keine Autoren gefunden.")
                 } else {
                     _authors.postValue(allAuthors)
                 }
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Abrufen der Autoren: ${e.message}")
+                handleError("Fehler beim Abrufen der Autoren: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
-    fun searchByAuthorAndKeywords(authorName: String, keywords: List<String>) {
+    // Suche Zitate basierend auf Autorennamen, Keywords und Tags
+    fun searchByAuthorAndKeywordsAndTags(authorName: String?, keywords: List<String>, tag: String?) {
         viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
+            _isLoading.postValue(true) // Ladeindikator aktivieren
+            clearError() // Vorherige Fehler löschen
 
             try {
-                val quotes = repository.getQuotesByKeywords(keywords)
-                handleQuotesResponse(quotes, authorName)
+                // Aufruf der Repository-Methode zur Suche nach Zitaten
+                val quotes = repository.searchQuotesByAuthorAndKeywordsAndTag(authorName, keywords, tag)
+                if (authorName != null) {
+                    handleQuotesResponse(quotes, authorName)
+                } // Verarbeite die erhaltenen Zitate
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+                handleError("Fehler beim Abrufen der Zitate: ${e.message}") // Fehlerbehandlung
             } finally {
-                _isLoading.postValue(false)
+                _isLoading.postValue(false) // Ladeindikator deaktivieren
             }
         }
     }
 
+    // Lade einen Autor anhand seines Namens
     fun getAuthorByName(authorName: String): LiveData<Author?> {
         val authorLiveData = MutableLiveData<Author?>()
 
@@ -174,31 +201,108 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         return authorLiveData
     }
 
+    // Lade Zitate basierend auf einer Liste von Keywords
     fun loadQuotesByKeywords(keywords: List<String>) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             clearError()
 
             try {
-                // Rufe Zitate basierend auf den Keywords ab
                 val quotes = repository.getQuotesByKeywords(keywords)
                 handleQuotesResponse(quotes, keywords.joinToString(", "))
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Abrufen der Zitate: ${e.message}")
+                handleError("Fehler beim Abrufen der Zitate: ${e.message}")
             } finally {
                 _isLoading.postValue(false)
             }
         }
     }
 
+    // Hilfsfunktion zur Verarbeitung der Zitate-Antwort
     private fun handleQuotesResponse(quotes: List<Quote>?, searchQuery: String) {
         if (quotes.isNullOrEmpty()) {
-            Log.d("ViewModel", "Keine Zitate für '$searchQuery' gefunden.")
-            _error.postValue("Keine Zitate für '$searchQuery' gefunden.")
+            handleError("Keine Zitate für '$searchQuery' gefunden.")
         } else {
-            Log.d("ViewModel", "Gefundene Zitate für '$searchQuery': $quotes")
             _quotes.postValue(quotes)
-            _error.postValue(null) // Fehlermeldung zurücksetzen
+            _error.postValue(null)
         }
+    }
+
+    // Autocomplete für Suchvorschläge nach Autoren, Tags und Keywords
+    fun searchAutocomplete(query: String) {
+        viewModelScope.launch {
+            clearError()
+            _isLoading.postValue(true)
+
+            try {
+                // Abrufen der Daten
+                val authors = repository.getAllAuthors() // List<Author>
+                val tags = repository.getAllTags() // List<String>
+                val keywords = repository.getAllKeywords() // List<String>
+
+                // Filtere die Autoren nach dem Namen
+                val authorSuggestions = authors
+                    .filter { it.name.contains(query, ignoreCase = true) }
+                    .map { it.name }
+
+                // Filtere die Tags nach dem Tag-Namen
+                val tagSuggestions = tags.filter { it.contains(query, ignoreCase = true) }
+
+                // Filtere die Keywords nach dem Keyword
+                val keywordSuggestions = keywords.filter { it.contains(query, ignoreCase = true) }
+
+                // Kombiniere alle Vorschläge und entferne Duplikate
+                val combinedSuggestions = (authorSuggestions + tagSuggestions + keywordSuggestions).distinct()
+
+                // Posten der kombinierten Vorschläge in LiveData
+                _autocompleteSuggestions.postValue(combinedSuggestions)
+            } catch (e: Exception) {
+                _autocompleteSuggestions.postValue(emptyList())
+                handleError("Fehler beim Abrufen von Autocomplete-Vorschlägen: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    // Lade alle Tags für Autocomplete
+    private fun loadAllTags() {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            clearError()
+
+            try {
+                val allTags = repository.getAllTags()
+                _tags.postValue(allTags)
+            } catch (e: Exception) {
+                handleError("Fehler beim Abrufen der Tags: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    // Lade alle Keywords für Autocomplete
+    private fun loadAllKeywords() {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            clearError()
+
+            try {
+                // Holen Sie sich alle Schlüsselwörter als Liste von Strings
+                val allKeywords = repository.getAllKeywords()
+                _keywords.postValue(allKeywords) // Angenommen, _keywords ist vom Typ MutableLiveData<List<String>>
+            } catch (e: Exception) {
+                handleError("Fehler beim Abrufen der Keywords: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    // Zentrale Fehlerbehandlungsfunktion
+    private fun handleError(message: String) {
+        _error.postValue(message)
+        Log.e("HomeViewModel", message)
     }
 }

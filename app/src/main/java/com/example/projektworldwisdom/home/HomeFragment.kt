@@ -1,6 +1,8 @@
 package com.example.projektworldwisdom.home
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +31,6 @@ class HomeFragment : Fragment() {
         HomeViewModelFactory(
             QuoteRepository(
                 QuoteDatabase.getDatabase(requireContext()).quoteDao()
-
             )
         )
     }
@@ -49,7 +50,7 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
-        setupSearchView()
+        setupSearchView() // Setup der Suchleiste
     }
 
     private fun setupRecyclerView() {
@@ -125,7 +126,6 @@ class HomeFragment : Fragment() {
                     viewModel.loadAllQuotesHome()
                     return@OnClickListener
                 }
-
                 else -> return@OnClickListener
             }
 
@@ -147,26 +147,43 @@ class HomeFragment : Fragment() {
     private fun setupSearchView() {
         val searchView = binding.searchBar
 
-        viewModel.authors.observe(viewLifecycleOwner) { authors ->
-            authors?.let {
-                val suggestions = (((it.flatMap { author -> listOf(author.name, author.tag) } +
-                        viewModel.quotes.value?.flatMap { quote -> quote.keywords })
-                        ))
+        // Adapter für die Suchleiste, der mit einer leeren Liste initialisiert wird
+        val adapter = ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            mutableListOf() // Start mit einer leeren Liste
+        )
+        searchView.setAdapter(adapter)
 
-                val adapter = ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_dropdown_item_1line,
-                    suggestions
-                )
-                searchView.setAdapter(adapter)
+        // Setze den Listener für die Auswahl eines Vorschlags
+        searchView.setOnItemClickListener { parent, view, position, id ->
+            val selectedOption = adapter.getItem(position)
+            // Verarbeite die Auswahl des Vorschlags
+            handleSearchSelection(selectedOption)
+        }
 
-                searchView.setOnItemClickListener { parent, view, position, id ->
-                    val selectedOption = adapter.getItem(position)
-                    handleSearchSelection(selectedOption.toString())
-                }
+        // Beobachte die Autocomplete-Vorschläge aus dem ViewModel
+        viewModel.autocompleteSuggestions.observe(viewLifecycleOwner) { suggestions ->
+            suggestions?.let {
+                // Aktualisiere den Adapter mit den neuen Vorschlägen
+                adapter.clear() // Leere die aktuelle Liste im Adapter
+                adapter.addAll(it) // Füge die neuen Vorschläge hinzu
+                adapter.notifyDataSetChanged() // Informiere den Adapter über die Änderungen
             }
         }
+
+        // TextWatcher für die Suchleiste, um Autocomplete-Vorschläge zu aktualisieren
+        searchView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.searchAutocomplete(s.toString()) // Aktualisiere die Vorschläge basierend auf der Eingabe
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
+
 
     private fun handleSearchSelection(selectedOption: String?) {
         if (selectedOption == null) return
@@ -181,13 +198,15 @@ class HomeFragment : Fragment() {
             } ?: run {
                 // Wenn der Autor nicht gefunden wurde, überprüfe, ob es ein Tag oder ein Keyword ist
                 viewModel.authors.value?.find { it.name == selectedOption }?.let { author ->
-                    viewModel.searchByAuthorAndKeywords(author.name, keywords)
+                    // Suche nach Zitaten basierend auf dem Autorennamen, Keywords und Tag
+                    viewModel.searchByAuthorAndKeywordsAndTags(author.name, keywords, author.tag)
                     navigateToAuthorDetails(author)
                 } ?: viewModel.authors.value?.find { it.tag == selectedOption }?.let { tag ->
+                    // Suche nach Zitaten basierend auf dem Tag
                     viewModel.searchByTag(tag.toString())
                 } ?: run {
                     // Fallback für die Suche nach Zitaten, wenn kein Autor oder Tag gefunden wurde
-                    viewModel.searchQuotes(selectedOption)
+                    viewModel.searchQuotes(selectedOption, keywords, null) // Suche nach Zitaten basierend auf dem Titel und den Keywords
                 }
             }
         }

@@ -6,6 +6,7 @@ import com.example.projektworldwisdom.local.QuoteDao
 import com.example.projektworldwisdom.mockApi.MockApi
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Image
+import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
 import com.google.common.reflect.TypeToken
@@ -114,6 +115,31 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
         }
     }
+
+    // Liefert eine Liste aller verfügbaren Tags
+    suspend fun getAllTags(): List<String> {
+        return try {
+            // Hole alle Autoren und extrahiere die Tags
+            getAllAuthors().map { it.tag }.distinct().sorted() // Extrahiere die Tags aus der Liste der Autoren
+        } catch (e: Exception) {
+            Log.e("TagRepository", "Fehler beim Abrufen der Tags von der API", e)
+            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
+    }
+
+    // Liefert eine Liste aller verfügbaren Keywords
+    suspend fun getAllKeywords(): List<String> {
+        return try {
+            // Nutze die bereits vorhandene Funktion getAvailableKeywords() aus MockAPI
+            MockApi.getAvailableKeywords() // List<String>
+        } catch (e: Exception) {
+            Log.e("KeywordRepository", "Fehler beim Abrufen der Keywords von der API", e)
+            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
+    }
+
+
+
 
     // Liefert ein zufälliges inspirierendes Bild
     suspend fun getRandomInspirationalImage(): String? {
@@ -374,6 +400,17 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
             false // Ungültiger Autor
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Speichert ein einzelnes Zitat in der lokalen Datenbank und gibt zurück, ob das Einfügen erfolgreich war

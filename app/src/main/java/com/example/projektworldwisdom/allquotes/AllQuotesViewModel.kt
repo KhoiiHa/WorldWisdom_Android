@@ -120,7 +120,7 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
 
                 val filteredQuotes = when {
                     author.isNotEmpty() && keywords.isNotEmpty() ->
-                        repository.searchQuotesByAuthorAndKeywords(author, keywords, tag)
+                        repository.searchQuotesByAuthorAndKeywordsAndTag(author, keywords, tag)
                     author.isNotEmpty() ->
                         repository.searchQuotesByAuthor(author)
                     keywords.isNotEmpty() ->

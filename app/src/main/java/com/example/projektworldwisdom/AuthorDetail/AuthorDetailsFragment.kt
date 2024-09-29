@@ -32,7 +32,7 @@ class AuthorDetailsFragment : Fragment() {
         val apiService = WorldWisdomApi.retrofitService
         val database = QuoteDatabase.getDatabase(requireContext())
         val quoteDao = database.quoteDao()
-        val repository = QuoteRepository(quoteDao, apiService)
+        val repository = QuoteRepository(quoteDao)
         return AuthorDetailsViewModelFactory(repository)
     }
 

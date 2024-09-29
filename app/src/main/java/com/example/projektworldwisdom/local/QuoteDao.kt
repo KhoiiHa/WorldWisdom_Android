@@ -52,15 +52,26 @@ interface QuoteDao {
     suspend fun searchQuotesByAuthor(authorName: String): List<Quote>
 
     // Abrufen von Zitaten, die ein bestimmtes Keyword enthalten
-    @Query("SELECT * FROM quotes WHERE :keyword IN (LOWER(keywords))")
+    @Query("SELECT * FROM quotes WHERE LOWER(:keyword) IN (LOWER(keywords))")
     suspend fun searchQuotesByKeyword(keyword: String): List<Quote>
 
-    // Kombinierte Suche nach Autor und Keyword
+    // Erweiterte Suche nach Autor, Keyword und Tag mit JOIN zwischen quotes und authors
     @Query(
-        """SELECT * FROM quotes WHERE (authorName = :authorName OR :authorName IS NULL)
-    AND (keywords LIKE '%' || :keyword || '%' OR :keyword IS NULL)"""
+        """SELECT quotes.* FROM quotes 
+        INNER JOIN authors ON LOWER(quotes.authorName) = LOWER(authors.name)
+        WHERE (:authorName IS NULL OR LOWER(quotes.authorName) = LOWER(:authorName))
+        AND (:keyword IS NULL OR quotes.keywords LIKE '%' || LOWER(:keyword) || '%')
+        AND (:tag IS NULL OR LOWER(authors.tag) = LOWER(:tag))"""
     )
-    suspend fun searchQuotesByAuthorAndKeyword(authorName: String?, keyword: String?): List<Quote>
+    suspend fun searchQuotesByAuthorKeywordAndTag(
+        authorName: String?,
+        keyword: String?,
+        tag: String?
+    ): List<Quote>
+
+    // Abrufen von Autoren mit einem bestimmten Tag
+    @Query("SELECT * FROM authors WHERE LOWER(tag) = LOWER(:tag)")
+    suspend fun getAuthorsByTag(tag: String): List<Author>
 
     // Löschen aller Autoren aus der lokalen Datenbank
     @Query("DELETE FROM authors")
@@ -114,8 +125,6 @@ interface QuoteDao {
     @Query("SELECT * FROM quotes WHERE isSaved = 1")
     fun getAllSavedQuotesLiveData(): LiveData<List<Quote>>
 
-    // Liefert alle Autoren basierend auf einem Tag
-    @Query("SELECT * FROM authors WHERE tag = :tag")
-    suspend fun getAuthorsByTag(tag: String): List<Author>
+
 }
 

@@ -114,11 +114,15 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
         viewModelScope.launch {
             setLoading(true)
             try {
+                // Normalisiere die Eingaben
                 val author = normalizeString(_searchKeyword.value)
                 val keywords = _selectedKeywords.value ?: emptyList()
                 val tag = normalizeString(_searchTag.value)
 
+                // Filtere die Zitate basierend auf den Eingaben
                 val filteredQuotes = when {
+                    author.isNotEmpty() && keywords.isNotEmpty() && tag.isNotEmpty() ->
+                        repository.searchQuotesByAuthorAndKeywordsAndTag(author, keywords, tag)
                     author.isNotEmpty() && keywords.isNotEmpty() ->
                         repository.searchQuotesByAuthorAndKeywordsAndTag(author, keywords, tag)
                     author.isNotEmpty() ->
@@ -130,6 +134,8 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
                     else ->
                         repository.getAllQuotes()
                 }
+
+                // Aktualisiere die gefilterten Zitate
                 _filteredQuotes.postValue(filteredQuotes)
             } catch (e: Exception) {
                 handleLoadingError(e)
@@ -138,7 +144,6 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
             }
         }
     }
-
     fun filterByKeyword(selectedKeywords: List<String>) {
         _selectedKeywords.value = selectedKeywords
         updateFilteredQuotes()

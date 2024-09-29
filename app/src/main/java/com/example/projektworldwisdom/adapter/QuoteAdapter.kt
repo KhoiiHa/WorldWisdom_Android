@@ -28,7 +28,7 @@ class QuoteAdapter(
         this.listener = listener
     }
 
-    // Neu: Methode zum Setzen des Save-Click-Listeners
+    // Methode zum Setzen des Save-Click-Listeners
     fun setOnSaveClickListener(listener: (Quote) -> Unit) {
         onSaveClick = listener // Callback für den Speichern-Button
     }
@@ -94,9 +94,4 @@ class QuoteAdapter(
         if (previousIndex >= 0) notifyItemChanged(previousIndex) // Vorherige Auswahl aktualisieren
         if (newIndex >= 0) notifyItemChanged(newIndex) // Neue Auswahl aktualisieren
     }
-
-//    // Methode zum Abrufen des aktuell ausgewählten Zitats
-//    fun getSelectedQuote(): Quote? {
-//        return selectedQuote
-//    }
 }

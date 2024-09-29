@@ -66,6 +66,8 @@ class AllQuotesFragment : Fragment() {
 
     private fun setupRecyclerView() {
         quoteAdapter = QuoteAdapter(emptyList(), emptyList(), viewModel::saveQuote)
+
+        // Hier wird ein OnItemClickListener übergeben
         quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
             override fun onItemClick(quote: Quote) {
                 quote.authorName?.let { authorName ->
@@ -81,7 +83,6 @@ class AllQuotesFragment : Fragment() {
             }
         })
 
-        // Hier die saveQuote-Funktion als Callback hinzufügen
         quoteAdapter.setOnSaveClickListener { quote ->
             saveQuote(quote)
         }

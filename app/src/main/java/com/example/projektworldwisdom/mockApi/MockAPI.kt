@@ -122,19 +122,6 @@ object MockApi {
         }
     }
 
-    // Funktion zum Abrufen von Zitaten basierend auf dem Tag des Autors
-    fun getQuotesByTag(tag: String): List<Quote> {
-        // Schritt 1: Rufe alle Autoren ab und filtere die Autoren nach dem übergebenen Tag
-        val matchingAuthors = getAllAuthors().filter {
-            it.tag.equals(tag, ignoreCase = true)
-        }
-
-        // Schritt 2: Erstelle eine Menge von Autorennamen
-        val authorNames = matchingAuthors.map { it.name }.toSet()
-
-        // Schritt 3: Rufe alle Zitate ab und filtere nach den Zitaten, deren Autor in der Autorenliste ist
-        return getAllQuotes().filter { it.authorName in authorNames }
-    }
 
     // Liefert eine Liste aller verfügbaren Schlüsselwörter
     fun getAvailableKeywords(): List<String> {

@@ -47,13 +47,6 @@ interface QuoteDao {
     @Query("SELECT * FROM authors WHERE name = :authorName LIMIT 1")
     suspend fun getAuthorByName(authorName: String): Author?
 
-    // Abrufen von Zitaten eines bestimmten Autors aus der lokalen Datenbank
-    @Query("SELECT * FROM quotes WHERE LOWER(authorName) = LOWER(:authorName)")
-    suspend fun searchQuotesByAuthor(authorName: String): List<Quote>
-
-    // Abrufen von Zitaten, die ein bestimmtes Keyword enthalten
-    @Query("SELECT * FROM quotes WHERE LOWER(:keyword) IN (LOWER(keywords))")
-    suspend fun searchQuotesByKeyword(keyword: String): List<Quote>
 
     // Erweiterte Suche nach Autor und Keyword mit JOIN zwischen quotes und authors
     @Query(

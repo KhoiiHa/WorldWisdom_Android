@@ -222,35 +222,22 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
             val matchingQuotes = mutableListOf<Quote>()
 
             // Fall 1: Suche nach Autor und Keywords
-            if (!authorName.isNullOrEmpty() || !keywords.isNullOrEmpty()) {
+            if (!authorName.isNullOrEmpty() || keywords.isNotEmpty()) {
                 if (keywords.isNotEmpty()) {
-                    // Wenn Keywords vorhanden sind, iteriere über die Keywords und suche
+                    // Suche nach Autor und jedem Keyword in der Liste
                     keywords.forEach { keyword ->
                         val quotesByAuthorAndKeyword = quoteDao.searchQuotesByAuthorAndKeyword(authorName, keyword)
                         matchingQuotes.addAll(quotesByAuthorAndKeyword)
                     }
                 } else {
                     // Suche nur nach Autor, wenn keine Keywords vorhanden sind
-                    val quotesByAuthor = authorName?.let { quoteDao.searchQuotesByAuthor(it) }
-                    if (quotesByAuthor != null) {
-                        matchingQuotes.addAll(quotesByAuthor)
-                    }
+                    val quotesByAuthor = quoteDao.searchQuotesByAuthorAndKeyword(authorName, null)
+                    matchingQuotes.addAll(quotesByAuthor)
                 }
             }
-
-            // Fall 2: Wenn nur Keywords vorhanden sind und kein Autor angegeben wurde
-            if (keywords.isNotEmpty() && authorName.isNullOrEmpty()) {
-                keywords.forEach { keyword ->
-                    val quotesByKeyword = quoteDao.searchQuotesByKeyword(keyword)
-                    matchingQuotes.addAll(quotesByKeyword)
-                }
-            }
-
-            // Entferne doppelte Zitate, falls vorhanden, und gib die Liste zurück
-            matchingQuotes.distinct()
+            matchingQuotes // Rückgabe der gesammelten Zitate
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching quotes by author or keyword. Author: $authorName, Keywords: $keywords", e)
-            emptyList() // Fehlerbehandlung: leere Liste zurückgeben
+            emptyList() // Leere Liste zurückgeben, falls ein Fehler auftritt
         }
     }
 

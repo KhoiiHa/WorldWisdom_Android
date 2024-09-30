@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.adapter.QuoteAdapter
@@ -107,7 +108,6 @@ class AllQuotesFragment : Fragment() {
                 ).show()
             }
         }
-
     }
 
     private fun observeAvailableKeywords() {
@@ -167,6 +167,7 @@ class AllQuotesFragment : Fragment() {
 
     private fun handleSearchTextChanged(searchText: String) {
         Log.d("SearchText", "Input: $searchText")
+
         if (searchText.isEmpty()) {
             viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
             suggestionAdapter.clear() // Vorschläge zurücksetzen
@@ -175,15 +176,15 @@ class AllQuotesFragment : Fragment() {
             // Vorschläge basierend auf dem Suchtext aktualisieren
             updateSuggestions(searchText)
 
-            // Überprüfen, ob die ausgewählten Keywords null sind
+            // Hol die aktuellen ausgewählten Keywords oder setze eine leere Liste
             val selectedKeywords = viewModel.selectedKeywords.value ?: emptyList()
             Log.d("SearchText", "Selected Keywords: $selectedKeywords")
 
-            // Suche nach Autor und Keywords
-            viewModel.searchByAuthorAndKeywords(searchText, selectedKeywords)
-
-            // Optional: Schlüsselwörter basierend auf der Suche filtern
-            viewModel.filterByKeyword(selectedKeywords)
+            // Verwendet die Methode searchByAuthorAndKeywords, um sowohl nach Autor als auch Keywords zu suchen
+            viewModel.searchByAuthorAndKeywords(
+                authorName = if (selectedKeywords.isEmpty()) searchText else null, // Autorensuche nur, wenn keine Keywords
+                keywords = if (selectedKeywords.isNotEmpty()) selectedKeywords else listOf(searchText) // Keywords nur verwenden, wenn vorhanden, sonst den Suchtext
+            )
         }
     }
 

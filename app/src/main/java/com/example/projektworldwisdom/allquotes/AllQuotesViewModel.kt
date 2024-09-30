@@ -138,16 +138,24 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
             clearError() // Vorherige Fehler löschen
 
             try {
-                // Aufruf der Repository-Methode zur Suche nach Zitaten
+                // Suche nach Autor und Keywords
                 val quotes = repository.searchQuotesByAuthorAndKeywords(authorName, keywords)
-                if (authorName != null) {
-                    handleQuotesResponse(quotes, authorName)
-                }
+                handleQuotesResponse(quotes, authorName ?: keywords.joinToString(", "))
             } catch (e: Exception) {
                 handleError("Fehler beim Abrufen der Zitate: ${e.message}") // Fehlerbehandlung
             } finally {
                 _isLoading.postValue(false) // Ladeindikator deaktivieren
             }
+        }
+    }
+
+    // Hilfsfunktion zur Verarbeitung der Zitate-Antwort
+    private fun handleQuotesResponse(quotes: List<Quote>?, searchQuery: String) {
+        if (quotes.isNullOrEmpty()) {
+            handleError("Keine Zitate für '$searchQuery' gefunden.")
+        } else {
+            _quotes.postValue(quotes)
+            _error.postValue(null)
         }
     }
 
@@ -181,13 +189,5 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
         Log.e("HomeViewModel", message)
     }
 
-    // Hilfsfunktion zur Verarbeitung der Zitate-Antwort
-    private fun handleQuotesResponse(quotes: List<Quote>?, searchQuery: String) {
-        if (quotes.isNullOrEmpty()) {
-            handleError("Keine Zitate für '$searchQuery' gefunden.")
-        } else {
-            _quotes.postValue(quotes)
-            _error.postValue(null)
-        }
-    }
+
 }

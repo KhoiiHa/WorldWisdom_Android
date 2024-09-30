@@ -83,7 +83,7 @@
     <fragment
         android:id="@+id/collectionsFragment"
         android:name="com.example.projektworldwisdom.collections.CollectionsFragment"
-        android:label="CollectionsFragment">
+        android:label="fragment_collections">
         <action
             android:id="@+id/action_collectionsFragment_to_homeFragment"
             app:destination="@id/homeFragment" />

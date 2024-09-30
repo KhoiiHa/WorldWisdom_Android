@@ -16,12 +16,16 @@ class CollectionsAdapter(
     private val onDeleteClick: (Quote) -> Unit
 ) : RecyclerView.Adapter<CollectionsAdapter.CollectionViewHolder>() {
 
-    private var quotes: List<Quote> = emptyList()
+    private var quotes: MutableList<Quote> = mutableListOf() // MutableList verwenden
     private var selectedQuote: Quote? = null
 
     fun updateData(newQuotes: List<Quote>) {
-        quotes = newQuotes // quotes ist deine Liste im Adapter
-        notifyDataSetChanged()
+        Log.d("CollectionsAdapter", "Updating data with ${newQuotes.size} quotes.")
+
+        // Leere die aktuelle Liste und füge die neuen Zitate hinzu
+        quotes.clear()
+        quotes.addAll(newQuotes)
+        notifyDataSetChanged() // Adapter benachrichtigen, dass sich die Daten geändert haben
     }
 
     fun getSelectedQuote(): Quote? = selectedQuote

@@ -15,7 +15,7 @@ import com.example.projektworldwisdom.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var navController: NavController
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
         // NavController initialisieren
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         binding.bottomNavView.setupWithNavController(navHostFragment.navController)
-        navController = navHostFragment.navController
 
     }
 }

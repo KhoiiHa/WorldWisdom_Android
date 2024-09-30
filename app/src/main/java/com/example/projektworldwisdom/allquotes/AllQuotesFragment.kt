@@ -49,6 +49,7 @@ class AllQuotesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Keywords abrufen
         viewModel.loadAvailableKeywords() // Lade die verfügbaren Keywords
 
         // RecyclerView einrichten
@@ -63,8 +64,6 @@ class AllQuotesFragment : Fragment() {
         // Suchleiste verknüpfen und Vorschläge einrichten
         initializeSearchBar()
 
-        // Ladeanzeige und Fehlerbehandlung
-        setupLoadingAndErrorHandling()
     }
 
     private fun setupRecyclerView() {
@@ -99,6 +98,7 @@ class AllQuotesFragment : Fragment() {
     private fun observeLiveData() {
         viewModel.filteredQuotes.observe(viewLifecycleOwner) { filteredQuotes ->
             filteredQuotes?.let {
+                Log.d("FilteredQuotes", "Number of filtered quotes: ${it.size}")
                 quoteAdapter.updateData(it, viewModel.authors.value ?: emptyList())
             } ?: run {
                 Snackbar.make(
@@ -158,33 +158,36 @@ class AllQuotesFragment : Fragment() {
         suggestionAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf())
         binding.searchEditText.setAdapter(suggestionAdapter) // Autocomplete-Adapter zu AutoCompleteTextView hinzufügen
 
+        // Keywords laden für die Vorschläge
+        viewModel.loadAvailableKeywords() // Lade die verfügbaren Keywords beim Start
+
         // Listener für die Suchleiste hinzufügen
         binding.searchEditText.addTextChangedListener { editable ->
             val searchText = editable.toString()
             handleSearchTextChanged(searchText)
+            updateSuggestions(searchText) // Vorschläge aktualisieren
         }
     }
+
 
     private fun handleSearchTextChanged(searchText: String) {
         Log.d("SearchText", "Input: $searchText")
 
+        // Vorschläge aktualisieren, unabhängig davon, ob die Suchleiste leer ist oder nicht
+        updateSuggestions(searchText)
+
         if (searchText.isEmpty()) {
             viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
-            suggestionAdapter.clear() // Vorschläge zurücksetzen
-            viewModel.clearSelectedKeywords() // Optional: Wähle alle Keywords ab, wenn die Suche leer ist
         } else {
-            // Vorschläge basierend auf dem Suchtext aktualisieren
-            updateSuggestions(searchText)
-
-            // Hol die aktuellen ausgewählten Keywords oder setze eine leere Liste
-            val selectedKeywords = viewModel.selectedKeywords.value ?: emptyList()
-            Log.d("SearchText", "Selected Keywords: $selectedKeywords")
-
-            // Verwendet die Methode searchByAuthorAndKeywords, um sowohl nach Autor als auch Keywords zu suchen
-            viewModel.searchByAuthorAndKeywords(
-                authorName = if (selectedKeywords.isEmpty()) searchText else null, // Autorensuche nur, wenn keine Keywords
-                keywords = if (selectedKeywords.isNotEmpty()) selectedKeywords else listOf(searchText) // Keywords nur verwenden, wenn vorhanden, sonst den Suchtext
-            )
+            // Prüfe, ob der Suchtext als Autor oder Keyword behandelt werden soll
+            val filteredAuthors = viewModel.authors.value?.filter { it.name.contains(searchText, ignoreCase = true) }
+            if (filteredAuthors?.isNotEmpty() == true) {
+                // Suche nur nach Autoren
+                viewModel.searchByAuthorAndKeywords(authorName = searchText, keywords = emptyList())
+            } else {
+                // Suche nach Keywords
+                viewModel.searchByAuthorAndKeywords(authorName = null, keywords = listOf(searchText))
+            }
         }
     }
 
@@ -192,6 +195,7 @@ class AllQuotesFragment : Fragment() {
         val filteredAuthors = viewModel.authors.value?.filter { it.name.contains(query, ignoreCase = true) }
         val filteredKeywords = viewModel.availableKeywords.value?.filter { it.contains(query, ignoreCase = true) }
 
+        // Nur Autoren und Keywords kombinieren
         val suggestions = (filteredAuthors?.map { it.name } ?: emptyList())
             .union(filteredKeywords ?: emptyList())
             .toList()
@@ -199,18 +203,6 @@ class AllQuotesFragment : Fragment() {
         suggestionAdapter.clear()
         suggestionAdapter.addAll(suggestions)
         suggestionAdapter.notifyDataSetChanged() // Adapter benachrichtigen, dass die Daten aktualisiert wurden
-    }
-
-    private fun setupLoadingAndErrorHandling() {
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-
-        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let {
-                Snackbar.make(requireView(), it, Snackbar.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun saveQuote(quote: Quote) {

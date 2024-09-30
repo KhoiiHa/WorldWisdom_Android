@@ -48,7 +48,6 @@ interface QuoteDao {
     suspend fun getAuthorByName(authorName: String): Author?
 
 
-    // Erweiterte Suche nach Autor und Keyword mit JOIN zwischen quotes und authors
     @Query(
         """SELECT quotes.* FROM quotes 
     INNER JOIN authors ON LOWER(quotes.authorName) = LOWER(authors.name)

@@ -129,7 +129,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
             clearError()
 
             try {
-                val quotes = repository.searchQuotesByAuthorAndKeywords(authorName, keywords)
+                val quotes = repository.searchQuotes(authorName, keywords)
                 handleQuotesResponse(quotes, authorName ?: "Suchanfrage") // Füge die Sucheingabe als Kontext hinzu
             } catch (e: Exception) {
                 handleError("Fehler beim Abrufen der Zitate: ${e.message}")
@@ -168,7 +168,7 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
 
             try {
                 // Aufruf der Repository-Methode zur Suche nach Zitaten
-                val quotes = repository.searchQuotesByAuthorAndKeywords(authorName, keywords)
+                val quotes = repository.searchQuotes(authorName, keywords)
                 if (authorName != null) {
                     handleQuotesResponse(quotes, authorName)
                 } // Verarbeite die erhaltenen Zitate

@@ -217,27 +217,15 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    suspend fun searchQuotesByAuthorAndKeywords(authorName: String?, keywords: List<String>): List<Quote> {
-        return try {
-            val matchingQuotes = mutableListOf<Quote>()
+    suspend fun searchQuotes(authorName: String?, keywords: List<String>): List<Quote> {
+        // Alle Zitate abrufen
+        val allQuotes = quoteDao.getAllQuotes()
 
-            // Fall 1: Suche nach Autor und Keywords
-            if (!authorName.isNullOrEmpty() || keywords.isNotEmpty()) {
-                if (keywords.isNotEmpty()) {
-                    // Suche nach Autor und jedem Keyword in der Liste
-                    keywords.forEach { keyword ->
-                        val quotesByAuthorAndKeyword = quoteDao.searchQuotesByAuthorAndKeyword(authorName, keyword)
-                        matchingQuotes.addAll(quotesByAuthorAndKeyword)
-                    }
-                } else {
-                    // Suche nur nach Autor, wenn keine Keywords vorhanden sind
-                    val quotesByAuthor = quoteDao.searchQuotesByAuthorAndKeyword(authorName, null)
-                    matchingQuotes.addAll(quotesByAuthor)
-                }
-            }
-            matchingQuotes // Rückgabe der gesammelten Zitate
-        } catch (e: Exception) {
-            emptyList() // Leere Liste zurückgeben, falls ein Fehler auftritt
+        // Zitate filtern
+        return allQuotes.filter { quote ->
+            val matchesAuthor = authorName.isNullOrEmpty() || quote.authorName?.contains(authorName, ignoreCase = true) == true
+            val matchesKeywords = keywords.isEmpty() || keywords.any { keyword -> quote.keywords.contains(keyword) }
+            matchesAuthor && matchesKeywords
         }
     }
 

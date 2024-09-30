@@ -122,7 +122,6 @@ object MockApi {
         }
     }
 
-
     // Liefert eine Liste aller verfügbaren Schlüsselwörter
     fun getAvailableKeywords(): List<String> {
         val allQuotes = getAllQuotes()

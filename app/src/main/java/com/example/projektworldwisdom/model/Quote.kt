@@ -12,13 +12,34 @@ import kotlinx.parcelize.Parcelize
 @TypeConverters(Converters::class)
 @Parcelize
 data class Quote(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // Eindeutige ID für jedes Zitat
-    val content: String?, // Zitattext
-    val authorName: String?, // Autorname
-    val authorImageUrl: String? = null, // Bild-URL des Autors (optional)
-    val isQuoteOfTheDay: Boolean = false, // Zitat des Tages
-    val isFavorite: Boolean = false, // Favoriten-Zitat
-    val isSaved: Boolean = false, // Neues Feld, um zu speichern, ob das Zitat gespeichert ist
-    val keywords: List<String> = emptyList(), // Neue Liste für Keywords
-    val comments: List<String> = emptyList() // Liste für Kommentare
-) : Parcelable
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val content: String?,
+    val authorName: String?,
+    val authorImageUrl: String? = null,
+    val isQuoteOfTheDay: Boolean = false,
+    val isFavorite: Boolean = false,
+    val isSaved: Boolean = false,
+    val keywords: List<String> = emptyList(),
+    val comments: List<String> = emptyList()
+) : Parcelable {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Quote) return false
+
+        return id == other.id &&
+                content == other.content &&
+                authorName == other.authorName &&
+                keywords == other.keywords &&
+                comments == other.comments
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + (content?.hashCode() ?: 0)
+        result = 31 * result + (authorName?.hashCode() ?: 0)
+        result = 31 * result + keywords.hashCode()
+        result = 31 * result + comments.hashCode()
+        return result
+    }
+}

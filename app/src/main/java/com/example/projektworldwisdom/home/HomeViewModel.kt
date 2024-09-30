@@ -122,14 +122,14 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    // Suche Zitate basierend auf Autorennamen, Keywords und Tag
-    fun searchQuotes(authorName: String?, keywords: List<String>, tag: String?) {
+    // Suche Zitate basierend auf Autorennamen und Keywords
+    fun searchQuotes(authorName: String?, keywords: List<String>) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             clearError()
 
             try {
-                val quotes = repository.searchQuotesByAuthorAndKeywordsAndTag(authorName, keywords, tag)
+                val quotes = repository.searchQuotesByAuthorAndKeywords(authorName, keywords)
                 handleQuotesResponse(quotes, authorName ?: "Suchanfrage") // Füge die Sucheingabe als Kontext hinzu
             } catch (e: Exception) {
                 handleError("Fehler beim Abrufen der Zitate: ${e.message}")
@@ -160,15 +160,15 @@ class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
         }
     }
 
-    // Suche Zitate basierend auf Autorennamen, Keywords und Tags
-    fun searchByAuthorAndKeywordsAndTags(authorName: String?, keywords: List<String>, tag: String?) {
+    // Suche Zitate basierend auf Autorennamen und Keywords
+    fun searchByAuthorAndKeywords(authorName: String?, keywords: List<String>) {
         viewModelScope.launch {
             _isLoading.postValue(true) // Ladeindikator aktivieren
             clearError() // Vorherige Fehler löschen
 
             try {
                 // Aufruf der Repository-Methode zur Suche nach Zitaten
-                val quotes = repository.searchQuotesByAuthorAndKeywordsAndTag(authorName, keywords, tag)
+                val quotes = repository.searchQuotesByAuthorAndKeywords(authorName, keywords)
                 if (authorName != null) {
                     handleQuotesResponse(quotes, authorName)
                 } // Verarbeite die erhaltenen Zitate

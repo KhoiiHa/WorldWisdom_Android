@@ -3,6 +3,7 @@ package com.example.projektworldwisdom.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.databinding.ItemQuoteBinding
 import com.example.projektworldwisdom.model.Author
@@ -73,12 +74,14 @@ class QuoteAdapter(
 
     // Funktion, um die Daten zu aktualisieren
     fun updateData(newQuotes: List<Quote>, newAuthors: List<Author>) {
-        // Prüfe, ob sich die Zitate oder Autoren geändert haben
-        if (this.quotes != newQuotes || this.authors != newAuthors) {
-            this.quotes = newQuotes
-            this.authors = newAuthors
-            notifyDataSetChanged() // Benachrichtige RecyclerView über die Änderungen
-        }
+        val oldQuotes = quotes
+        quotes = newQuotes
+        authors = newAuthors
+
+        val diffCallback = QuoteDiffCallback(oldQuotes, newQuotes)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        diffResult.dispatchUpdatesTo(this) // Benachrichtige die RecyclerView über die Änderungen
     }
 
     // Methode zum Auswählen eines Zitats
@@ -93,5 +96,22 @@ class QuoteAdapter(
         // Überprüfe, ob die Indizes gültig sind
         if (previousIndex >= 0) notifyItemChanged(previousIndex) // Vorherige Auswahl aktualisieren
         if (newIndex >= 0) notifyItemChanged(newIndex) // Neue Auswahl aktualisieren
+    }
+}
+
+// DiffUtil.Callback für die Zitate
+class QuoteDiffCallback(
+    private val oldList: List<Quote>,
+    private val newList: List<Quote>
+) : DiffUtil.Callback() {
+    override fun getOldListSize(): Int = oldList.size
+    override fun getNewListSize(): Int = newList.size
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].id == newList[newItemPosition].id // Anpassen, um ID oder eindeutige Eigenschaft zu vergleichen
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition] == newList[newItemPosition] // Vergleich der Inhalte
     }
 }

@@ -13,13 +13,13 @@ import kotlinx.coroutines.launch
 
 class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() {
 
-    private val _quotes = MutableLiveData<List<Quote>>()
-    val quotes: LiveData<List<Quote>> = _quotes
+    private val _quotes = MutableLiveData<List<Quote>?>(emptyList())
+    val quotes: MutableLiveData<List<Quote>?> = _quotes
 
     private val _filteredQuotes = MutableLiveData<List<Quote>>(emptyList())
     val filteredQuotes: LiveData<List<Quote>> = _filteredQuotes
 
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _error = MutableLiveData<String?>()
@@ -31,22 +31,28 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
     private val _selectedKeywords = MutableLiveData<List<String>>(emptyList())
     val selectedKeywords: LiveData<List<String>> = _selectedKeywords
 
-    private val _availableKeywords = MutableLiveData<List<String>>()
+    private val _availableKeywords = MutableLiveData<List<String>>(emptyList())
     val availableKeywords: LiveData<List<String>> = _availableKeywords
 
-    private val _searchTag = MutableLiveData<String>()
-    val searchTag: LiveData<String> = _searchTag
-
-    private val _authors = MutableLiveData<List<Author>>()
+    private val _authors = MutableLiveData<List<Author>>(emptyList())
     val authors: LiveData<List<Author>> = _authors
-
-    private val _suggestedAuthors = MutableLiveData<List<Author>>()
-    val suggestedAuthors: LiveData<List<Author>> = _suggestedAuthors
 
     init {
         loadAllQuotes()
         loadAvailableKeywords()
         loadAllAuthors()
+
+        // Beobachte Änderungen an den ausgewählten Keywords und aktualisiere gefilterte Zitate
+        _selectedKeywords.observeForever { updateFilteredQuotes() }
+        _searchKeyword.observeForever { updateFilteredQuotes() }
+    }
+
+    fun clearSelectedKeywords() {
+        _selectedKeywords.value = emptyList()
+    }
+
+    fun updateSelectedKeywords(newKeywords: List<String>) {
+        _selectedKeywords.value = newKeywords
     }
 
     fun loadAllQuotes() {
@@ -74,7 +80,7 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
         }
     }
 
-    private fun loadAvailableKeywords() {
+    fun loadAvailableKeywords() {
         viewModelScope.launch {
             try {
                 val keywords = repository.getAvailableKeywords()
@@ -96,46 +102,22 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
         }
     }
 
-    fun updateSuggestedAuthors(query: String) {
-        viewModelScope.launch {
-            if (query.isNotEmpty()) {
-                val normalizedQuery = normalizeString(query)
-                val suggestions = _authors.value?.filter {
-                    it.name.contains(normalizedQuery, ignoreCase = true)
-                } ?: emptyList()
-                _suggestedAuthors.postValue(suggestions)
-            } else {
-                _suggestedAuthors.postValue(emptyList())
-            }
-        }
-    }
-
     private fun updateFilteredQuotes() {
         viewModelScope.launch {
             setLoading(true)
             try {
-                // Normalisiere die Eingaben
                 val author = normalizeString(_searchKeyword.value)
                 val keywords = _selectedKeywords.value ?: emptyList()
-                val tag = normalizeString(_searchTag.value)
 
-                // Filtere die Zitate basierend auf den Eingaben
-                val filteredQuotes = when {
-                    author.isNotEmpty() && keywords.isNotEmpty() && tag.isNotEmpty() ->
-                        repository.searchQuotesByAuthorAndKeywordsAndTag(author, keywords, tag)
-                    author.isNotEmpty() && keywords.isNotEmpty() ->
-                        repository.searchQuotesByAuthorAndKeywordsAndTag(author, keywords, tag)
-                    author.isNotEmpty() ->
-                        repository.searchQuotesByAuthor(author)
-                    keywords.isNotEmpty() ->
-                        repository.getQuotesByKeywords(keywords)
-                    tag.isNotEmpty() ->
-                        repository.getQuotesByTag(tag)
-                    else ->
-                        repository.getAllQuotes()
-                }
+                Log.d("AllQuotesViewModel", "Filtering with author: '$author', keywords: $keywords")
 
-                // Aktualisiere die gefilterten Zitate
+                val filteredQuotes = _quotes.value?.filter { quote ->
+                    val matchesAuthor = author.isEmpty() || quote.authorName?.contains(author, ignoreCase = true) == true
+                    val matchesKeywords = keywords.isEmpty() || keywords.any { keyword -> quote.keywords.contains(keyword) }
+
+                    matchesAuthor && matchesKeywords // Beide Bedingungen müssen erfüllt sein
+                } ?: emptyList()
+
                 _filteredQuotes.postValue(filteredQuotes)
             } catch (e: Exception) {
                 handleLoadingError(e)
@@ -144,15 +126,29 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
             }
         }
     }
+
     fun filterByKeyword(selectedKeywords: List<String>) {
         _selectedKeywords.value = selectedKeywords
-        updateFilteredQuotes()
+        updateFilteredQuotes() // Stelle sicher, dass die Filterung aktualisiert wird
     }
 
-    fun searchByAuthorAndKeywords(authorName: String, keywords: List<String>) {
-        _searchKeyword.value = normalizeString(authorName)
-        _selectedKeywords.value = keywords.map { normalizeString(it) }
-        updateFilteredQuotes()
+    fun searchByAuthorAndKeywords(authorName: String?, keywords: List<String>) {
+        viewModelScope.launch {
+            _isLoading.postValue(true) // Ladeindikator aktivieren
+            clearError() // Vorherige Fehler löschen
+
+            try {
+                // Aufruf der Repository-Methode zur Suche nach Zitaten
+                val quotes = repository.searchQuotesByAuthorAndKeywords(authorName, keywords)
+                if (authorName != null) {
+                    handleQuotesResponse(quotes, authorName)
+                }
+            } catch (e: Exception) {
+                handleError("Fehler beim Abrufen der Zitate: ${e.message}") // Fehlerbehandlung
+            } finally {
+                _isLoading.postValue(false) // Ladeindikator deaktivieren
+            }
+        }
     }
 
     private suspend fun handleLoadingError(e: Exception) {
@@ -172,5 +168,26 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
 
     private fun normalizeString(input: String?): String {
         return input?.trim()?.lowercase() ?: ""
+    }
+
+    // Funktion zum Zurücksetzen von Fehlern
+    fun clearError() {
+        _error.value = null
+    }
+
+    // Zentrale Fehlerbehandlungsfunktion
+    private fun handleError(message: String) {
+        _error.postValue(message)
+        Log.e("HomeViewModel", message)
+    }
+
+    // Hilfsfunktion zur Verarbeitung der Zitate-Antwort
+    private fun handleQuotesResponse(quotes: List<Quote>?, searchQuery: String) {
+        if (quotes.isNullOrEmpty()) {
+            handleError("Keine Zitate für '$searchQuery' gefunden.")
+        } else {
+            _quotes.postValue(quotes)
+            _error.postValue(null)
+        }
     }
 }

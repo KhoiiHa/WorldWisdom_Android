@@ -2,6 +2,7 @@ package com.example.projektworldwisdom.allquotes
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,6 @@ import com.example.projektworldwisdom.databinding.FragmentAllQuotesBinding
 import com.example.projektworldwisdom.local.QuoteDatabase
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.repository.QuoteRepository
-import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.google.android.material.snackbar.Snackbar
 
 class AllQuotesFragment : Fragment() {
@@ -47,6 +47,8 @@ class AllQuotesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.loadAvailableKeywords() // Lade die verfügbaren Keywords
 
         // RecyclerView einrichten
         setupRecyclerView()
@@ -105,6 +107,7 @@ class AllQuotesFragment : Fragment() {
                 ).show()
             }
         }
+
     }
 
     private fun observeAvailableKeywords() {
@@ -112,33 +115,40 @@ class AllQuotesFragment : Fragment() {
             binding.filterContainer.removeAllViews() // Vorherige Filter-Views entfernen
 
             keywords?.let { keywordList ->
-                if (keywordList.isEmpty()) {
-                    Snackbar.make(requireView(), "Keine Schlüsselwörter verfügbar", Snackbar.LENGTH_SHORT).show()
-                } else {
-                    keywordList.forEach { keyword ->
-                        val textView = TextView(requireContext()).apply {
-                            text = keyword
-                            setPadding(16, 8, 16, 8)
+                // Standardmäßig die Filter-Container sichtbar machen
+                binding.filterContainer.visibility = if (keywordList.isNotEmpty()) View.VISIBLE else View.GONE
 
-                            // OnClickListener hinzufügen, um Filter anzuwenden
-                            setOnClickListener {
-                                val currentSelectedKeywords = viewModel.selectedKeywords.value?.toMutableList() ?: mutableListOf()
+                // Hier fügen wir die Keywords hinzu
+                keywordList.forEach { keyword ->
+                    val textView = TextView(requireContext()).apply {
+                        text = keyword
+                        setPadding(16, 8, 16, 8)
 
-                                // Toggle-Logik für die Schlüsselwörter
-                                if (currentSelectedKeywords.contains(keyword)) {
-                                    currentSelectedKeywords.remove(keyword)
-                                } else {
-                                    currentSelectedKeywords.add(keyword)
-                                }
+                        // OnClickListener hinzufügen, um Filter anzuwenden
+                        setOnClickListener {
+                            Log.d("FilterClick", "Keyword clicked: $keyword") // Log für Debugging
+                            val currentSelectedKeywords = viewModel.selectedKeywords.value?.toMutableList() ?: mutableListOf()
 
-                                viewModel.filterByKeyword(currentSelectedKeywords) // Aktualisiere die ausgewählten Schlüsselwörter
+                            // Toggle-Logik für die Schlüsselwörter
+                            if (currentSelectedKeywords.contains(keyword)) {
+                                currentSelectedKeywords.remove(keyword)
+                                Log.d("FilterClick", "Removed keyword: $keyword")
+                            } else {
+                                currentSelectedKeywords.add(keyword)
+                                Log.d("FilterClick", "Added keyword: $keyword")
                             }
+
+                            // Aktualisiere die ausgewählten Schlüsselwörter und filtere die Zitate
+                            viewModel.updateSelectedKeywords(currentSelectedKeywords)
+                            viewModel.filterByKeyword(currentSelectedKeywords)
                         }
-                        binding.filterContainer.addView(textView)
                     }
+                    binding.filterContainer.addView(textView)
                 }
             } ?: run {
+                // Snackbar nur anzeigen, wenn keywords null sind
                 Snackbar.make(requireView(), "Fehler beim Laden der Schlüsselwörter", Snackbar.LENGTH_SHORT).show()
+                Log.e("KeywordError", "Keywords are null or empty")
             }
         }
     }
@@ -156,18 +166,24 @@ class AllQuotesFragment : Fragment() {
     }
 
     private fun handleSearchTextChanged(searchText: String) {
+        Log.d("SearchText", "Input: $searchText")
         if (searchText.isEmpty()) {
             viewModel.loadAllQuotes() // Alle Zitate laden, wenn die Suchleiste leer ist
             suggestionAdapter.clear() // Vorschläge zurücksetzen
+            viewModel.clearSelectedKeywords() // Optional: Wähle alle Keywords ab, wenn die Suche leer ist
         } else {
             // Vorschläge basierend auf dem Suchtext aktualisieren
             updateSuggestions(searchText)
 
-            // Autorenvorschläge aktualisieren
-            viewModel.updateSuggestedAuthors(searchText)
+            // Überprüfen, ob die ausgewählten Keywords null sind
+            val selectedKeywords = viewModel.selectedKeywords.value ?: emptyList()
+            Log.d("SearchText", "Selected Keywords: $selectedKeywords")
 
             // Suche nach Autor und Keywords
-            viewModel.searchByAuthorAndKeywords(searchText, listOf(searchText)) // Hier wird eine Liste mit einem Keyword erstellt
+            viewModel.searchByAuthorAndKeywords(searchText, selectedKeywords)
+
+            // Optional: Schlüsselwörter basierend auf der Suche filtern
+            viewModel.filterByKeyword(selectedKeywords)
         }
     }
 
@@ -175,7 +191,10 @@ class AllQuotesFragment : Fragment() {
         val filteredAuthors = viewModel.authors.value?.filter { it.name.contains(query, ignoreCase = true) }
         val filteredKeywords = viewModel.availableKeywords.value?.filter { it.contains(query, ignoreCase = true) }
 
-        val suggestions = (filteredAuthors?.map { it.name } ?: emptyList()).union(filteredKeywords ?: emptyList()).toList()
+        val suggestions = (filteredAuthors?.map { it.name } ?: emptyList())
+            .union(filteredKeywords ?: emptyList())
+            .toList()
+
         suggestionAdapter.clear()
         suggestionAdapter.addAll(suggestions)
         suggestionAdapter.notifyDataSetChanged() // Adapter benachrichtigen, dass die Daten aktualisiert wurden

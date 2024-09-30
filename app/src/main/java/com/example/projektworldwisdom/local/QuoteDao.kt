@@ -55,18 +55,16 @@ interface QuoteDao {
     @Query("SELECT * FROM quotes WHERE LOWER(:keyword) IN (LOWER(keywords))")
     suspend fun searchQuotesByKeyword(keyword: String): List<Quote>
 
-    // Erweiterte Suche nach Autor, Keyword und Tag mit JOIN zwischen quotes und authors
+    // Erweiterte Suche nach Autor und Keyword mit JOIN zwischen quotes und authors
     @Query(
         """SELECT quotes.* FROM quotes 
-        INNER JOIN authors ON LOWER(quotes.authorName) = LOWER(authors.name)
-        WHERE (:authorName IS NULL OR LOWER(quotes.authorName) = LOWER(:authorName))
-        AND (:keyword IS NULL OR quotes.keywords LIKE '%' || LOWER(:keyword) || '%')
-        AND (:tag IS NULL OR LOWER(authors.tag) = LOWER(:tag))"""
+    INNER JOIN authors ON LOWER(quotes.authorName) = LOWER(authors.name)
+    WHERE (:authorName IS NULL OR LOWER(quotes.authorName) = LOWER(:authorName))
+    AND (:keyword IS NULL OR quotes.keywords LIKE '%' || LOWER(:keyword) || '%')"""
     )
-    suspend fun searchQuotesByAuthorKeywordAndTag(
+    suspend fun searchQuotesByAuthorAndKeyword(
         authorName: String?,
-        keyword: String?,
-        tag: String?
+        keyword: String?
     ): List<Quote>
 
     // Abrufen von Autoren mit einem bestimmten Tag

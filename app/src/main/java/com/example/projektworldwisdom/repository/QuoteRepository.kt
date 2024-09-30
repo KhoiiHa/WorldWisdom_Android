@@ -104,15 +104,26 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
                 Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
                 authors // Rückgabe der Autoren
             } else {
-                Log.e(
-                    "AuthorRepository",
-                    "No authors received from API"
-                ) // Log, wenn keine Autoren zurückgegeben werden
+                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
                 emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
             }
         } catch (e: Exception) {
             Log.e("AuthorRepository", "Fehler beim Abrufen der Autoren von der API", e)
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        }
+    }
+
+    // Methode zum Abrufen des Tags eines Autors anhand seines Namens
+    suspend fun getAuthorTagByName(authorName: String?): String? {
+        if (authorName.isNullOrEmpty()) return null
+
+        return try {
+            // Abrufe den Autor und extrahiere den Tag
+            val author = getAuthorByName(authorName)
+            author?.tag // Gib den Tag des Autors zurück, falls vorhanden
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Error fetching author tag by name", e)
+            null // Rückgabe von null im Fehlerfall
         }
     }
 
@@ -206,49 +217,39 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    suspend fun searchQuotesByAuthorAndKeywordsAndTag(
-        authorName: String?,
-        keywords: List<String>,
-        tag: String?
-    ): List<Quote> {
+    suspend fun searchQuotesByAuthorAndKeywords(authorName: String?, keywords: List<String>): List<Quote> {
         return try {
             val matchingQuotes = mutableListOf<Quote>()
 
-            // Fall 1: Suche nach Autor, Keywords und Tag zusammen
-            if (!authorName.isNullOrEmpty() || !keywords.isNullOrEmpty() || !tag.isNullOrEmpty()) {
-                // Iteriere über die Keywords (wenn vorhanden)
+            // Fall 1: Suche nach Autor und Keywords
+            if (!authorName.isNullOrEmpty() || !keywords.isNullOrEmpty()) {
                 if (keywords.isNotEmpty()) {
-                    for (keyword in keywords) {
-                        val quotesByAuthorKeywordAndTag = quoteDao.searchQuotesByAuthorKeywordAndTag(authorName, keyword, tag)
-                        matchingQuotes.addAll(quotesByAuthorKeywordAndTag)
+                    // Wenn Keywords vorhanden sind, iteriere über die Keywords und suche
+                    keywords.forEach { keyword ->
+                        val quotesByAuthorAndKeyword = quoteDao.searchQuotesByAuthorAndKeyword(authorName, keyword)
+                        matchingQuotes.addAll(quotesByAuthorAndKeyword)
                     }
                 } else {
-                    // Keine Keywords, nur nach Autor und Tag suchen
-                    val quotesByAuthorAndTag = quoteDao.searchQuotesByAuthorKeywordAndTag(authorName, null, tag)
-                    matchingQuotes.addAll(quotesByAuthorAndTag)
+                    // Suche nur nach Autor, wenn keine Keywords vorhanden sind
+                    val quotesByAuthor = authorName?.let { quoteDao.searchQuotesByAuthor(it) }
+                    if (quotesByAuthor != null) {
+                        matchingQuotes.addAll(quotesByAuthor)
+                    }
                 }
             }
 
-            // Fall 2: Suche nach Keywords nur, wenn kein Autor angegeben ist
+            // Fall 2: Wenn nur Keywords vorhanden sind und kein Autor angegeben wurde
             if (keywords.isNotEmpty() && authorName.isNullOrEmpty()) {
-                for (keyword in keywords) {
+                keywords.forEach { keyword ->
                     val quotesByKeyword = quoteDao.searchQuotesByKeyword(keyword)
                     matchingQuotes.addAll(quotesByKeyword)
                 }
             }
 
-            // Fall 3: Suche nach Tag, aber ohne Keyword oder spezifischen Autor
-            if (!tag.isNullOrEmpty() && authorName.isNullOrEmpty() && keywords.isEmpty()) {
-                val authorsWithTag = quoteDao.getAuthorsByTag(tag)
-                for (author in authorsWithTag) {
-                    val quotesByTag = quoteDao.searchQuotesByAuthor(author.name)
-                    matchingQuotes.addAll(quotesByTag)
-                }
-            }
-
-            matchingQuotes.distinct() // Entfernt doppelte Zitate, falls welche vorhanden sind
+            // Entferne doppelte Zitate, falls vorhanden, und gib die Liste zurück
+            matchingQuotes.distinct()
         } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching quotes by author, keyword, or tag. Author: $authorName, Keywords: $keywords, Tag: $tag", e)
+            Log.e("QuoteRepository", "Error fetching quotes by author or keyword. Author: $authorName, Keywords: $keywords", e)
             emptyList() // Fehlerbehandlung: leere Liste zurückgeben
         }
     }

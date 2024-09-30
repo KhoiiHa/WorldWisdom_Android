@@ -199,14 +199,14 @@ class HomeFragment : Fragment() {
                 // Wenn der Autor nicht gefunden wurde, überprüfe, ob es ein Tag oder ein Keyword ist
                 viewModel.authors.value?.find { it.name == selectedOption }?.let { author ->
                     // Suche nach Zitaten basierend auf dem Autorennamen, Keywords und Tag
-                    viewModel.searchByAuthorAndKeywordsAndTags(author.name, keywords, author.tag)
+                    viewModel.searchByAuthorAndKeywords(author.name, keywords)
                     navigateToAuthorDetails(author)
                 } ?: viewModel.authors.value?.find { it.tag == selectedOption }?.let { tag ->
                     // Suche nach Zitaten basierend auf dem Tag
                     viewModel.searchByTag(tag.toString())
                 } ?: run {
                     // Fallback für die Suche nach Zitaten, wenn kein Autor oder Tag gefunden wurde
-                    viewModel.searchQuotes(selectedOption, keywords, null) // Suche nach Zitaten basierend auf dem Titel und den Keywords
+                    viewModel.searchQuotes(selectedOption, keywords) // Suche nach Zitaten basierend auf dem Titel und den Keywords
                 }
             }
         }

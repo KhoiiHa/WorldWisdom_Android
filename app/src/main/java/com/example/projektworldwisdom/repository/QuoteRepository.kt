@@ -320,20 +320,22 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
     // Ruft einen Autor anhand seines Namens ab, zuerst von der MockAPI, dann aus der Datenbank
     suspend fun getAuthorByName(authorName: String): Author? {
         return try {
-            // Zuerst versuche, den Autor von der MockAPI abzurufen
+            Log.d("QuoteRepository", "Versuche, Autor von der MockAPI abzurufen: $authorName")
             val apiAuthor = MockApi.getAuthorByName(authorName)
+            Log.d("QuoteRepository", "Gefundener Autor von MockAPI: $apiAuthor")
+
             if (apiAuthor != null) {
-                // Optional: Speichere den Autor in der Datenbank, wenn er von der API abgerufen wurde
+                // Optional: Speichere den Autor in der Datenbank
                 quoteDao.insertAuthor(apiAuthor)
-                return apiAuthor // Gib den Autor von der API zurück
+                return apiAuthor
             } else {
-                // Wenn der Autor nicht von der API abgerufen werden konnte, versuche es in der lokalen Datenbank
                 val author = quoteDao.getAuthorByName(authorName)
-                return author // Gib den Autor aus der lokalen DB zurück, wenn gefunden
+                Log.d("QuoteRepository", "Gefundener Autor aus der Datenbank: $author")
+                return author
             }
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error fetching author by name", e)
-            null // Rückgabe von null im Fehlerfall
+            null
         }
     }
 

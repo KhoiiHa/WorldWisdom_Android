@@ -24,34 +24,27 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
     private val _authorQuote = MutableLiveData<Quote?>()
     val authorQuote: LiveData<Quote?> = _authorQuote
 
-    // LiveData für Ladezustände
-    private val _isLoading = MutableLiveData<Boolean>(false)
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _isQuoteLoading = MutableLiveData<Boolean>(false)
-    val isQuoteLoading: LiveData<Boolean> = _isQuoteLoading
-
     // LiveData für Fehlernachrichten
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
     // Löscht Fehlernachrichten
     fun clearError() {
-        _error.postValue(null)
+        _error.value = null
     }
 
     // Setzt das initiale Zitat
     fun setInitialQuote(quote: Quote) {
-        _authorQuote.postValue(quote)
+        _authorQuote.value = quote
     }
 
     // Lädt die Autorendetails anhand des Slugs
     fun loadAuthorDetails(authorSlug: String) {
         viewModelScope.launch {
-            _isLoading.postValue(true)
-            Log.d("AuthorDetailsViewModel", "Loading author details for slug: $authorSlug") // Logging des Slugs
+            Log.d("AuthorDetailsViewModel", "Versuche, Autorendetails für Slug: $authorSlug zu laden")
             try {
                 val author = repository.getAuthorByName(authorSlug)
+                Log.d("AuthorDetailsViewModel", "Gefundener Autor: $author") // Logge den gefundenen Autor
                 if (author != null) {
                     _authorDetails.postValue(author)
                 } else {
@@ -59,9 +52,7 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
                 }
             } catch (e: Exception) {
                 _error.postValue("Fehler beim Laden der Autordetails: ${e.message}")
-                Log.e("AuthorDetailsViewModel", "Error fetching author details", e)
-            } finally {
-                _isLoading.postValue(false)
+                Log.e("AuthorDetailsViewModel", "Fehler: ${e.message}") // Fehler loggen
             }
         }
     }
@@ -70,22 +61,19 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
     fun loadNewQuote() {
         val authorName = _authorDetails.value?.name ?: return
         viewModelScope.launch {
-            _isQuoteLoading.postValue(true)
             try {
                 val authorQuotes = repository.getQuotesByAuthor(authorName)
                 if (authorQuotes.isNotEmpty()) {
-                    _authorQuote.postValue(authorQuotes.random())
+                    _authorQuote.value = authorQuotes.random()
                 } else {
-                    _error.postValue("Keine Zitate für diesen Autor gefunden")
+                    _error.value = "Keine Zitate für diesen Autor gefunden"
                 }
             } catch (e: IOException) {
-                _error.postValue("Netzwerkfehler: ${e.message}")
+                _error.value = "Netzwerkfehler: ${e.message}"
                 Log.e("AuthorDetailsViewModel", "Network error fetching quotes", e)
             } catch (e: HttpException) {
-                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
+                _error.value = "API-Fehler: ${e.code()} - ${e.message()}"
                 Log.e("AuthorDetailsViewModel", "HTTP error fetching quotes", e)
-            } finally {
-                _isQuoteLoading.postValue(false)
             }
         }
     }

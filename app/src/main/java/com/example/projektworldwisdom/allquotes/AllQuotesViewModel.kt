@@ -1,20 +1,27 @@
 package com.example.projektworldwisdom.allquotes
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.projektworldwisdom.local.QuoteDatabase
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.repository.QuoteRepository
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.remote.WorldWisdomApi
 import kotlinx.coroutines.launch
 
-class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() {
+
+class AllQuotesViewModel(application: Application): AndroidViewModel(application) {
+
+    private val repository = QuoteRepository(QuoteDatabase.getDatabase(application).quoteDao())
 
     private val _quotes = MutableLiveData<List<Quote>?>(emptyList())
     val quotes: LiveData<List<Quote>?> = _quotes
+
+    private val _quotesDetails = MutableLiveData<Quote>()
+    val quotesDetails: LiveData<Quote> get()=  _quotesDetails
 
     private val _filteredQuotes = MutableLiveData<List<Quote>>(emptyList())
     val filteredQuotes: LiveData<List<Quote>> = _filteredQuotes
@@ -185,5 +192,10 @@ class AllQuotesViewModel(private val repository: QuoteRepository) : ViewModel() 
     private fun handleError(message: String) {
         _error.postValue(message)
         Log.e("HomeViewModel", message)
+    }
+
+    fun setQuote(quote: Quote) {
+        _quotesDetails.value = quote
+
     }
 }

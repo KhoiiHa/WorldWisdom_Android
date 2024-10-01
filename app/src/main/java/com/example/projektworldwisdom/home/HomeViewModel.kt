@@ -1,7 +1,9 @@
 package com.example.projektworldwisdom.home
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.projektworldwisdom.local.QuoteDatabase
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.repository.QuoteRepository
@@ -10,7 +12,9 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
-class HomeViewModel(private val repository: QuoteRepository) : ViewModel() {
+class HomeViewModel(application: Application): AndroidViewModel(application) {
+
+    private val repository = QuoteRepository(QuoteDatabase.getDatabase(application).quoteDao())
 
     // MutableLiveData für Zitate
     private val _quotes = MutableLiveData<List<Quote>?>()

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import coil.load
@@ -19,21 +20,22 @@ import com.example.projektworldwisdom.local.QuoteDatabase
 import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.example.projektworldwisdom.repository.QuoteRepository
 import androidx.navigation.fragment.navArgs
+import com.example.projektworldwisdom.allquotes.AllQuotesViewModel
 import com.example.projektworldwisdom.mockApi.MockApi
 import com.google.android.material.snackbar.Snackbar
 
 class AuthorDetailsFragment : Fragment() {
 
-    private var _binding: FragmentAuthorDetailsBinding? = null
-    private val binding get() = _binding!!
+
+    private lateinit var binding: FragmentAuthorDetailsBinding
+
+    private val allQuotesViewmodel: AllQuotesViewModel by activityViewModels()
     private val viewModel: AuthorDetailsViewModel by viewModels { createFactory() }
 
+    // Factory-Methode für das ViewModel
     private fun createFactory(): AuthorDetailsViewModelFactory {
-        val apiService = WorldWisdomApi.retrofitService
-        val database = QuoteDatabase.getDatabase(requireContext())
-        val quoteDao = database.quoteDao()
-        val repository = QuoteRepository(quoteDao)
-        return AuthorDetailsViewModelFactory(repository)
+        val quoteDao = QuoteDatabase.getDatabase(requireContext()).quoteDao()
+        return AuthorDetailsViewModelFactory(QuoteRepository(quoteDao))
     }
 
     override fun onCreateView(
@@ -41,7 +43,7 @@ class AuthorDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAuthorDetailsBinding.inflate(inflater, container, false)
+        binding = FragmentAuthorDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -50,98 +52,87 @@ class AuthorDetailsFragment : Fragment() {
 
         // Hole die Argumente aus den Safe Args
         val args: AuthorDetailsFragmentArgs by navArgs()
-        val authorName = args.authorName
-        val quote = args.quote
+        val authorName = args.authorName // Autorname aus den Argumenten
+        val quote = args.quote // Zitat aus den Argumenten
 
-        // Log zur Überprüfung des authorName
-        Log.d("AuthorDetailsFragment", "Lade Autor-Details für: $authorName")
+        // Debugging-Logs
+        Log.d("AuthorDetailsFragment", "Author Name: $authorName")
+        Log.d("AuthorDetailsFragment", "Quote: ${quote.content}")
 
-        // Setze das initiale Zitat im ViewModel
-        viewModel.setInitialQuote(quote)
+        allQuotesViewmodel.quotesDetails.observe(viewLifecycleOwner) { quotes ->
+            Log.d("AuthorDetailsFragment", "Quotes Details: $quotes")
+            // Setze die Autor-Details in der UI
+            binding.authorName.text = quotes.authorName
+//            binding.authorTag.text = quotes.content
+            binding.authorQuote.text = quotes.content
+        }
 
-        // Lade Autor-Details (Umwandlung in authorSlug)
-        val authorSlug = authorName.lowercase().replace(" ", "-")
+        viewModel.setInitialQuote(quote) // Setze das initiale Zitat im ViewModel
 
-        // Log zur Überprüfung des authorSlug
-        Log.d("AuthorDetailsFragment", "Generated slug for author: $authorSlug")
-
-        viewModel.loadAuthorDetails(authorSlug)
+        // Lade die Autor-Details
+        val authorSlug = authorName.lowercase().replace(" ", "-") // Erstelle den Slug für den Autor
+        viewModel.loadAuthorDetails(authorSlug) // Lade die Autor-Details mit dem Slug
 
         // Beobachte die Autor-Details
         viewModel.authorDetails.observe(viewLifecycleOwner) { author ->
-            author?.apply {
-                binding.authorName.text = name
-                binding.authorTag.text = tag ?: "Kein Tag verfügbar"
+            // Hole die Argumente aus den Safe Args
+            val args: AuthorDetailsFragmentArgs by navArgs()
+            val authorName = args.authorName // Autorname aus den Argumenten
+            val quote = args.quote // Zitat aus den Argumenten
+
+            Log.d("AuthorDetailsFragment", "Author Details Updated: $author") // Debugging-Log
+            author?.let { authorDetails ->
 
                 // Link nur anzeigen, wenn vorhanden und nicht leer
-                binding.authorLink.isVisible = !link.isNullOrEmpty()
-                binding.authorLink.text = link
-                binding.authorLink.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-                    startActivity(intent)
+                binding.authorLink.apply {
+                    isVisible = !authorDetails.link.isNullOrEmpty() // Sichtbarkeit des Links setzen
+                    text = authorDetails.link ?: "" // Setze den Text des Links
+                    setOnClickListener {
+                        authorDetails.link?.let { link -> // Wenn ein Link vorhanden ist
+                            val intent =
+                                Intent(Intent.ACTION_VIEW, Uri.parse(link)) // Erstelle einen Intent
+                            startActivity(intent) // Starte die Aktivität mit dem Link
+                        }
+                    }
                 }
 
-                // Lade das Bild des Autors mit Coil oder Glide (hier beispielhaft mit Coil)
-                binding.authorImage.load(imageUrl) {
-                    crossfade(true)
-                    placeholder(R.drawable.ic_launcher_background)
-                    error(R.drawable.ic_launcher_background)
+                // Lade das Bild des Autors (falls vorhanden)
+                binding.authorImage.load(authorDetails.imageUrl) {
+                    crossfade(true) // Überblende die Bildanzeige
+                    placeholder(R.drawable.ic_launcher_background) // Setze Platzhalterbild
+                    error(R.drawable.ic_launcher_background) // Setze Bild bei Fehler
                 }
-
-                Log.d("AuthorDetailsFragment", "Autor-Details geladen: $author")
             } ?: run {
-                // Fehlerfall behandeln, wenn author null ist
+                // Fehlerfall behandeln
+                Log.e(
+                    "AuthorDetailsFragment",
+                    "Fehler beim Laden der Autor-Details"
+                ) // Fehlerprotokoll
                 Toast.makeText(
                     requireContext(),
                     "Autor-Details konnten nicht geladen werden",
                     Toast.LENGTH_SHORT
-                ).show()
-                Log.e("AuthorDetailsFragment", "Keine Autor-Details gefunden für: $authorSlug")
+                ).show() // Fehlernachricht
             }
         }
 
         // Beobachte Fehler-Updates
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-                viewModel.clearError()
-                Log.e("AuthorDetailsFragment", "Fehler: $it")
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG)
+                    .show() // Zeige Snackbar für Fehler
+                viewModel.clearError() // Fehlernachricht zurücksetzen
             }
-        }
-
-        // Beobachte Ladezustände für Autordetails
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Aktualisiere die Sichtbarkeit der Ladeanzeige für Autordetails (falls vorhanden)
         }
 
         // Klick-Listener für den Button zum Laden eines neuen Zitats
         binding.loadNewQuoteButton.setOnClickListener {
-            viewModel.loadNewQuote()
-            Log.d("AuthorDetailsFragment", "Neues Zitat geladen für Autor: $authorName")
-        }
-
-        // Beobachte das authorQuote LiveData
-        viewModel.authorQuote.observe(viewLifecycleOwner) { newQuote ->
-            binding.authorQuote.text = newQuote?.content ?: "Kein Zitat verfügbar"
-            Log.d(
-                "AuthorDetailsFragment",
-                "Aktuelles Zitat: ${newQuote?.content ?: "Kein Zitat verfügbar"}"
-            )
-        }
-
-        // Beobachte Ladezustand für Zitate
-        viewModel.isQuoteLoading.observe(viewLifecycleOwner) { isQuoteLoading ->
-            // Aktualisiere die Sichtbarkeit der Ladeanzeige für Zitate (falls vorhanden)
+            viewModel.loadNewQuote() // Lade ein neues Zitat
         }
 
         // Zurück-Button verknüpfen
         binding.backButton.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().navigateUp() // Navigiere zur vorherigen Ansicht
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

@@ -40,9 +40,7 @@ class CollectionsFragment : Fragment() {
         // Initialisiere den ViewModel
         val repository =
             QuoteRepository(quoteDao = QuoteDatabase.getDatabase(requireContext()).quoteDao())
-        viewModel = ViewModelProvider(this, CollectionsViewModelFactory(repository)).get(
-            CollectionsViewModel::class.java
-        )
+        viewModel = CollectionsViewModel(repository) // Direktes Initialisieren des ViewModels
 
         // Initialisiere den Adapter
         adapter = CollectionsAdapter(
@@ -59,6 +57,7 @@ class CollectionsFragment : Fragment() {
         // Setze den LayoutManager für die RecyclerView
         binding.recyclerViewCollections.layoutManager = LinearLayoutManager(requireContext())
 
+        // Beobachte die gespeicherten Zitate
         viewModel.savedQuotes.observe(viewLifecycleOwner) { quotes ->
             Log.d("CollectionsFragment", "Gespeicherte Zitate: $quotes")
             adapter.updateData(quotes)
@@ -77,8 +76,7 @@ class CollectionsFragment : Fragment() {
                 viewModel.addCommentToQuote(selectedQuote, commentText)
                 binding.commentEditText.text.clear() // Leere das Textfeld nach dem Speichern
             } else {
-                Toast.makeText(requireContext(), "Bitte ein Zitat auswählen", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Bitte ein Zitat auswählen", Toast.LENGTH_SHORT).show()
             }
         }
     }

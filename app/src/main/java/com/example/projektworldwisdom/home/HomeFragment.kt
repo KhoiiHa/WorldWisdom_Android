@@ -185,28 +185,51 @@ class HomeFragment : Fragment() {
 
         val keywords = getKeywordsFromInput()
 
+        // Suche zuerst nach einem Autor mit dem Namen
         viewModel.getAuthorByName(selectedOption).observe(viewLifecycleOwner) { author ->
-            author?.let {
-                navigateToAuthorDetails(it)
-            } ?: viewModel.authors.value?.let { authors ->
-                authors.find { it.name == selectedOption }?.let { author ->
-                    viewModel.searchByAuthorAndKeywords(author.name, keywords)
-                    navigateToAuthorDetails(author)
-                } ?: authors.find { it.tag == selectedOption }?.let { tag ->
-                    viewModel.searchByTag(tag.toString())
-                } ?: viewModel.searchQuotes(selectedOption, keywords)
+            if (author != null) {
+                // Wenn ein Autor gefunden wurde, navigiere zu den Details
+                navigateToAuthorDetails(author)
+            } else {
+                // Wenn kein Autor gefunden wurde, prüfe auf andere Möglichkeiten
+                val authors = viewModel.authors.value ?: emptyList()
+
+                // Versuche, den Autor aus der Liste zu finden
+                val matchedAuthor = authors.find { it.name == selectedOption }
+
+                if (matchedAuthor != null) {
+                    // Wenn der Name übereinstimmt, suche nach Zitaten mit diesem Autor und Keywords
+                    viewModel.searchByAuthorAndKeywords(matchedAuthor.name, keywords)
+                    navigateToAuthorDetails(matchedAuthor)
+                } else {
+                    // Wenn der Name nicht gefunden wurde, prüfe auf Tag-Übereinstimmung
+                    val matchedTag = authors.find { it.tag == selectedOption }
+
+                    if (matchedTag != null) {
+                        viewModel.searchByTag(matchedTag.tag)
+                    } else {
+                        // Falls keine Übereinstimmung gefunden wurde, führe die normale Suche aus
+                        viewModel.searchQuotes(selectedOption, keywords)
+                    }
+                }
             }
         }
     }
 
     private fun navigateToAuthorDetails(author: Author) {
+        // Suche nach einem Zitat des Autors, das im ViewModel bereits geladen ist
+        val quote = viewModel.quotes.value?.find { it.authorName == author.name }
+
+        // Fallback: Verwende einen Platzhalter, wenn kein Zitat vorhanden ist
+        val displayedQuote = quote ?: Quote(
+            authorName = author.name,
+            content = "Kein Zitat verfügbar."
+        )
+
         findNavController().navigate(
             HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
                 author.name,
-                Quote(
-                    authorName = author.name,
-                    content = "Beispiel-Zitat" // Hier kannst du das echte Zitat einsetzen
-                )
+                displayedQuote
             )
         )
     }

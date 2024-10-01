@@ -9,7 +9,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Keyword
-import com.example.projektworldwisdom.model.Note
 import com.example.projektworldwisdom.model.Quote
 
 @Dao

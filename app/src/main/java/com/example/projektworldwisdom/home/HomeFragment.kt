@@ -181,37 +181,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun handleSearchSelection(selectedOption: String?) {
-        if (selectedOption == null) return
-
-        val keywords = getKeywordsFromInput()
+        if (selectedOption.isNullOrBlank()) return
 
         // Suche zuerst nach einem Autor mit dem Namen
-        viewModel.getAuthorByName(selectedOption).observe(viewLifecycleOwner) { author ->
+        viewModel.getAuthorByName(selectedOption)
+
+        // Beobachte die LiveData für den Autor
+        viewModel.authorLiveData.observe(viewLifecycleOwner) { author ->
             if (author != null) {
                 // Wenn ein Autor gefunden wurde, navigiere zu den Details
                 navigateToAuthorDetails(author)
             } else {
-                // Wenn kein Autor gefunden wurde, prüfe auf andere Möglichkeiten
-                val authors = viewModel.authors.value ?: emptyList()
+                // Hier kannst du eine Meldung anzeigen, dass der Autor nicht gefunden wurde
+                Log.e("HomeFragment", "Autor nicht gefunden: $selectedOption")
 
-                // Versuche, den Autor aus der Liste zu finden
-                val matchedAuthor = authors.find { it.name == selectedOption }
-
-                if (matchedAuthor != null) {
-                    // Wenn der Name übereinstimmt, suche nach Zitaten mit diesem Autor und Keywords
-                    viewModel.searchByAuthorAndKeywords(matchedAuthor.name, keywords)
-                    navigateToAuthorDetails(matchedAuthor)
-                } else {
-                    // Wenn der Name nicht gefunden wurde, prüfe auf Tag-Übereinstimmung
-                    val matchedTag = authors.find { it.tag == selectedOption }
-
-                    if (matchedTag != null) {
-                        viewModel.searchByTag(matchedTag.tag)
-                    } else {
-                        // Falls keine Übereinstimmung gefunden wurde, führe die normale Suche aus
-                        viewModel.searchQuotes(selectedOption, keywords)
-                    }
-                }
             }
         }
     }
@@ -226,6 +209,7 @@ class HomeFragment : Fragment() {
             content = "Kein Zitat verfügbar."
         )
 
+        // Navigation zum AuthorDetailsFragment
         findNavController().navigate(
             HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
                 author.name,
@@ -234,12 +218,6 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private fun getKeywordsFromInput(): List<String> {
-        return binding.searchBar.text.toString()
-            .split(" ")
-            .filter { it.isNotEmpty() }
-            .map { it.trim() }
-    }
 
     private fun saveQuote(quote: Quote) {
         viewModel.saveQuote(quote) // Speichern des Zitats im ViewModel

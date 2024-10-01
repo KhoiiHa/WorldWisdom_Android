@@ -32,6 +32,13 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
     fun clearError() {
         _error.value = null
     }
+    // Funktion, um den Autor anhand des Namens abzurufen
+    fun getAuthorByName(authorName: String) {
+        viewModelScope.launch {
+            val author = repository.getAuthorByName(authorName)
+            _authorDetails.postValue(author) // LiveData aktualisieren
+        }
+    }
 
     // Setzt das initiale Zitat
     fun setInitialQuote(quote: Quote) {
@@ -46,34 +53,27 @@ class AuthorDetailsViewModel(private val repository: QuoteRepository) : ViewMode
                 val author = repository.getAuthorByName(authorSlug)
                 Log.d("AuthorDetailsViewModel", "Gefundener Autor: $author") // Logge den gefundenen Autor
                 if (author != null) {
-                    _authorDetails.postValue(author)
+                    _authorDetails.postValue(author) // Setze die Autor-Details
                 } else {
-                    _error.postValue("Autor nicht gefunden")
+                    Log.d("AuthorDetailsViewModel", "Kein Autor gefunden für den Slug: $authorSlug")
                 }
             } catch (e: Exception) {
-                _error.postValue("Fehler beim Laden der Autordetails: ${e.message}")
-                Log.e("AuthorDetailsViewModel", "Fehler: ${e.message}") // Fehler loggen
+                Log.e("AuthorDetailsViewModel", "Fehler beim Laden der Autordetails: ${e.message}") // Fehler loggen
+                // Hier kannst du eventuell einen Toast oder eine Snackbar in der UI zeigen, falls du das möchtest
             }
         }
     }
 
     // Lädt ein neues Zitat desselben Autors
+
     fun loadNewQuote() {
         val authorName = _authorDetails.value?.name ?: return
         viewModelScope.launch {
-            try {
-                val authorQuotes = repository.getQuotesByAuthor(authorName)
-                if (authorQuotes.isNotEmpty()) {
-                    _authorQuote.value = authorQuotes.random()
-                } else {
-                    _error.value = "Keine Zitate für diesen Autor gefunden"
-                }
-            } catch (e: IOException) {
-                _error.value = "Netzwerkfehler: ${e.message}"
-                Log.e("AuthorDetailsViewModel", "Network error fetching quotes", e)
-            } catch (e: HttpException) {
-                _error.value = "API-Fehler: ${e.code()} - ${e.message()}"
-                Log.e("AuthorDetailsViewModel", "HTTP error fetching quotes", e)
+            val authorQuotes = repository.getQuotesByAuthor(authorName)
+            if (authorQuotes.isNotEmpty()) {
+                _authorQuote.value = authorQuotes.random()
+            } else {
+                _error.value = "Keine Zitate für diesen Autor gefunden"
             }
         }
     }

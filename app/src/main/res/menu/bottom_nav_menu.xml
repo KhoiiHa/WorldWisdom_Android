@@ -10,11 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Alle Zitate" />
-    <item
-        android:id="@+id/noteFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Notizen" />
+
     <item
         android:id="@+id/collectionsFragment"
         android:layout_width="wrap_content"

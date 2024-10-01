@@ -24,9 +24,9 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
     private val _authors = MutableLiveData<List<Author>?>()
     val authors: LiveData<List<Author>?> = _authors
 
-    // MutableLiveData für Tags
-    private val _tags = MutableLiveData<List<String>>()
-    val tags: LiveData<List<String>> get() = _tags
+    // MutableLiveData für den ausgewählten Autor
+    private val _authorLiveData = MutableLiveData<Author?>()
+    val authorLiveData: LiveData<Author?> = _authorLiveData
 
     // MutableLiveData für Keywords
     private val _keywords = MutableLiveData<List<String>>()
@@ -53,7 +53,6 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         loadQuoteOfTheDay() // Lade das Zitat des Tages
         loadAllQuotesHome() // Lade alle Zitate für die Startseite
         loadAllAuthors() // Lade alle Autoren
-        loadAllTags() // Lade alle Tags für Autocomplete
         loadAllKeywords() // Lade alle Keywords für Autocomplete
     }
 
@@ -109,22 +108,6 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    // Suche Zitate anhand eines Tags
-    fun searchByTag(tag: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            try {
-                val quotes = repository.getQuotesByTag(tag)
-                handleQuotesResponse(quotes, tag)
-            } catch (e: Exception) {
-                handleError("Fehler beim Abrufen der Zitate: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
 
     // Suche Zitate basierend auf Autorennamen und Keywords
     fun searchQuotes(authorName: String?, keywords: List<String>) {
@@ -164,45 +147,12 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    // Suche Zitate basierend auf Autorennamen und Keywords
-    fun searchByAuthorAndKeywords(authorName: String?, keywords: List<String>) {
-        viewModelScope.launch {
-            _isLoading.postValue(true) // Ladeindikator aktivieren
-            clearError() // Vorherige Fehler löschen
-
-            try {
-                // Aufruf der Repository-Methode zur Suche nach Zitaten
-                val quotes = repository.searchQuotes(authorName, keywords)
-                if (authorName != null) {
-                    handleQuotesResponse(quotes, authorName)
-                } // Verarbeite die erhaltenen Zitate
-            } catch (e: Exception) {
-                handleError("Fehler beim Abrufen der Zitate: ${e.message}") // Fehlerbehandlung
-            } finally {
-                _isLoading.postValue(false) // Ladeindikator deaktivieren
-            }
-        }
-    }
 
     // Lade einen Autor anhand seines Namens
-    fun getAuthorByName(authorName: String): LiveData<Author?> {
-        val authorLiveData = MutableLiveData<Author?>()
-
-        if (authorName.isBlank()) {
-            authorLiveData.postValue(null)
-            return authorLiveData
-        }
-
+    fun getAuthorByName(authorName: String) {
         viewModelScope.launch {
-            try {
-                val author = repository.getAuthorByName(authorName)
-                authorLiveData.postValue(author)
-            } catch (e: Exception) {
-                authorLiveData.postValue(null)
-                Log.e("HomeViewModel", "Fehler beim Abrufen des Autors: ${e.message}")
-            }
+            _authorLiveData.value = repository.getAuthorByName(authorName)
         }
-        return authorLiveData
     }
 
     // Lade Zitate basierend auf einer Liste von Keywords
@@ -232,59 +182,29 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    // Autocomplete für Suchvorschläge nach Autoren, Tags und Keywords
+    // Autocomplete für Suchvorschläge nur nach Autoren
     fun searchAutocomplete(query: String) {
         viewModelScope.launch {
             clearError()
-            _isLoading.postValue(true)
 
             try {
-                // Abrufen der Daten
+                // Abrufen der Autoren
                 val authors = repository.getAllAuthors() // List<Author>
-                val tags = repository.getAllTags() // List<String>
-                val keywords = repository.getAllKeywords() // List<String>
 
                 // Filtere die Autoren nach dem Namen
                 val authorSuggestions = authors
                     .filter { it.name.contains(query, ignoreCase = true) }
-                    .map { it.name }
+                    .map { it.name } // Nur die Namen der Autoren zurückgeben
 
-                // Filtere die Tags nach dem Tag-Namen
-                val tagSuggestions = tags.filter { it.contains(query, ignoreCase = true) }
-
-                // Filtere die Keywords nach dem Keyword
-                val keywordSuggestions = keywords.filter { it.contains(query, ignoreCase = true) }
-
-                // Kombiniere alle Vorschläge und entferne Duplikate
-                val combinedSuggestions = (authorSuggestions + tagSuggestions + keywordSuggestions).distinct()
-
-                // Posten der kombinierten Vorschläge in LiveData
-                _autocompleteSuggestions.postValue(combinedSuggestions)
+                // Posten der Vorschläge in LiveData
+                _autocompleteSuggestions.postValue(authorSuggestions.distinct())
             } catch (e: Exception) {
                 _autocompleteSuggestions.postValue(emptyList())
                 handleError("Fehler beim Abrufen von Autocomplete-Vorschlägen: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
             }
         }
     }
 
-    // Lade alle Tags für Autocomplete
-    private fun loadAllTags() {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            try {
-                val allTags = repository.getAllTags()
-                _tags.postValue(allTags)
-            } catch (e: Exception) {
-                handleError("Fehler beim Abrufen der Tags: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
 
     // Lade alle Keywords für Autocomplete
     private fun loadAllKeywords() {

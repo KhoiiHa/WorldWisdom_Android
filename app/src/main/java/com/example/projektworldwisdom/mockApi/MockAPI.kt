@@ -27,6 +27,7 @@ object MockApi {
         return listOf(
             Quote(content = "Das Leben ist wie ein Fahrrad. Man muss sich vorwärts bewegen, um das Gleichgewicht nicht zu verlieren.", authorName = "Albert Einstein", keywords = listOf("Leben", "Fahrrad")),
             Quote(content = "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was man tut.", authorName = "Steve Jobs", keywords = listOf("Arbeit", "Leidenschaft")),
+            Quote(content = "Innovation unterscheidet zwischen einem Anführer und einem Folger.", authorName = "Steve Jobs", keywords = listOf("Innovation", "Führung")),
             Quote(content = "Die beste Zeit für einen Neuanfang ist jetzt.", authorName = "Mahatma Gandhi", keywords = listOf("Neuanfang", "Jetzt")),
             Quote(content = "Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren.", authorName = "Bertolt Brecht", keywords = listOf("Kampf", "Verlust")),
             Quote(content = "Zufriedenheit ist der wahre Reichtum.", authorName = "Platon", keywords = listOf("Zufriedenheit", "Reichtum")),

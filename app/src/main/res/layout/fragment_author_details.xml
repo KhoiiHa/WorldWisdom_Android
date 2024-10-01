@@ -74,7 +74,6 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:autoLink="web"
-            android:visibility="@{viewModel.authorDetails.link != null &amp;&amp; !viewModel.authorDetails.link.isEmpty() ? android.view.View.VISIBLE : android.view.View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/author_tag"
@@ -82,11 +81,10 @@
             tools:text="https://en.wikipedia.org/wiki/Albert_Einstein" />
 
         <Button
-            android:id="@+id/load_new_quote_button"
+            android:id="@+id/loadNewQuoteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:onClick="@{() -> viewModel.loadNewQuote()}"
             android:text="Neues Zitat laden"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -98,13 +96,11 @@
             android:layout_height="200dp"
             android:layout_marginTop="16dp"
             android:scaleType="centerCrop"
-            android:visibility="@{viewModel.authorDetails.imageUrl != null &amp;&amp; !viewModel.authorDetails.imageUrl.isEmpty() ? android.view.View.VISIBLE : android.view.View.GONE}"
-            app:imageUrl="@{viewModel.authorDetails.imageUrl}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/load_new_quote_button"
+            app:layout_constraintTop_toBottomOf="@+id/loadNewQuoteButton"
             tools:src="@drawable/common_google_signin_btn_text_dark"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

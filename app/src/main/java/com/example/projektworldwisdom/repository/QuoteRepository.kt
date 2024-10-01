@@ -230,22 +230,17 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
     }
 
     suspend fun getQuotesByAuthor(authorName: String): List<Quote> {
-        return try {
-            // Abrufen der Zitate des bestimmten Autors von der Mock API
-            val quotes = MockApi.getQuotesByAuthor(authorName)
+        // Abrufen der Zitate des bestimmten Autors von der Mock API
+        val quotes = MockApi.getQuotesByAuthor(authorName)
 
-            Log.d("QuoteRepository", "API Response for author $authorName: $quotes")
+        Log.d("QuoteRepository", "API Response for author $authorName: $quotes")
 
-            // Überprüfen, ob die Liste der Zitate nicht leer ist
-            if (quotes.isNotEmpty()) {
-                quotes // Rückgabe der gefundenen Zitate
-            } else {
-                Log.e("QuoteRepository", "No quotes found for author $authorName")
-                emptyList() // Rückgabe einer leeren Liste, wenn keine Zitate gefunden wurden
-            }
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching quotes for author $authorName", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
+        // Überprüfen, ob die Liste der Zitate nicht leer ist
+        return if (quotes.isNotEmpty()) {
+            quotes // Rückgabe der gefundenen Zitate
+        } else {
+            Log.e("QuoteRepository", "No quotes found for author $authorName")
+            emptyList() // Rückgabe einer leeren Liste, wenn keine Zitate gefunden wurden
         }
     }
 

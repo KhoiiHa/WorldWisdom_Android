@@ -29,13 +29,8 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var quoteAdapter: QuoteAdapter
     private val allQuotesviewmodels: AllQuotesViewModel by activityViewModels()
-    private val viewModel: HomeViewModel by activityViewModels {
-        HomeViewModelFactory(
-            QuoteRepository(
-                QuoteDatabase.getDatabase(requireContext()).quoteDao()
-            )
-        )
-    }
+    private val viewModel: HomeViewModel by activityViewModels ()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,

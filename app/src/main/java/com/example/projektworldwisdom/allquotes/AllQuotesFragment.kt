@@ -25,8 +25,6 @@ import com.google.android.material.snackbar.Snackbar
 class AllQuotesFragment : Fragment() {
 
     private val viewModel: AllQuotesViewModel by activityViewModels()
-
-
     private lateinit var binding: FragmentAllQuotesBinding
     private lateinit var quoteAdapter: QuoteAdapter
     private lateinit var suggestionAdapter: ArrayAdapter<String>

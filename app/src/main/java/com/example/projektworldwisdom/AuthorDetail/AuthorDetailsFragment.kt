@@ -114,14 +114,18 @@ class AuthorDetailsFragment : Fragment() {
                 }
 
                 // Lade das Bild des Autors (falls vorhanden)
-                binding.authorImage.load(authorDetails.imageUrl) {
-                    crossfade(true) // Überblende die Bildanzeige
-                    placeholder(R.drawable.ic_launcher_background) // Setze Platzhalterbild
-                    error(R.drawable.ic_launcher_background) // Setze Bild bei Fehler
+                if (!authorDetails.imageUrl.isNullOrEmpty()) {
+                    binding.authorImage.load(authorDetails.imageUrl) {
+                        crossfade(true) // Überblende die Bildanzeige
+                    }
+                    binding.authorImage.isVisible = true // Mache das Bild sichtbar
+                } else {
+                    binding.authorImage.isVisible = false // Mache das Bild unsichtbar
                 }
 
                 // Hier das Zitat setzen
                 binding.authorQuote.text = quote.content // Setze das Zitat hier
+
             } ?: run {
                 // Fehlerfall behandeln
                 Log.e("AuthorDetailsFragment", "Fehler beim Laden der Autor-Details") // Fehlerprotokoll
@@ -141,6 +145,20 @@ class AuthorDetailsFragment : Fragment() {
                 viewModel.clearError() // Fehlernachricht zurücksetzen
             }
         }
+
+
+        // Beobachte das Zitat des Autors
+        viewModel.authorQuote.observe(viewLifecycleOwner) { quote ->
+            binding.authorQuote.text = quote?.content ?: "Kein Zitat verfügbar"
+        }
+
+
+        // Beobachte die Autor-Details
+        viewModel.authorDetails.observe(viewLifecycleOwner) { author ->
+            binding.authorName.text = author?.name ?: "Unbekannter Autor"
+            binding.authorTag.text = author?.tag ?: "Kein Tag verfügbar"
+        }
+
 
         // Klick-Listener für den Button zum Laden eines neuen Zitats
         binding.loadNewQuoteButton.setOnClickListener {

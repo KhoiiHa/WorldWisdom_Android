@@ -8,6 +8,7 @@ import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Image
 import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
+import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
@@ -17,11 +18,12 @@ import kotlinx.coroutines.withContext
 class QuoteRepository(private val quoteDao: QuoteDao) {
 
 
+
     // Liefert eine Liste aller Zitate
     suspend fun getAllQuotes(): List<Quote> {
         return try {
             // Abrufen aller Zitate von der Mock API
-            val quotes = MockApi.getAllQuotes()
+            val quotes = WorldWisdomApi.retrofitService.getAllQuotes() // List<Quote>
             Log.d("QuoteRepository", "Mock API Response for all quotes: $quotes")
             insertQuotes(quotes) // Speichere die Zitate in der lokalen Datenbank
             quotes // Rückgabe der Zitate von der API
@@ -40,6 +42,29 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
             }
 
             localQuotes // Rückgabe der lokalen Zitate oder einer leeren Liste
+        }
+    }
+
+
+    // Liefert eine Liste aller verfügbaren Autoren
+    suspend fun getAllAuthors(): List<Author> {
+        return try {
+            // Abrufen der Autoren von der Mock-API
+            val authors = WorldWisdomApi.retrofitService.getAllAuthors()// List<Author>
+
+            // Log für die gesamte API-Antwort
+            Log.d("AuthorRepository", "API Response for all authors: $authors")
+
+            if (authors.isNotEmpty()) {
+                Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
+                authors // Rückgabe der Autoren
+            } else {
+                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
+                emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
+            }
+        } catch (e: Exception) {
+            Log.e("AuthorRepository", "Fehler beim Abrufen der Autoren von der API", e)
+            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
         }
     }
 
@@ -77,6 +102,9 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
+
+
+
     // Neue Funktion, um alle verfügbaren Schlüsselwörter abzurufen
     suspend fun getAvailableKeywords(): List<String> {
         return try {
@@ -86,29 +114,6 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
             keywords
         } catch (e: Exception) {
             Log.e("QuoteRepository", "Error loading available keywords", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
-
-
-    // Liefert eine Liste aller verfügbaren Autoren
-    suspend fun getAllAuthors(): List<Author> {
-        return try {
-            // Abrufen der Autoren von der Mock-API
-            val authors = MockApi.getAllAuthors() // List<Author>
-
-            // Log für die gesamte API-Antwort
-            Log.d("AuthorRepository", "API Response for all authors: $authors")
-
-            if (authors.isNotEmpty()) {
-                Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
-                authors // Rückgabe der Autoren
-            } else {
-                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
-                emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
-            }
-        } catch (e: Exception) {
-            Log.e("AuthorRepository", "Fehler beim Abrufen der Autoren von der API", e)
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
         }
     }

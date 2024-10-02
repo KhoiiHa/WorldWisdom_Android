@@ -35,11 +35,11 @@ private val retrofit = Retrofit.Builder()
 interface WorldWisdomApiService {
 
     // Liefert eine Liste von Zitaten (Mock-API)
-    @GET("quotes") // Beispiel-Pfad für Mockdaten
+    @GET("quotes")
     suspend fun getAllQuotes(): List<Quote>
 
-    // Liefert das Zitat des Tages (Mock-API)
-    @GET("authors") // Beispiel-Pfad für Mockdaten
+    // Liefert eine Liste von Autoren
+    @GET("authors")
     suspend fun getAllAuthors(): List<Author>
 
 

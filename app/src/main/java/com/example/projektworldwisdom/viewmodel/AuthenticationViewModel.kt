@@ -8,6 +8,7 @@ import com.example.projektworldwisdom.remote.FirebaseRepository
 import kotlinx.coroutines.launch
 
 class AuthenticationViewModel : ViewModel() {
+
     private val firebaseRepository = FirebaseRepository()
 
     val currentUser = firebaseRepository.currentUser
@@ -25,7 +26,7 @@ class AuthenticationViewModel : ViewModel() {
         }
     }
 
-    fun register(email: String, password: String, firstname: String, lastname: String) {
+    fun register(email: String, password: String) {
         viewModelScope.launch {
             try {
                 firebaseRepository.registerNewUser(email, password)

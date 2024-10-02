@@ -29,8 +29,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var quoteAdapter: QuoteAdapter
     private val allQuotesviewmodels: AllQuotesViewModel by activityViewModels()
-    private val viewModel: HomeViewModel by activityViewModels ()
-
+    private val viewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +46,6 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
-        setupSearchView() // Setup der Suchleiste
     }
 
     private fun setupRecyclerView() {
@@ -141,83 +139,6 @@ class HomeFragment : Fragment() {
             filterAll.setOnClickListener { viewModel.loadAllQuotesHome() }
         }
     }
-
-    private fun setupSearchView() {
-        val searchView = binding.searchBar
-
-        // Adapter für die Suchleiste, der mit einer leeren Liste initialisiert wird
-        val adapter = ArrayAdapter<String>(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            mutableListOf() // Start mit einer leeren Liste
-        )
-        searchView.setAdapter(adapter)
-
-        // Setze den Listener für die Auswahl eines Vorschlags
-        searchView.setOnItemClickListener { _, _, position, _ ->
-            val selectedOption = adapter.getItem(position)
-            handleSearchSelection(selectedOption)
-        }
-
-        // Beobachte die Autocomplete-Vorschläge aus dem ViewModel
-        viewModel.autocompleteSuggestions.observe(viewLifecycleOwner) { suggestions ->
-            suggestions?.let {
-                adapter.clear() // Leere die aktuelle Liste im Adapter
-                adapter.addAll(it) // Füge die neuen Vorschläge hinzu
-                adapter.notifyDataSetChanged() // Informiere den Adapter über die Änderungen
-            }
-        }
-
-        // TextWatcher für die Suchleiste, um Autocomplete-Vorschläge zu aktualisieren
-        searchView.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.searchAutocomplete(s.toString()) // Aktualisiere die Vorschläge basierend auf der Eingabe
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    private fun handleSearchSelection(selectedOption: String?) {
-        if (selectedOption.isNullOrBlank()) return
-
-        // Suche zuerst nach einem Autor mit dem Namen
-        viewModel.getAuthorByName(selectedOption)
-
-        // Beobachte die LiveData für den Autor
-        viewModel.authorLiveData.observe(viewLifecycleOwner) { author ->
-            if (author != null) {
-                // Wenn ein Autor gefunden wurde, navigiere zu den Details
-                navigateToAuthorDetails(author)
-            } else {
-                // Hier kannst du eine Meldung anzeigen, dass der Autor nicht gefunden wurde
-                Log.e("HomeFragment", "Autor nicht gefunden: $selectedOption")
-
-            }
-        }
-    }
-
-    private fun navigateToAuthorDetails(author: Author) {
-        // Suche nach einem Zitat des Autors, das im ViewModel bereits geladen ist
-        val quote = viewModel.quotes.value?.find { it.authorName == author.name }
-
-        // Fallback: Verwende einen Platzhalter, wenn kein Zitat vorhanden ist
-        val displayedQuote = quote ?: Quote(
-            authorName = author.name,
-            content = "Kein Zitat verfügbar."
-        )
-
-        // Navigation zum AuthorDetailsFragment
-        findNavController().navigate(
-            HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
-                author.name,
-                displayedQuote
-            )
-        )
-    }
-
 
     private fun saveQuote(quote: Quote) {
         viewModel.saveQuote(quote) // Speichern des Zitats im ViewModel

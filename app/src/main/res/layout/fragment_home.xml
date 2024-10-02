@@ -38,23 +38,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <AutoCompleteTextView
-        android:id="@+id/search_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@color/cardview_shadow_end_color"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:hint="Search"
-        android:padding="12dp"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profile_section" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/daily_affirmation_card"
         android:layout_width="0dp"
@@ -66,7 +49,7 @@
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_bar">
+        app:layout_constraintTop_toBottomOf="@id/profile_section">
 
         <LinearLayout
             android:layout_width="match_parent"

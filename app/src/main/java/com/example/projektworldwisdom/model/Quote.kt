@@ -21,25 +21,6 @@ data class Quote(
     val isSaved: Boolean = false,
     val keywords: List<String> = emptyList(),
     val comments: List<String> = emptyList()
-) : Parcelable {
+) : Parcelable
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Quote) return false
 
-        return id == other.id &&
-                content == other.content &&
-                authorName == other.authorName &&
-                keywords == other.keywords &&
-                comments == other.comments
-    }
-
-    override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + (content?.hashCode() ?: 0)
-        result = 31 * result + (authorName?.hashCode() ?: 0)
-        result = 31 * result + keywords.hashCode()
-        result = 31 * result + comments.hashCode()
-        return result
-    }
-}

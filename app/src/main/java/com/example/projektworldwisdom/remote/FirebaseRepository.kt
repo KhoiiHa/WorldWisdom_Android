@@ -4,19 +4,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class FirebaseRepository {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
-    private val firebaseFirestore = FirebaseFirestore.getInstance()
-
-    private val _downloading = MutableLiveData(false)
-    val downloading: LiveData<Boolean> = _downloading
 
     private val _currentUser = MutableLiveData<FirebaseUser?>(firebaseAuth.currentUser)
     val currentUser: LiveData<FirebaseUser?> = _currentUser
+
+    private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+        _currentUser.value = auth.currentUser
+    }
+
+    init {
+        firebaseAuth.addAuthStateListener(authStateListener)
+    }
 
     suspend fun registerNewUser(email: String, password: String) {
         try {
@@ -27,58 +30,17 @@ class FirebaseRepository {
         }
     }
 
-
     suspend fun loginUser(email: String, password: String) {
         try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            _currentUser.postValue(firebaseAuth.currentUser)
+            _currentUser.value = firebaseAuth.currentUser
         } catch (e: Exception) {
             e.printStackTrace()
-
-
         }
     }
 
     fun logoutUser() {
         firebaseAuth.signOut()
-        _currentUser.value = firebaseAuth.currentUser
+        _currentUser.value = null // Setze auf null nach der Abmeldung
     }
-
-    fun saveQuote(quoteId: Int) {
-        firebaseAuth.currentUser?.let { user ->
-            val documentRef = firebaseFirestore
-                .collection("USER_Collections")
-                .document(user.uid)
-                .collection("SavedQuotes")
-                .document(quoteId.toString())
-            documentRef.set(
-                mapOf(
-                    "quoteId" to quoteId
-                )
-            )
-        }
-    }
-
-    suspend fun getUserCollection(): List<Int>? {
-        _downloading.postValue(true)
-        firebaseAuth.currentUser?.let { user ->
-            val collection = mutableListOf<Int>()
-            firebaseFirestore
-                .collection("USER_Collections")
-                .document(user.uid)
-                .collection("SavedQuotes")
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    snapshot.documents.forEach {
-                        collection.add(
-                            (it["quoteId"] as Long).toInt()
-                        )
-                    }
-                    _downloading.postValue(false)
-                }.await()
-            return collection
-        }
-        return null
-    }
-
 }

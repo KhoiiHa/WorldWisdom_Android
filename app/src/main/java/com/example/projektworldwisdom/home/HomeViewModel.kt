@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
-class HomeViewModel(application: Application): AndroidViewModel(application) {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = QuoteRepository(QuoteDatabase.getDatabase(application).quoteDao())
 
@@ -43,10 +43,6 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
     // MutableLiveData für das Zitat des Tages
     private val _dailyAffirmation = MutableLiveData<Quote?>()
     val dailyAffirmation: LiveData<Quote?> = _dailyAffirmation
-
-    // MutableLiveData für Autocomplete-Vorschläge
-    private val _autocompleteSuggestions = MutableLiveData<List<String>>()
-    val autocompleteSuggestions: LiveData<List<String>> get() = _autocompleteSuggestions
 
     // Initialisierung: Lade Daten beim Start des ViewModels
     init {
@@ -108,24 +104,6 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-
-    // Suche Zitate basierend auf Autorennamen und Keywords
-    fun searchQuotes(authorName: String?, keywords: List<String>) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            clearError()
-
-            try {
-                val quotes = repository.searchQuotes(authorName, keywords)
-                handleQuotesResponse(quotes, authorName ?: "Suchanfrage") // Füge die Sucheingabe als Kontext hinzu
-            } catch (e: Exception) {
-                handleError("Fehler beim Abrufen der Zitate: ${e.message}")
-            } finally {
-                _isLoading.postValue(false)
-            }
-        }
-    }
-
     // Lade alle Autoren
     fun loadAllAuthors() {
         viewModelScope.launch {
@@ -146,7 +124,6 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
             }
         }
     }
-
 
     // Lade einen Autor anhand seines Namens
     fun getAuthorByName(authorName: String) {
@@ -181,30 +158,6 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
             _error.postValue(null)
         }
     }
-
-    // Autocomplete für Suchvorschläge nur nach Autoren
-    fun searchAutocomplete(query: String) {
-        viewModelScope.launch {
-            clearError()
-
-            try {
-                // Abrufen der Autoren
-                val authors = repository.getAllAuthors() // List<Author>
-
-                // Filtere die Autoren nach dem Namen
-                val authorSuggestions = authors
-                    .filter { it.name.contains(query, ignoreCase = true) }
-                    .map { it.name } // Nur die Namen der Autoren zurückgeben
-
-                // Posten der Vorschläge in LiveData
-                _autocompleteSuggestions.postValue(authorSuggestions.distinct())
-            } catch (e: Exception) {
-                _autocompleteSuggestions.postValue(emptyList())
-                handleError("Fehler beim Abrufen von Autocomplete-Vorschlägen: ${e.message}")
-            }
-        }
-    }
-
 
     // Lade alle Keywords für Autocomplete
     private fun loadAllKeywords() {

@@ -118,30 +118,7 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    // Methode zum Abrufen des Tags eines Autors anhand seines Namens
-    suspend fun getAuthorTagByName(authorName: String?): String? {
-        if (authorName.isNullOrEmpty()) return null
 
-        return try {
-            // Abrufe den Autor und extrahiere den Tag
-            val author = getAuthorByName(authorName)
-            author?.tag // Gib den Tag des Autors zurück, falls vorhanden
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching author tag by name", e)
-            null // Rückgabe von null im Fehlerfall
-        }
-    }
-
-    // Liefert eine Liste aller verfügbaren Tags
-    suspend fun getAllTags(): List<String> {
-        return try {
-            // Hole alle Autoren und extrahiere die Tags
-            getAllAuthors().map { it.tag }.distinct().sorted() // Extrahiere die Tags aus der Liste der Autoren
-        } catch (e: Exception) {
-            Log.e("TagRepository", "Fehler beim Abrufen der Tags von der API", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
 
     // Liefert eine Liste aller verfügbaren Keywords
     suspend fun getAllKeywords(): List<String> {
@@ -153,8 +130,6 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
             emptyList() // Rückgabe einer leeren Liste im Fehlerfall
         }
     }
-
-
 
 
     // Liefert ein zufälliges inspirierendes Bild
@@ -203,24 +178,6 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    suspend fun getQuotesByQuery(query: String): List<Quote> {
-        return try {
-            // Rufe alle Zitate von der Mock API ab
-            val allQuotes = MockApi.getAllQuotes() // Diese Methode sollte alle Zitate zurückgeben
-            val filteredQuotes = allQuotes.filter { quote ->
-                // Nutze die korrekten Eigenschaften aus deinem Modell
-                quote.content?.contains(query, ignoreCase = true) == true ||
-                        quote.authorName?.contains(query, ignoreCase = true) == true ||
-                        quote.keywords.any { keyword -> keyword.contains(query, ignoreCase = true) }
-            }
-
-            Log.d("QuoteRepository", "Filtered quotes by query '$query': $filteredQuotes")
-            filteredQuotes // Rückgabe der gefilterten Zitate
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error filtering quotes by query '$query'", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
 
     suspend fun searchQuotes(authorName: String?, keywords: List<String>): List<Quote> {
         // Alle Zitate abrufen
@@ -249,38 +206,8 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    // Sucht Zitate anhand des Autorennamens
-    suspend fun searchQuotesByAuthor(authorName: String): List<Quote> {
-        return try {
-            // Verwende die Funktion getQuotesByAuthor für Konsistenz
-            getQuotesByAuthor(authorName)
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Suchen der Zitate für Autor: $authorName", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
 
 
-    // Liefert Zitate basierend auf einem bestimmten Tag
-    suspend fun getQuotesByTag(tag: String): List<Quote> {
-        return try {
-            // Abrufen der Autoren, die den passenden Tag haben
-            val authorsWithTag = quoteDao.getAuthorsByTag(tag)
-
-            if (authorsWithTag.isNotEmpty()) {
-                // Erstelle eine Menge von Autorennamen
-                val authorNames = authorsWithTag.map { it.name }.toSet()
-                // Alle Zitate abrufen und nach Autorennamen filtern
-                val allQuotes = quoteDao.getAllQuotes()
-                allQuotes.filter { it.authorName in authorNames }
-            } else {
-                emptyList() // Wenn keine Autoren gefunden werden
-            }
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen von Zitaten basierend auf dem Tag", e)
-            emptyList() // Fehlerbehandlung
-        }
-    }
 
 
     // Liefert Zitate gefiltert nach Keywords
@@ -352,40 +279,16 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    // Fügt einen neuen Autor in die Datenbank ein und gibt zurück, ob das Einfügen erfolgreich war
-    suspend fun addAuthor(author: Author): Boolean {
-        return if (!author.name.isNullOrBlank()) {
-            try {
-                quoteDao.insertAuthor(author) // Autor in die Datenbank einfügen
-                Log.d(
-                    "QuoteRepository",
-                    "Author added: $author"
-                ) // Log für den erfolgreich hinzugefügten Autor
-                true // Erfolgreiches Einfügen
-            } catch (e: Exception) {
-                Log.e(
-                    "QuoteRepository",
-                    "Error inserting author: ${e.message}",
-                    e
-                ) // Fehlermeldung mit spezifischem Fehler
-                false // Fehler beim Einfügen
-            }
-        } else {
-            Log.e(
-                "QuoteRepository",
-                "Author name is null or blank, not inserting."
-            ) // Log für ungültigen Autor
-            false // Ungültiger Autor
+
+    suspend fun saveQuote(quote: Quote) {
+        try {
+            val updatedQuote = quote.copy(isSaved = true) // Setze isSaved auf true
+            quoteDao.insertQuote(updatedQuote) // Speichere das aktualisierte Zitat in der Datenbank
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Fehler beim Speichern des Zitats: ${e.message}")
+            throw e // Optional: Ausnahme weiterwerfen
         }
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -553,27 +456,6 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    // Ruft ein Zitat nach ID aus der lokalen Datenbank ab
-    suspend fun getQuoteById(id: Int): Quote? {
-        return try {
-            val quote = quoteDao.getQuoteById(id) // Zitat nach ID abrufen
-            if (quote != null) {
-                Log.d(
-                    "QuoteRepository",
-                    "Quote retrieved successfully: ${quote.content}"
-                ) // Log für erfolgreiches Abrufen
-            } else {
-                Log.e(
-                    "QuoteRepository",
-                    "No quote found for id: $id"
-                ) // Log, wenn kein Zitat gefunden wurde
-            }
-            quote // Rückgabe des Zitats oder null
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error getting quote by id", e) // Fehlermeldung im Fehlerfall
-            null // Rückgabe von null im Fehlerfall
-        }
-    }
 
     // Löscht einen bestimmten Autor aus der lokalen Datenbank
     suspend fun deleteAuthor(author: Author) {
@@ -601,15 +483,7 @@ class QuoteRepository(private val quoteDao: QuoteDao) {
         }
     }
 
-    suspend fun saveQuote(quote: Quote) {
-        try {
-            val updatedQuote = quote.copy(isSaved = true) // Setze isSaved auf true
-            quoteDao.insertQuote(updatedQuote) // Speichere das aktualisierte Zitat in der Datenbank
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Speichern des Zitats: ${e.message}")
-            throw e // Optional: Ausnahme weiterwerfen
-        }
-    }
+
 
 
 }

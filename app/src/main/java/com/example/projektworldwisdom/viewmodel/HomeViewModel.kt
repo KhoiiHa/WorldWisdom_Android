@@ -47,7 +47,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun getQuotes() {
         viewModelScope.launch {
             // Ruft die aktuellen Zitate von der API ab und speichert sie in der Datenbank
-            repository.refreshQuotes()  // Optional, falls du die Zitate aktualisieren möchtest
+            repository.refreshQuotes()
         }
     }
 

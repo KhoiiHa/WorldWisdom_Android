@@ -31,14 +31,14 @@ class QuoteRepository(
         val quotes = apiService.getAllQuotes()
         val authors = apiService.getAllAuthors()
         // Alle Zitate in die Datenbank einfügen
-        quoteDao.insertQuotes(quotes) // Diese Methode akzeptiert nun eine Liste
+        quoteDao.insertQuotes(quotes)
         // Alle Autoren in die Datenbank einfügen
-        quoteDao.insertAuthors(authors) // Diese Methode akzeptiert ebenfalls eine Liste
+        quoteDao.insertAuthors(authors)
     }
 
     // Methode zum Speichern eines Zitats in der Datenbank
     suspend fun saveQuote(quote: Quote) {
-        quoteDao.insertQuote(quote)  // Diese Methode muss in deinem Dao definiert sein
+        quoteDao.insertQuote(quote)
     }
 
 

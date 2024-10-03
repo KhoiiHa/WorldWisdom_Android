@@ -30,10 +30,10 @@ class HomeFragment : Fragment() {
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             // Adapter initialisieren und an die RecyclerView binden
             binding.quotesList.adapter = QuotesAdapter(quotes, { quote ->
-                // Hier gehst du zum nächsten Screen mit den Details für die Quote
+                // Hier gehst zum nächsten Screen mit den Details für die Quote
                 navigateToAuthorDetails(quote)
             }, { quote ->
-                // Hier speicherst du die Quote in den CollectionsScreen
+                // Hier speicherst die Quote in den CollectionsScreen
                 saveQuote(quote)
             })
         }
@@ -44,11 +44,9 @@ class HomeFragment : Fragment() {
 
     private fun navigateToAuthorDetails(quote: Quote) {
         // Logik für die Navigation zu den Details des Autors
-        // Überprüfen, ob der Autor vorhanden ist, um zu vermeiden, dass null übergeben wird
-        quote.author?.let {
-            // Beispiel mit NavController:
-//             val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailFragment(it.id)
-//             findNavController().navigate(action)
+        quote.author.let {
+            val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment()
+            findNavController().navigate(action)
         }
     }
 

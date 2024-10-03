@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.register
+package com.example.projektworldwisdom.ui
 
 
 import android.os.Bundle

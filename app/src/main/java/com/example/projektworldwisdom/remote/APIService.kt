@@ -1,7 +1,6 @@
 package com.example.projektworldwisdom.remote
 
 import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.model.Image
 import com.example.projektworldwisdom.model.Quote
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

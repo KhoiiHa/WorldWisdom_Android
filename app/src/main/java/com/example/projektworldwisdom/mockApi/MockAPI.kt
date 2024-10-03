@@ -2,26 +2,10 @@ package com.example.projektworldwisdom.mockApi
 
 import android.util.Log
 import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.model.Image
 import com.example.projektworldwisdom.model.Quote
 
 object MockApi {
-    private val images = listOf(
-        "https://example.com/image1.jpg",
-        "https://example.com/image2.jpg",
-        "https://example.com/image3.jpg",
-        "https://example.com/image4.jpg",
-        "https://example.com/image5.jpg"
-    )
 
-    fun getAuthorImage(authorName: String): String? {
-        return getAllQuotes().firstOrNull { it.authorName.equals(authorName, ignoreCase = true) }?.authorImageUrl
-    }
-
-    fun getRandomInspirationalImage(): String {
-        val randomIndex = (0 until images.size).random()
-        return images[randomIndex]
-    }
 
     fun getAllQuotes(): List<Quote> {
         return listOf(
@@ -130,19 +114,6 @@ object MockApi {
     }
 
 
-
-    // Generiert ein Zitatbild basierend auf dem angegebenen Schlüsselwort
-    fun getImageByKeyword(keyword: String): Image? {
-        return when (keyword.lowercase()) {
-            "inspiration" -> Image("https://example.com/images/inspiration.jpg")
-            "motivation" -> Image("https://example.com/images/motivation.jpg")
-            "happiness" -> Image("https://example.com/images/happiness.jpg")
-            "success" -> Image("https://example.com/images/success.jpg")
-            "love" -> Image("https://example.com/images/love.jpg")
-            // Füge hier weitere Keywords und die entsprechenden Bild-URLs hinzu
-            else -> null // Wenn kein passendes Bild gefunden wird
-        }
-    }
 
     // Ruft einen Autor anhand seines Namens ab
     fun getAuthorByName(authorName: String): Author? {

@@ -1,4 +1,4 @@
-package com.example.projektworldwisdom.register
+package com.example.projektworldwisdom.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData

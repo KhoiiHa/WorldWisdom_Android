@@ -8,19 +8,16 @@ import androidx.room.TypeConverters
 import com.example.projektworldwisdom.converters.Converters
 import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "quotes")
+@Entity(tableName = "quote_table")
 @TypeConverters(Converters::class)
-@Parcelize
 data class Quote(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val content: String?,
-    val authorName: String?,
-    val authorImageUrl: String? = null,
-    val isQuoteOfTheDay: Boolean = false,
-    val isFavorite: Boolean = false,
-    val isSaved: Boolean = false,
-    val keywords: List<String> = emptyList(),
-    val comments: List<String> = emptyList()
-) : Parcelable
+    @PrimaryKey(autoGenerate = true) val id: Int = 0, // ID wird automatisch generiert
+    val content: String, // Inhalt des Zitats
+    val author: List<Author>, // Name des Autors
+    val isQuoteOfTheDay: Boolean, // Ob es sich um das Zitat des Tages handelt
+    val isSaved: Boolean, // Ob das Zitat gespeichert ist
+    val keywords: String, // Schlüsselwörter für die Suche
+    val comments: String // Kommentare zum Zitat
+)
 
 

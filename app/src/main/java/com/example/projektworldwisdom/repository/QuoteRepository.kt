@@ -5,8 +5,6 @@ import androidx.lifecycle.LiveData
 import com.example.projektworldwisdom.local.QuoteDao
 import com.example.projektworldwisdom.mockApi.MockApi
 import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.model.Image
-import com.example.projektworldwisdom.model.Keyword
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
@@ -15,477 +13,77 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class QuoteRepository(private val quoteDao: QuoteDao) {
+class QuoteRepository(
+    private val quoteDao: QuoteDao,
+    private val apiService: WorldWisdomApiService
+) {
 
-
-
-    // Liefert eine Liste aller Zitate
-    suspend fun getAllQuotes(): List<Quote> {
-        return try {
-            // Abrufen aller Zitate von der Mock API
-            val quotes = WorldWisdomApi.retrofitService.getAllQuotes() // List<Quote>
-            Log.d("QuoteRepository", "Mock API Response for all quotes: $quotes")
-            insertQuotes(quotes) // Speichere die Zitate in der lokalen Datenbank
-            quotes // Rückgabe der Zitate von der API
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen aller Zitate von der Mock-API", e)
-
-            // Fallback auf die lokale Datenbank
-            val localQuotes = withContext(Dispatchers.IO) {
-                quoteDao.getAllQuotes() // Abrufen der Zitate aus der Datenbank
-            }
-
-            if (localQuotes.isNotEmpty()) {
-                Log.d("QuoteRepository", "Returning local quotes: $localQuotes")
-            } else {
-                Log.e("QuoteRepository", "No quotes available in local database")
-            }
-
-            localQuotes // Rückgabe der lokalen Zitate oder einer leeren Liste
-        }
+    // Holt alle Zitate als LiveData (Datenbank)
+    fun getAllQuotes(): LiveData<List<Quote>> {
+        return quoteDao.getAllQuotes()
     }
 
-
-    // Liefert eine Liste aller verfügbaren Autoren
-    suspend fun getAllAuthors(): List<Author> {
-        return try {
-            // Abrufen der Autoren von der Mock-API
-            val authors = WorldWisdomApi.retrofitService.getAllAuthors()// List<Author>
-
-            // Log für die gesamte API-Antwort
-            Log.d("AuthorRepository", "API Response for all authors: $authors")
-
-            if (authors.isNotEmpty()) {
-                Log.d("AuthorRepository", "Received authors: $authors") // Log für die Autoren
-                authors // Rückgabe der Autoren
-            } else {
-                Log.e("AuthorRepository", "No authors received from API") // Log, wenn keine Autoren zurückgegeben werden
-                emptyList() // Rückgabe einer leeren Liste, wenn keine Autoren vorhanden sind
-            }
-        } catch (e: Exception) {
-            Log.e("AuthorRepository", "Fehler beim Abrufen der Autoren von der API", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
+    fun getAllAuthors(): LiveData<List<Author>> {
+        return quoteDao.getAllAuthors()
     }
 
-
-    // Liefert das Zitat des Tages
-    suspend fun getQuoteOfTheDay(): Quote? {
-        return try {
-            // Abrufen des Zitats des Tages von der API
-            val quotes = MockApi.getQuoteOfTheDay() // List<Quote>
-
-            // Log für die gesamte API-Antwort
-            Log.d("QuoteRepository", "API Response: $quotes")
-
-            if (quotes.isNotEmpty()) {
-                val quote = quotes[0] // Zugriff auf das erste Zitat
-                Log.d("QuoteRepository", "Received quote: ${quote.content}") // Log für das Zitat
-                insertQuote(quote) // Gültiges Zitat in die Datenbank einfügen
-                quote
-            } else {
-                Log.e(
-                    "QuoteRepository",
-                    "No quotes received from API"
-                ) // Log, wenn keine Zitate zurückgegeben werden
-                null // Falls keine Zitate zurückgegeben werden
-            }
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen des Zitats des Tages von der API", e)
-            val localQuote = quoteDao.getQuoteOfTheDay() // Fallback auf lokale Datenbank
-            if (localQuote != null) {
-                Log.d("QuoteRepository", "Returning local quote: ${localQuote.content}")
-            } else {
-                Log.e("QuoteRepository", "No quote available in local database")
-            }
-            localQuote // Rückgabe des Zitats aus der lokalen Datenbank (oder null)
-        }
+    suspend fun refreshQuotes() {
+        val quotes = apiService.getAllQuotes()
+        val authors = apiService.getAllAuthors()
+        // Alle Zitate in die Datenbank einfügen
+        quoteDao.insertQuotes(quotes) // Diese Methode akzeptiert nun eine Liste
+        // Alle Autoren in die Datenbank einfügen
+        quoteDao.insertAuthors(authors) // Diese Methode akzeptiert ebenfalls eine Liste
     }
 
-
-
-
-    // Neue Funktion, um alle verfügbaren Schlüsselwörter abzurufen
-    suspend fun getAvailableKeywords(): List<String> {
-        return try {
-            // Angenommen, die MockApi hat eine Methode getAvailableKeywords()
-            val keywords = MockApi.getAvailableKeywords() // Beispiel für den API-Aufruf
-            Log.d("QuoteRepository", "Available keywords: $keywords")
-            keywords
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error loading available keywords", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
-
-
-
-    // Liefert eine Liste aller verfügbaren Keywords
-    suspend fun getAllKeywords(): List<String> {
-        return try {
-            // Nutze die bereits vorhandene Funktion getAvailableKeywords() aus MockAPI
-            MockApi.getAvailableKeywords() // List<String>
-        } catch (e: Exception) {
-            Log.e("KeywordRepository", "Fehler beim Abrufen der Keywords von der API", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
-
-
-    // Liefert ein zufälliges inspirierendes Bild
-    suspend fun getRandomInspirationalImage(): String? {
-        return try {
-            // Abrufen eines zufälligen inspirierenden Bildes von der Mock-API
-            val imageUrl = MockApi.getRandomInspirationalImage() // String
-
-            // Log für die gesamte API-Antwort
-            Log.d("QuoteRepository", "API Response for random image: $imageUrl")
-
-            if (imageUrl.isNotEmpty()) {
-                Log.d("QuoteRepository", "Received image URL: $imageUrl") // Log für das Bild
-                imageUrl
-            } else {
-                Log.e(
-                    "QuoteRepository",
-                    "No image URL received from API"
-                ) // Log, wenn keine URL zurückgegeben wird
-                null // Falls keine URL zurückgegeben wird
-            }
-        } catch (e: Exception) {
-            Log.e(
-                "QuoteRepository",
-                "Fehler beim Abrufen des zufälligen inspirierenden Bildes von der API",
-                e
-            )
-            // Fallback kann hier eine lokale Bild-URL oder eine Standard-URL sein
-            val localImageUrl = "default_image_url" // Hier eine geeignete Standard-URL setzen
-            Log.d("QuoteRepository", "Returning default image URL: $localImageUrl")
-            localImageUrl // Rückgabe der Standard-URL
-        }
-    }
-
-    suspend fun getAuthorImage(authorName: String): String? {
-        return try {
-            // Abrufen des Zitat-Bilds von der Mock API
-            val imageUrl = MockApi.getAuthorImage(authorName)
-
-            Log.d("QuoteRepository", "API Response for author image $authorName: $imageUrl")
-
-            imageUrl // Rückgabe der Bild-URL
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Abrufen des Bildes für Autor $authorName", e)
-            null // Rückgabe von null im Fehlerfall
-        }
-    }
-
-
-    suspend fun searchQuotes(authorName: String?, keywords: List<String>): List<Quote> {
-        // Alle Zitate abrufen
-        val allQuotes = quoteDao.getAllQuotes()
-
-        // Zitate filtern
-        return allQuotes.filter { quote ->
-            val matchesAuthor = authorName.isNullOrEmpty() || quote.authorName?.contains(authorName, ignoreCase = true) == true
-            val matchesKeywords = keywords.isEmpty() || keywords.any { keyword -> quote.keywords.contains(keyword) }
-            matchesAuthor && matchesKeywords
-        }
-    }
-
-    suspend fun getQuotesByAuthor(authorName: String): List<Quote> {
-        // Abrufen der Zitate des bestimmten Autors von der Mock API
-        val quotes = MockApi.getQuotesByAuthor(authorName)
-
-        Log.d("QuoteRepository", "API Response for author $authorName: $quotes")
-
-        // Überprüfen, ob die Liste der Zitate nicht leer ist
-        return if (quotes.isNotEmpty()) {
-            quotes // Rückgabe der gefundenen Zitate
-        } else {
-            Log.e("QuoteRepository", "No quotes found for author $authorName")
-            emptyList() // Rückgabe einer leeren Liste, wenn keine Zitate gefunden wurden
-        }
-    }
-
-
-
-
-
-    // Liefert Zitate gefiltert nach Keywords
-    suspend fun getQuotesByKeywords(keywords: List<String>): List<Quote> {
-        return try {
-            // Abrufen der gefilterten Zitate von der Mock API mit mehreren Keywords
-            val filteredQuotes = MockApi.filterQuotesByKeywords(keywords)
-
-            Log.d("QuoteRepository", "Filtered quotes by keywords '$keywords': $filteredQuotes")
-            filteredQuotes // Rückgabe der gefilterten Zitate
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error filtering quotes by keywords '$keywords'", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
-    }
-
-    // Generiert ein Zitatbild basierend auf dem angegebenen Schlüsselwort
-    suspend fun getImageByKeyword(keyword: String): Image? {
-        return try {
-            val image =
-                MockApi.getImageByKeyword(keyword) // Bild basierend auf dem Schlüsselwort von der MockAPI abrufen
-            Log.d(
-                "QuoteRepository",
-                "Mock API Response for image: $image"
-            ) // Log für die MockAPI-Antwort
-            image
-        } catch (e: Exception) {
-            Log.e(
-                "QuoteRepository",
-                "Fehler beim Abrufen des Zitatbildes von der MockAPI, Fallback auf null: ${e.message}",
-                e
-            )
-            null // Rückgabe von null im Fehlerfall
-        }
-    }
-
-    // Ruft einen Autor anhand seines Namens ab, zuerst von der MockAPI, dann aus der Datenbank
-    suspend fun getAuthorByName(authorName: String): Author? {
-        return try {
-            Log.d("QuoteRepository", "Versuche, Autor von der MockAPI abzurufen: $authorName")
-            val apiAuthor = MockApi.getAuthorByName(authorName)
-            Log.d("QuoteRepository", "Gefundener Autor von MockAPI: $apiAuthor")
-
-            if (apiAuthor != null) {
-                // Optional: Speichere den Autor in der Datenbank
-                quoteDao.insertAuthor(apiAuthor)
-                return apiAuthor
-            } else {
-                val author = quoteDao.getAuthorByName(authorName)
-                Log.d("QuoteRepository", "Gefundener Autor aus der Datenbank: $author")
-                return author
-            }
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error fetching author by name", e)
-            null
-        }
-    }
-
-
-    // Funktion zum Abrufen der gespeicherten Zitate
-    fun getSavedQuotes(): LiveData<List<Quote>> {
-        return quoteDao.getAllSavedQuotes() // Diese Methode gibt bereits LiveData zurück
-    }
-
-
-    suspend fun updateQuote(quote: Quote) {
-        withContext(Dispatchers.IO) {
-            quoteDao.updateQuote(quote)
-        }
-    }
-
-
+    // Methode zum Speichern eines Zitats in der Datenbank
     suspend fun saveQuote(quote: Quote) {
-        try {
-            val updatedQuote = quote.copy(isSaved = true) // Setze isSaved auf true
-            quoteDao.insertQuote(updatedQuote) // Speichere das aktualisierte Zitat in der Datenbank
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Fehler beim Speichern des Zitats: ${e.message}")
-            throw e // Optional: Ausnahme weiterwerfen
-        }
+        quoteDao.insertQuote(quote)  // Diese Methode muss in deinem Dao definiert sein
     }
 
 
 
-
-
-    // Speichert ein einzelnes Zitat in der lokalen Datenbank und gibt zurück, ob das Einfügen erfolgreich war
-    private suspend fun insertQuote(quote: Quote): Boolean {
-        return if (!quote.content.isNullOrBlank()) {
-            try {
-                quoteDao.insertQuote(quote) // Zitat in die Datenbank einfügen
-                Log.d(
-                    "QuoteRepository",
-                    "Quote inserted successfully: ${quote.content}"
-                ) // Log für erfolgreichen Insert
-                true // Erfolgreiches Einfügen
-            } catch (e: Exception) {
-                Log.e(
-                    "QuoteRepository",
-                    "Error inserting quote: ${e.message}",
-                    e
-                ) // Fehlermeldung mit spezifischem Fehler
-                false // Fehler beim Einfügen
-            }
-        } else {
-            Log.e(
-                "QuoteRepository",
-                "Quote content is null or blank, not inserting."
-            ) // Log für leeres Zitat
-            false // Ungültiges Zitat
-        }
+    // Holt einen Autor anhand seiner ID als LiveData
+    fun getAuthorById(id: Int): LiveData<Author> {
+        return quoteDao.getAuthorById(id)
+    }
+    // Löscht ein Zitat anhand der ID
+    suspend fun deleteQuoteById(id: Int) {
+        quoteDao.deleteQuoteById(id)
     }
 
-
-    // Speichert mehrere Zitate in der lokalen Datenbank und gibt zurück, wie viele erfolgreich gespeichert wurden
-    suspend fun insertQuotes(quotes: List<Quote>): Int {
-        return withContext(Dispatchers.IO) {
-            try {
-                // Filtere ungültige Zitate heraus (z.B. solche ohne Inhalt)
-                val validQuotes =
-                    quotes.filter { !it.content.isNullOrBlank() } // Prüfen auf null und leer
-
-                if (validQuotes.isNotEmpty()) {
-                    quoteDao.insertQuotes(validQuotes) // Gültige Zitate in die Datenbank einfügen
-                    Log.d(
-                        "QuoteRepository",
-                        "Inserted ${validQuotes.size} valid quotes."
-                    ) // Log für erfolgreiche Einfügung
-                    validQuotes.size // Rückgabe der Anzahl erfolgreich eingefügter Zitate
-                } else {
-                    Log.e(
-                        "QuoteRepository",
-                        "No valid quotes to insert."
-                    ) // Log, wenn keine gültigen Zitate vorhanden sind
-                    0 // Keine gültigen Zitate, Rückgabe 0
-                }
-            } catch (e: Exception) {
-                Log.e(
-                    "QuoteRepository",
-                    "Error inserting quotes: ${e.message}",
-                    e
-                ) // Fehlermeldung mit spezifischem Fehler
-                0 // Rückgabe 0 im Fehlerfall
-            }
-        }
+    // Holt ein Zitat anhand der ID als LiveData
+    fun getQuoteById(id: Int): LiveData<Quote> {
+        return quoteDao.getQuoteById(id)
     }
 
-
-    // Speichert mehrere Autoren in der lokalen Datenbank und gibt zurück, wie viele erfolgreich gespeichert wurden
-    suspend fun insertAuthors(authors: List<Author>): Int {
-        return withContext(Dispatchers.IO) {
-            try {
-                // Filtere ungültige Autoren heraus (z.B. solche ohne Namen)
-                val validAuthors =
-                    authors.filter { !it.name.isNullOrBlank() } // Prüfen auf null und leer
-
-                if (validAuthors.isNotEmpty()) {
-                    quoteDao.insertAuthors(validAuthors) // Gültige Autoren in die Datenbank einfügen
-                    Log.d(
-                        "QuoteRepository",
-                        "Inserted ${validAuthors.size} valid authors."
-                    ) // Log für erfolgreiche Einfügung
-                    validAuthors.size // Rückgabe der Anzahl erfolgreich eingefügter Autoren
-                } else {
-                    Log.e(
-                        "QuoteRepository",
-                        "No valid authors to insert."
-                    ) // Log, wenn keine gültigen Autoren vorhanden sind
-                    0 // Keine gültigen Autoren, Rückgabe 0
-                }
-            } catch (e: Exception) {
-                Log.e(
-                    "QuoteRepository",
-                    "Error inserting authors: ${e.message}",
-                    e
-                ) // Fehlermeldung mit spezifischem Fehler
-                0 // Rückgabe 0 im Fehlerfall
-            }
-        }
+    // Holt das Zitat des Tages als LiveData
+    fun getQuoteOfTheDay(): LiveData<Quote> {
+        return quoteDao.getQuoteOfTheDay()
     }
 
-    // Ruft Zitate nach Tag aus der lokalen Datenbank ab
-    suspend fun getQuotesByKeywordFromLocal(tag: String): List<Quote> {
-        return try {
-            // Überprüfen, ob der Tag nicht null oder leer ist
-            if (tag.isNotBlank()) {
-                quoteDao.getQuotesByKeyword(tag) // Zitate aus der Datenbank abrufen
-            } else {
-                Log.e("QuoteRepository", "Tag is null or blank, returning empty list.")
-                emptyList() // Rückgabe einer leeren Liste, wenn der Tag ungültig ist
-            }
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error getting quotes by tag", e)
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
+    // Holt alle gespeicherten Zitate als LiveData
+    fun getSavedQuotes(): LiveData<List<Quote>> {
+        return quoteDao.getSavedQuotes()
     }
 
-    // Ruft das Zitat des Tages aus der lokalen Datenbank ab
-    suspend fun getQuoteOfTheDayFromLocal(): Quote? {
-        return try {
-            val quote = quoteDao.getQuoteOfTheDay()
-            if (quote == null) {
-                Log.w(
-                    "QuoteRepository",
-                    "No quote of the day found in local database."
-                ) // Warnung, wenn kein Zitat gefunden wird
-            }
-            quote
-        } catch (e: Exception) {
-            Log.e(
-                "QuoteRepository",
-                "Error getting quote of the day",
-                e
-            ) // Fehlermeldung im Fehlerfall
-            null
-        }
+    // Holt Zitate anhand des Autornamens als LiveData
+    fun getQuotesByAuthorName(authorName: String): LiveData<List<Quote>> {
+        return quoteDao.getQuotesByAuthorName(authorName)
     }
 
-    // Ruft alle Zitate aus der lokalen Datenbank ab
-    suspend fun getAllQuotesFromLocal(): List<Quote> {
-        return try {
-            val quotes = quoteDao.getAllQuotes() // Alle Zitate abrufen
-            if (quotes.isEmpty()) {
-                Log.w(
-                    "QuoteRepository",
-                    "No quotes found in local database."
-                ) // Warnung, wenn keine Zitate gefunden werden
-            }
-            quotes // Rückgabe der gefundenen Zitate
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error getting all quotes", e) // Fehlermeldung im Fehlerfall
-            emptyList() // Rückgabe einer leeren Liste im Fehlerfall
-        }
+    // Sucht Zitate anhand eines Stichworts als LiveData
+    fun searchQuotesByKeyword(keyword: String): LiveData<List<Quote>> {
+        return quoteDao.searchQuotesByKeyword(keyword)
     }
 
-    // Löscht ein Zitat aus der lokalen Datenbank
-    suspend fun deleteQuote(quote: Quote) {
-        try {
-            quoteDao.deleteQuote(quote) // Zitat aus der Datenbank löschen
-            Log.d(
-                "QuoteRepository",
-                "Quote deleted successfully: ${quote.content}"
-            ) // Log für erfolgreichen Löschvorgang
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error deleting quote", e) // Fehlermeldung im Fehlerfall
-        }
+    // Holt Zitate anhand eines Stichworts als LiveData
+    fun getQuotesByKeyword(keyword: String): LiveData<List<Quote>> {
+        return quoteDao.getQuotesByKeyword(keyword)
     }
 
-
-    // Löscht einen bestimmten Autor aus der lokalen Datenbank
-    suspend fun deleteAuthor(author: Author) {
-        try {
-            val rowsDeleted = quoteDao.deleteAuthor(author) // Den Rückgabewert speichern
-            Log.d(
-                "QuoteRepository",
-                "Author deleted successfully: ${author.name}, Rows deleted: $rowsDeleted"
-            ) // Log für den Löschvorgang
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error deleting author", e) // Fehlermeldung im Fehlerfall
-        }
+    // Aktualisiert ein Zitat
+    suspend fun updateQuote(quote: Quote) {
+        quoteDao.updateQuote(quote)
     }
-
-    // Löscht alle Autoren aus der lokalen Datenbank
-    suspend fun deleteAllAuthors() {
-        try {
-            val rowsDeleted = quoteDao.deleteAllAuthors() // Den Rückgabewert speichern
-            Log.d(
-                "QuoteRepository",
-                "All authors deleted successfully, Rows deleted: $rowsDeleted"
-            ) // Log für den Löschvorgang
-        } catch (e: Exception) {
-            Log.e("QuoteRepository", "Error deleting all authors", e) // Fehlermeldung im Fehlerfall
-        }
-    }
-
-
-
-
 }
-
-

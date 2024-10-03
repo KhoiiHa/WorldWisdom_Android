@@ -7,7 +7,7 @@
     <!-- HomeFragment -->
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.projektworldwisdom.home.HomeFragment"
+        android:name="com.example.projektworldwisdom.ui.HomeFragment"
         android:label="HomeFragment">
         <action
             android:id="@+id/action_homeFragment_to_authorDetailsFragment"
@@ -23,7 +23,7 @@
     <!-- LoginFragment -->
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.projektworldwisdom.login.LoginFragment"
+        android:name="com.example.projektworldwisdom.ui.LoginFragment"
         android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
@@ -36,7 +36,7 @@
     <!-- RegisterFragment -->
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.projektworldwisdom.register.RegisterFragment"
+        android:name="com.example.projektworldwisdom.ui.RegisterFragment"
         android:label="RegisterFragment">
         <action
             android:id="@+id/action_registerFragment_to_homeFragment"
@@ -46,14 +46,8 @@
     <!-- AuthorDetailsFragment -->
     <fragment
         android:id="@+id/authorDetailsFragment"
-        android:name="com.example.projektworldwisdom.authordetail.AuthorDetailsFragment"
+        android:name="com.example.projektworldwisdom.ui.AuthorDetailsFragment"
         android:label="AuthorDetailsFragment">
-        <argument
-            android:name="authorName"
-            app:argType="string" />
-        <argument
-            android:name="quote"
-            app:argType="com.example.projektworldwisdom.model.Quote" />
         <action
             android:id="@+id/action_authorDetailsFragment_to_allQuotesFragment"
             app:destination="@id/allQuotesFragment" />
@@ -62,18 +56,11 @@
     <!-- AllQuotesFragment -->
     <fragment
         android:id="@+id/allQuotesFragment"
-        android:name="com.example.projektworldwisdom.allquotes.AllQuotesFragment"
+        android:name="com.example.projektworldwisdom.ui.AllQuotesFragment"
         android:label="AllQuotesFragment">
         <action
             android:id="@+id/action_allQuotesFragment_to_authorDetailsFragment"
-            app:destination="@id/authorDetailsFragment">
-            <argument
-                android:name="authorName"
-                app:argType="string" />
-            <argument
-                android:name="quote"
-                app:argType="com.example.projektworldwisdom.model.Quote" />
-        </action>
+            app:destination="@id/authorDetailsFragment" />
         <action
             android:id="@+id/action_allQuotesFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -82,7 +69,7 @@
     <!-- CollectionsFragment -->
     <fragment
         android:id="@+id/collectionsFragment"
-        android:name="com.example.projektworldwisdom.collections.CollectionsFragment"
+        android:name="com.example.projektworldwisdom.ui.CollectionsFragment"
         android:label="fragment_collections">
         <action
             android:id="@+id/action_collectionsFragment_to_homeFragment"

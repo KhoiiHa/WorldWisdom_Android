@@ -28,16 +28,18 @@ class CollectionsFragment : Fragment() {
 
         // Beobachte die gespeicherten Zitate
         viewModel.savedQuotes.observe(viewLifecycleOwner) { savedQuotes ->
-            // Adapter initialisieren und an die RecyclerView binden
-            binding.savedQuotesRecyclerView.adapter = CollectionsAdapter(savedQuotes,
-                onDeleteClick = { quote ->
-                    // Zitat löschen
-                    viewModel.deleteQuote(quote)
-                },
-                onCommentClick = { quote ->
-                    // Kommentar zu dem Zitat hinzufügen oder bearbeiten
-                    addComment(quote)
-                })
+           if (savedQuotes!= null) { // Adapter initialisieren und an die RecyclerView binden
+               binding.savedQuotesRecyclerView.adapter = CollectionsAdapter(savedQuotes,
+                   onDeleteClick = { quote ->
+                       // Zitat löschen
+                       viewModel.deleteQuote(quote)
+                   },
+                   onCommentClick = { quote ->
+                       // Kommentar zu dem Zitat hinzufügen oder bearbeiten
+                       addComment(quote)
+                   })
+           }
+
         }
 
         // Gespeicherte Zitate abrufen
@@ -46,6 +48,6 @@ class CollectionsFragment : Fragment() {
 
     private fun addComment(quote: Quote) {
         // Logik zum Hinzufügen eines Kommentars, z.B. ein Dialog öffnen
-        // Zum Beispiel: CommentDialogFragment.show(quote)
+//         Zum Beispiel: CommentDialogFragment.show(quote)
     }
 }

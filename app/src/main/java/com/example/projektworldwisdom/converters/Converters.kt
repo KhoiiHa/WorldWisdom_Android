@@ -10,14 +10,14 @@ class Converters {
 
     // Konvertiere List<Author> in einen JSON-String
     @TypeConverter
-    fun fromAuthorList(authors: List<Author>?): String? {
+    fun fromAuthorList(authors: List<Int>?): String? {
         return gson.toJson(authors)
     }
 
     // Konvertiere einen JSON-String in eine List<Author>
     @TypeConverter
-    fun toAuthorList(authorsString: String?): List<Author>? {
-        val listType = object : TypeToken<List<Author>>() {}.type
+    fun toAuthorList(authorsString: String?): List<Int>? {
+        val listType = object : TypeToken<List<Int>>() {}.type
         return gson.fromJson(authorsString, listType)
     }
 

@@ -1,14 +1,20 @@
 package com.example.projektworldwisdom.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.projektworldwisdom.local.AppDatabase
 import com.example.projektworldwisdom.model.Quote
+import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.example.projektworldwisdom.repository.QuoteRepository
 import kotlinx.coroutines.launch
 
-class CollectionsViewModel(private val repository: QuoteRepository) : ViewModel() {
+class CollectionsViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = QuoteRepository(AppDatabase.getDatabase(application).quoteDao(), WorldWisdomApi.retrofitService)
 
     // LiveData für die gespeicherten Zitate
     private val _savedQuotes = MutableLiveData<List<Quote>>()

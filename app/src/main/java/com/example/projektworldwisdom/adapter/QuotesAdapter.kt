@@ -28,7 +28,7 @@ class QuotesAdapter(
 
             // Zugriff auf den ersten Autor in der Liste
             // Hier verwenden wir den ersten Autor, falls vorhanden
-            quoteAuthor.text = quote.author.firstOrNull()?.name ?: "Unbekannter Autor"
+//            quoteAuthor.text = quote.author.firstOrNull()?.name ?: "Unbekannter Autor"
 
             // Setze die Klick-Listener
             itemView.setOnClickListener {

@@ -1,7 +1,9 @@
 package com.example.projektworldwisdom.repository
 
 
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.projektworldwisdom.local.QuoteDao
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Quote
@@ -11,6 +13,10 @@ class QuoteRepository(
     private val quoteDao: QuoteDao,
     private val apiService: WorldWisdomApiService
 ) {
+
+    private var _selectedAuthor = MutableLiveData<Author>()
+    val selectedAuthor: LiveData<Author> get() = _selectedAuthor
+
 
     // Holt alle Zitate als LiveData (Datenbank)
     fun getAllQuotes(): LiveData<List<Quote>> {
@@ -32,9 +38,9 @@ class QuoteRepository(
 
 
     // Neue Methode, um ein zufälliges Zitat von einem bestimmten Autor abzurufen
-    suspend fun getRandomQuoteByAuthor(authorName: String): Quote? {
+    suspend fun getRandomQuoteByAuthor(authorId: Int): Quote? {
         // Hole alle Zitate des Autors
-        val quotes = quoteDao.getQuotesByAuthor(authorName)
+        val quotes = quoteDao.getQuotesByAuthor(authorId)
 
         // Wenn Zitate vorhanden sind, wähle zufällig eines aus
         return if (quotes.isNotEmpty()) {
@@ -52,10 +58,12 @@ class QuoteRepository(
     }
 
 
-
     // Holt einen Autor anhand seiner ID als LiveData
-    fun getAuthorById(id: Int): LiveData<Author> {
-        return quoteDao.getAuthorById(id)
+    fun getAuthorById(id: Int) {
+        Log.d("QuoteRepository", "Fetching author with ID: $id")
+        val result = quoteDao.getAuthorById("jobs")
+        Log.d("QuoteRepository", "Fetched author: ${result.value}")
+        _selectedAuthor.postValue(result.value)
     }
     // Löscht ein Zitat anhand der ID
     suspend fun deleteQuoteById(id: Int) {

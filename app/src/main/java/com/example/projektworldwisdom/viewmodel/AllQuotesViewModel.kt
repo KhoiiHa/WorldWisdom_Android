@@ -41,12 +41,12 @@ class AllQuotesViewModel(application: Application) : AndroidViewModel(applicatio
             val allQuotes = quotes.value ?: emptyList() // Verwende die bereits vorhandene LiveData
 
             // Filtern der Zitate basierend auf dem Autorennamen oder den Schlüsselwörtern
-            val filtered = allQuotes.filter { quote ->
-                quote.author.any { author -> author.name.contains(query, ignoreCase = true) } ||
-                        quote.keywords.contains(query, ignoreCase = true)
-            }
+//            val filtered = allQuotes.filter { quote ->
+//                quote.author.any { author -> author.name.contains(query, ignoreCase = true) } ||
+//                        quote.keywords.contains(query, ignoreCase = true)
+//            }
 
-            _filteredQuotes.value = filtered // Aktualisiere die gefilterten Zitate
+//            _filteredQuotes.value = filtered // Aktualisiere die gefilterten Zitate
         }
     }
 

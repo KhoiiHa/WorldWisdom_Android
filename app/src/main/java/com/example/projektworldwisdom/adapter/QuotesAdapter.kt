@@ -18,6 +18,8 @@ class QuotesAdapter(
     private val onSaveClick: (Quote) -> Unit
 ) : RecyclerView.Adapter<QuotesAdapter.QuoteViewHolder>() {
 
+    private var allQuotes: List<Quote> = quotes // Speichere die ursprüngliche Liste der Zitate
+
     inner class QuoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val quoteTextView: TextView = itemView.findViewById(R.id.quoteTextView)
         private val quoteAuthor: TextView = itemView.findViewById(R.id.quoteAuthor)
@@ -25,10 +27,7 @@ class QuotesAdapter(
 
         fun bind(quote: Quote) {
             quoteTextView.text = quote.content
-
-            // Zugriff auf den ersten Autor in der Liste
-            // Hier verwenden wir den ersten Autor, falls vorhanden
-//            quoteAuthor.text = quote.author.firstOrNull()?.name ?: "Unbekannter Autor"
+            quoteAuthor.text = quote.author.name // Zeigt den Namen des Autors an
 
             // Setze die Klick-Listener
             itemView.setOnClickListener {
@@ -53,8 +52,11 @@ class QuotesAdapter(
     override fun getItemCount() = quotes.size
 
     // Methode zum Aktualisieren der Zitate
-    fun setQuotes(newQuotes: List<Quote>) {
-        this.quotes = newQuotes
+    fun updateQuotes(newQuotes: List<Quote>) {
+        allQuotes = newQuotes // Aktualisiere die ursprüngliche Liste
+        quotes = newQuotes // Setze die aktuelle Liste der Zitate auf die neue Liste
         notifyDataSetChanged() // Benachrichtigt den Adapter, dass sich die Daten geändert haben
     }
+
+
 }

@@ -23,24 +23,40 @@ class QuoteRepository(
         return quoteDao.getAllQuotes()
     }
 
-    fun getAllAuthors(): LiveData<List<Author>> {
-        return quoteDao.getAllAuthors()
+    suspend fun refreshQuotes() {
+        try {
+            val quotes = apiService.getAllQuotes()
+
+            // Alle Zitate in die Datenbank einfügen
+            quoteDao.insertQuotes(quotes)
+
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Failed to refresh quotes: ${e.message}")
+
+        }
     }
 
-    suspend fun refreshQuotes() {
-        val quotes = apiService.getAllQuotes()
-        val authors = apiService.getAllAuthors()
-        // Alle Zitate in die Datenbank einfügen
-        quoteDao.insertQuotes(quotes)
-        // Alle Autoren in die Datenbank einfügen
-        quoteDao.insertAuthors(authors)
+    suspend fun getAuthorByName(authorName: String): Author? {
+        return quoteDao.getAuthorByName(authorName)
     }
+
+    // Funktion, um Zitate eines bestimmten Autors abzurufen
+    suspend fun getQuotesByAuthorName(authorName: String): List<Quote> {
+        return quoteDao.getQuotesByAuthorName(authorName)
+    }
+
+//    // Holt einen Autor anhand seines Tags als LiveData
+//    fun getAuthorByTag(tag: String) {
+//        Log.d("QuoteRepository", "Fetching author with tag: $tag")
+//        val result = quoteDao.getAuthorByTag(tag)
+//        Log.d("QuoteRepository", "Fetched author: ${result.value}")
+//        _selectedAuthor.postValue(result.value)
 
 
     // Neue Methode, um ein zufälliges Zitat von einem bestimmten Autor abzurufen
-    suspend fun getRandomQuoteByAuthor(authorId: Int): Quote? {
+    suspend fun getRandomQuoteByAuthor(authorName: String): Quote? {
         // Hole alle Zitate des Autors
-        val quotes = quoteDao.getQuotesByAuthor(authorId)
+        val quotes = quoteDao.getQuotesByAuthorName(authorName)
 
         // Wenn Zitate vorhanden sind, wähle zufällig eines aus
         return if (quotes.isNotEmpty()) {
@@ -50,21 +66,17 @@ class QuoteRepository(
         }
     }
 
-
-
-    // Methode zum Speichern eines Zitats in der Datenbank
-    suspend fun saveQuote(quote: Quote) {
-        quoteDao.insertQuote(quote)
+    // Aktualisiert ein Zitat
+    suspend fun updateQuote(quote: Quote) {
+        quoteDao.updateQuote(quote)
     }
 
 
-    // Holt einen Autor anhand seiner ID als LiveData
-    fun getAuthorById(id: Int) {
-        Log.d("QuoteRepository", "Fetching author with ID: $id")
-        val result = quoteDao.getAuthorById("jobs")
-        Log.d("QuoteRepository", "Fetched author: ${result.value}")
-        _selectedAuthor.postValue(result.value)
+    // Funktion zum Abrufen aller Zitate aus der Datenbank
+    fun getAllQuotesFromDatabase(): LiveData<List<Quote>> {
+        return quoteDao.getAllQuotes()
     }
+
     // Löscht ein Zitat anhand der ID
     suspend fun deleteQuoteById(id: Int) {
         quoteDao.deleteQuoteById(id)
@@ -80,14 +92,15 @@ class QuoteRepository(
         return quoteDao.getQuoteOfTheDay()
     }
 
+    // Speichert ein Zitat in der Datenbank
+    suspend fun saveQuote(quote: Quote) {
+        quoteDao.insertQuote(quote) // Zitat in die Datenbank einfügen
+    }
+
+
     // Holt alle gespeicherten Zitate als LiveData
     fun getSavedQuotes(): LiveData<List<Quote>> {
         return quoteDao.getSavedQuotes()
-    }
-
-    // Holt Zitate anhand des Autornamens als LiveData
-    fun getQuotesByAuthorName(authorName: String): LiveData<List<Quote>> {
-        return quoteDao.getQuotesByAuthorName(authorName)
     }
 
     // Sucht Zitate anhand eines Stichworts als LiveData
@@ -100,8 +113,7 @@ class QuoteRepository(
         return quoteDao.getQuotesByKeyword(keyword)
     }
 
-    // Aktualisiert ein Zitat
-    suspend fun updateQuote(quote: Quote) {
-        quoteDao.updateQuote(quote)
-    }
 }
+
+
+

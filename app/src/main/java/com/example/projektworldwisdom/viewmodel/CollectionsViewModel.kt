@@ -23,6 +23,7 @@ class CollectionsViewModel(application: Application) : AndroidViewModel(applicat
     // Gespeicherte Zitate abrufen
     fun getSavedQuotes() {
         viewModelScope.launch {
+            // Die Liste wird hier direkt gesetzt, ohne eine leere Liste
             _savedQuotes.value = repository.getSavedQuotes().value
         }
     }

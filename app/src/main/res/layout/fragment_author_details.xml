@@ -3,28 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.example.projektworldwisdom.viewmodel.AuthorDetailsViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Zurück"
-            android:src="?attr/actionModeCloseDrawable"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/author_name"
@@ -36,8 +17,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/backButton"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Albert Einstein" />
 
@@ -78,7 +58,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/author_tag"
-            tools:text="Albert Einstein war ein theoretischer Physiker, der für seine Entwicklung der Relativitätstheorie bekannt ist." /> <!-- Beispieltext für die Biografie -->
+            tools:text="Albert Einstein war ein theoretischer Physiker, der für seine Entwicklung der Relativitätstheorie bekannt ist." />
 
         <TextView
             android:id="@+id/author_link"
@@ -93,28 +73,5 @@
             app:layout_constraintTop_toBottomOf="@+id/author_biography"
             tools:text="https://en.wikipedia.org/wiki/Albert_Einstein"
             tools:visibility="visible" />
-
-        <Button
-            android:id="@+id/loadNewQuoteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Neues Zitat laden"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/author_link" />
-
-        <ImageView
-            android:id="@+id/author_image"
-            android:layout_width="0dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="16dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/loadNewQuoteButton"
-            tools:src="@drawable/common_google_signin_btn_text_dark"
-            tools:visibility="gone" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

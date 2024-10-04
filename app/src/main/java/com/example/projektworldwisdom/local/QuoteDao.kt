@@ -13,49 +13,39 @@ import com.example.projektworldwisdom.model.Quote
 interface QuoteDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertQuote(quote: Quote)  // Neue Methode für ein einzelnes Zitat
+    suspend fun insertQuote(quote: Quote)  // Ein einzelnes Zitat einfügen
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertQuotes(quotes: List<Quote>)
+    suspend fun insertQuotes(quotes: List<Quote>) // Mehrere Zitate einfügen
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAuthors(authors: List<Author>)
+    // Abfrage für Zitate eines bestimmten Autors
+    @Query("SELECT * FROM quote_table WHERE author = :authorName")
+    suspend fun getQuotesByAuthorName(authorName: String): List<Quote>
 
-    @Query("SELECT * FROM quote_table WHERE id = :authorId")
-    suspend fun getQuotesByAuthor(authorId: Int): List<Quote>
-
-    @Query("SELECT * FROM authors_table WHERE tag = :tag")
-    fun getAuthorById(tag: String): LiveData<Author>
-
-
+    @Query("SELECT * FROM authors_table WHERE name = :authorName LIMIT 1")
+    suspend fun getAuthorByName(authorName: String): Author?
 
     @Query("SELECT * FROM quote_table")
-    fun getAllQuotes(): LiveData<List<Quote>>
-
-    @Query("SELECT * FROM authors_table")
-    fun getAllAuthors(): LiveData<List<Author>>
+    fun getAllQuotes(): LiveData<List<Quote>> // Alle Zitate abrufen
 
     @Query("SELECT * FROM quote_table WHERE id = :id")
-    fun getQuoteById(id: Int): LiveData<Quote>
+    fun getQuoteById(id: Int): LiveData<Quote> // Zitat nach ID abrufen
 
     @Query("DELETE FROM quote_table WHERE id = :id")
-    suspend fun deleteQuoteById(id: Int)
+    suspend fun deleteQuoteById(id: Int) // Zitat nach ID löschen
 
     @Query("SELECT * FROM quote_table WHERE isQuoteOfTheDay = 1")
-    fun getQuoteOfTheDay(): LiveData<Quote>
+    fun getQuoteOfTheDay(): LiveData<Quote> // Zitat des Tages abrufen
 
     @Query("SELECT * FROM quote_table WHERE isSaved = 1")
-    fun getSavedQuotes(): LiveData<List<Quote>>
-
-    @Query("SELECT * FROM quote_table WHERE author LIKE :authorName")
-    fun getQuotesByAuthorName(authorName: String): LiveData<List<Quote>>
+    fun getSavedQuotes(): LiveData<List<Quote>> // Gespeicherte Zitate abrufen
 
     @Query("SELECT * FROM quote_table WHERE content LIKE :keyword")
-    fun searchQuotesByKeyword(keyword: String): LiveData<List<Quote>>
+    fun searchQuotesByKeyword(keyword: String): LiveData<List<Quote>> // Zitate nach Schlüsselwort suchen
 
     @Query("SELECT * FROM quote_table WHERE keywords LIKE '%' || :keyword || '%'")
-    fun getQuotesByKeyword(keyword: String): LiveData<List<Quote>>
+    fun getQuotesByKeyword(keyword: String): LiveData<List<Quote>> // Zitate anhand eines Stichworts abrufen
 
     @Update
-    suspend fun updateQuote(quote: Quote)
+    suspend fun updateQuote(quote: Quote) // Zitat aktualisieren
 }

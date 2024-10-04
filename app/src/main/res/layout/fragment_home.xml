@@ -82,6 +82,18 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- Suchleiste hinzufügen -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:queryHint="Nach Autor suchen..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/daily_affirmation_card" />
+
+
     <HorizontalScrollView
         android:id="@+id/filter_bar"
         android:layout_width="0dp"
@@ -89,7 +101,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/daily_affirmation_card">
+        app:layout_constraintTop_toBottomOf="@id/search_view">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -101,10 +113,10 @@
                 android:id="@+id/filter_society"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:clickable="true">
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -116,10 +128,10 @@
                 android:id="@+id/filter_success"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:clickable="true">
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -131,10 +143,10 @@
                 android:id="@+id/filter_work"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:clickable="true">
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -146,10 +158,10 @@
                 android:id="@+id/filter_wisdom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:clickable="true">
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -161,10 +173,10 @@
                 android:id="@+id/filter_gratitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:clickable="true">
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -176,10 +188,10 @@
                 android:id="@+id/filter_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="8dp"
-                android:clickable="true">
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"

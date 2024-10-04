@@ -18,7 +18,6 @@ import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class AllQuotesFragment : Fragment() {
     private lateinit var binding: FragmentAllQuotesBinding
-    private val viewModel: AllQuotesViewModel by activityViewModels()
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var adapter: QuotesAdapter
 
@@ -41,34 +40,34 @@ class AllQuotesFragment : Fragment() {
         binding.allQuotesList.adapter = adapter
 
         // Zitate abrufen
-        viewModel.getQuotes()
+        sharedViewModel.getQuotes()
 
         // Beobachte die Zitate
-        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            adapter.setQuotes(quotes) // Setze alle Zitate
+        sharedViewModel.quotes.observe(viewLifecycleOwner) { quotes ->
+            adapter.updateQuotes(quotes) // Setze alle Zitate
         }
 
         // Beobachte die gefilterten Zitate
-        viewModel.filteredQuotes.observe(viewLifecycleOwner) { filteredQuotes ->
-            adapter.setQuotes(filteredQuotes) // Aktualisiere den Adapter mit gefilterten Zitaten
+        sharedViewModel.filteredQuotes.observe(viewLifecycleOwner) { filteredQuotes ->
+            adapter.updateQuotes(filteredQuotes) // Aktualisiere den Adapter mit gefilterten Zitaten
         }
 
         // Suchleiste
         binding.searchEditText.addTextChangedListener { text ->
             val searchQuery = text.toString()
-            viewModel.searchQuotes(searchQuery) // Suche aktualisieren
+            sharedViewModel.filterQuotesForAll(searchQuery) // Aufruf der Filtermethode im SharedViewModel
         }
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
         // Setze den ausgewählten Autor im SharedViewModel
-        quote.author.firstOrNull()?.let { sharedViewModel.selectAuthor(it) } // Sicherstellen, dass der erste Autor übergeben wird
+        sharedViewModel.selectAuthor(quote.author) // Sicherstellen, dass der Autor übergeben wird
         val action = AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment()
         findNavController().navigate(action)
     }
 
     private fun saveQuote(quote: Quote) {
-        viewModel.saveQuote(quote) // Zitat speichern
+        sharedViewModel.saveQuote(quote) // Zitat speichern
         // Optionale Rückmeldung hinzufügen
         Toast.makeText(requireContext(), "Zitat gespeichert!", Toast.LENGTH_SHORT).show()
     }

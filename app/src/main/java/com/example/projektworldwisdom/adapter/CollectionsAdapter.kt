@@ -11,7 +11,7 @@ import com.example.projektworldwisdom.model.Quote
 
 
 class CollectionsAdapter(
-    private val savedQuotes: List<Quote>,
+    private var savedQuotes: List<Quote>,
     private val onDeleteClick: (Quote) -> Unit,
     private val onCommentClick: (Quote) -> Unit
 ) : RecyclerView.Adapter<CollectionsAdapter.CollectionsViewHolder>() {
@@ -25,8 +25,8 @@ class CollectionsAdapter(
 
         fun bind(quote: Quote) {
             quoteTextView.text = quote.content
-            authorTextView.text = quote.author.toString()
-            tagTextView.text = quote.keywords
+            authorTextView.text = quote.author.name // Verwende den Namen des Autors
+            tagTextView.text = quote.keywords // Sicherstellen, dass das Tag-Feld in der Quote-Klasse existiert
 
             // Delete button click listener
             deleteButton.setOnClickListener { onDeleteClick(quote) }
@@ -47,4 +47,10 @@ class CollectionsAdapter(
     }
 
     override fun getItemCount() = savedQuotes.size
+
+    // Methode zum Aktualisieren der Liste
+    fun updateQuotes(newQuotes: List<Quote>) {
+        savedQuotes = newQuotes
+        notifyDataSetChanged()
+    }
 }

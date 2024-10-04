@@ -14,9 +14,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: QuoteRepository
 
-    // LiveData für Zitate und Autoren direkt vom Repository
+    // LiveData für Zitate direkt vom Repository
     val quotes: LiveData<List<Quote>>
-    val authors: LiveData<List<Author>>
 
     init {
         // Repository initialisieren
@@ -26,7 +25,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         // LiveData von Repository abrufen
         quotes = repository.getAllQuotes()
-        authors = repository.getAllAuthors()
 
         // Zitate und Autoren aktualisieren
         refreshQuotesforLocal()

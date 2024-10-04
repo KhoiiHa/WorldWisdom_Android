@@ -20,6 +20,7 @@ moshi = "1.15.1"
 navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 okhttp = "4.12.0"
+playServicesMapsVersion = "20.4.1"
 retrofit = "2.11.0"
 roomRuntime = "2.6.1"
 
@@ -40,6 +41,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+gms-play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

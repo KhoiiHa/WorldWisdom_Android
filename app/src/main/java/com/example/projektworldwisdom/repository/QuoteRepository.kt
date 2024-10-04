@@ -1,17 +1,11 @@
 package com.example.projektworldwisdom.repository
 
-import android.util.Log
+
 import androidx.lifecycle.LiveData
 import com.example.projektworldwisdom.local.QuoteDao
-import com.example.projektworldwisdom.mockApi.MockApi
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.remote.WorldWisdomApi
 import com.example.projektworldwisdom.remote.WorldWisdomApiService
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class QuoteRepository(
     private val quoteDao: QuoteDao,
@@ -35,6 +29,22 @@ class QuoteRepository(
         // Alle Autoren in die Datenbank einfügen
         quoteDao.insertAuthors(authors)
     }
+
+
+    // Neue Methode, um ein zufälliges Zitat von einem bestimmten Autor abzurufen
+    suspend fun getRandomQuoteByAuthor(authorName: String): Quote? {
+        // Hole alle Zitate des Autors
+        val quotes = quoteDao.getQuotesByAuthor(authorName)
+
+        // Wenn Zitate vorhanden sind, wähle zufällig eines aus
+        return if (quotes.isNotEmpty()) {
+            quotes.random()
+        } else {
+            null // Wenn keine Zitate vorhanden sind
+        }
+    }
+
+
 
     // Methode zum Speichern eines Zitats in der Datenbank
     suspend fun saveQuote(quote: Quote) {

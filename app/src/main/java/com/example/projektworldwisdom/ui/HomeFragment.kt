@@ -11,10 +11,12 @@ import com.example.projektworldwisdom.adapter.QuotesAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.HomeViewModel
+import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: HomeViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by activityViewModels() // Hinzugefügte Referenz zum SharedViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -29,7 +31,7 @@ class HomeFragment : Fragment() {
         // Beobachte die Zitate
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             // Adapter initialisieren und an die RecyclerView binden
-            binding.quotesList.adapter = QuotesAdapter(quotes, { quote ->
+            binding.quotesList.adapter = QuotesAdapter(quotes, sharedViewModel, { quote ->
                 // Hier gehst zum nächsten Screen mit den Details für die Quote
                 navigateToAuthorDetails(quote)
             }, { quote ->
@@ -43,11 +45,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
+        // Setze den ersten Autor im SharedViewModel
+        quote.author.firstOrNull()?.let { sharedViewModel.selectAuthor(it) } // Setze den ersten Autor im SharedViewModel
+
         // Logik für die Navigation zu den Details des Autors
-        quote.author.let {
-            val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment()
-            findNavController().navigate(action)
-        }
+        val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment()
+        findNavController().navigate(action)
     }
 
     private fun saveQuote(quote: Quote) {

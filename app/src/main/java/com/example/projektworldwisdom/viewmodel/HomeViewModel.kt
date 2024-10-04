@@ -32,7 +32,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         refreshQuotesforLocal()
     }
 
-    // Holt alle Zitate und Autoren von der API und speichert sie in der Datenbank
+    // Holt alle Zitate und Autoren
     private fun refreshQuotesforLocal() {
         viewModelScope.launch {
             try {

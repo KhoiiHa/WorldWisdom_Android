@@ -21,6 +21,9 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAuthors(authors: List<Author>)
 
+    @Query("SELECT * FROM quote_table WHERE author = :authorName")
+    suspend fun getQuotesByAuthor(authorName: String): List<Quote>
+
     @Query("SELECT * FROM authors_table WHERE id = :id")
     fun getAuthorById(id: Int): LiveData<Author>
 

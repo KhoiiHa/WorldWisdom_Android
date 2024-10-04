@@ -8,10 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.model.Quote
+import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 
 class QuotesAdapter(
-    private val quotes: List<Quote>,
+    private var quotes: List<Quote>,
+    private val sharedViewModel: SharedViewModel,
     private val onQuoteClick: (Quote) -> Unit,
     private val onSaveClick: (Quote) -> Unit
 ) : RecyclerView.Adapter<QuotesAdapter.QuoteViewHolder>() {
@@ -23,11 +25,19 @@ class QuotesAdapter(
 
         fun bind(quote: Quote) {
             quoteTextView.text = quote.content
-            quoteAuthor.text = quote.author.toString()
 
-            // Set click listeners
-            itemView.setOnClickListener { onQuoteClick(quote) }
-            saveQuoteButton.setOnClickListener { onSaveClick(quote) }
+            // Zugriff auf den ersten Autor in der Liste
+            // Hier verwenden wir den ersten Autor, falls vorhanden
+            quoteAuthor.text = quote.author.firstOrNull()?.name ?: "Unbekannter Autor"
+
+            // Setze die Klick-Listener
+            itemView.setOnClickListener {
+                sharedViewModel.selectQuote(quote) // Speichere das ausgewählte Zitat im SharedViewModel
+                onQuoteClick(quote) // Rufe die Callback-Methode auf
+            }
+            saveQuoteButton.setOnClickListener {
+                onSaveClick(quote)
+            }
         }
     }
 
@@ -41,4 +51,10 @@ class QuotesAdapter(
     }
 
     override fun getItemCount() = quotes.size
+
+    // Methode zum Aktualisieren der Zitate
+    fun setQuotes(newQuotes: List<Quote>) {
+        this.quotes = newQuotes
+        notifyDataSetChanged() // Benachrichtigt den Adapter, dass sich die Daten geändert haben
+    }
 }

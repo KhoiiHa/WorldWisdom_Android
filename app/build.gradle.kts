@@ -7,6 +7,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-kapt")
     id("kotlin-parcelize")
+
 }
 
 android {
@@ -22,10 +23,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // API-Schlüssel aus local.properties laden
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
 
 
     }
@@ -62,6 +59,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
 
+
+
     // Test-Abhängigkeiten
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -73,10 +72,6 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
-    //Coil
-    implementation(libs.coil)
-    implementation (libs.glide)
-
 
     //Retrofit
     implementation(libs.retrofit)
@@ -86,10 +81,6 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.converter.gson)
 
-    // Moshi
-    implementation(libs.moshi)
-    implementation(libs.converter.moshi)
-    implementation(libs.moshi.kotlin)
 
     // OkHttp
     implementation(libs.okhttp)

@@ -1,12 +1,17 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/LJ-RdF5R)
-# Name der App
+# WorldWisdom
 
-**(Optional) Füge hier einen kurzen, knackigen Slogan ein, um deine App zu bewerben.**
+### **“WorldWisdom – Entdecke die Weisheit der Welt in einer App.”**
 
-Beschreibe hier in ein paar Sätzen, was deine App bietet.
+WorldWisdom ist eine Zitat-App für den Alltag, die inspirierende und weise Zitate von bekannten Persönlichkeiten aus aller Welt präsentiert. 
+Mit einer einfachen und intuitiven Oberfläche kannst du Zitate entdecken, speichern und mehr über die Autoren und deren Werke erfahren. 
+Entdecke täglich Weisheiten, die deinen Alltag bereichern.
 
-Für wen ist sie geeignet? Welches Problem löst sie? Was macht deine App anders / besser als andere Apps?
-Vermeide es, hier allzusehr in technische Details zu gehen.
+### **Für wen ist die App geeignet?**  
+WorldWisdom ist für alle, die Inspiration und Weisheit im Alltag suchen.
+
+### **Welches Problem löst sie?**  
+Die App bietet eine einfache Möglichkeit, tiefgründige Zitate zu finden und zu speichern, um Motivation und Reflexion zu fördern.
 
 ## Geplantes Design
 Füge hier einige repräsentative Designs deiner App ein (z.B. aus Figma)
@@ -17,29 +22,38 @@ Füge hier einige repräsentative Designs deiner App ein (z.B. aus Figma)
 </p>
 
 ## Features
+
 Hier kommen alle geplanten Features der App rein mit dem Status, ob es bereits umgesetzt wurde.
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] ...
+- [x] **Zitate entdecken**: Benutzer können inspirierende Zitate von verschiedenen bekannten Persönlichkeiten entdecken.
+- [x] **Speichern & Sammeln:**: Benutzer können Zitate speichern, die ihnen gefallen, und sie in einem CollectionsScreen verwalten.
+- [x] **Zwei Suchleisten**: Benutzer können nach Zitaten basierend auf Autoren oder Schlüsselwörtern suchen.
+- [x] **Zwei RecyclerViews**: Die Zitate sind in zwei Kategorien unterteilt, um das Durchstöbern zu erleichtern.
+- [x] **Detaillierte Autoreninformationen**: Benutzer können mehr über die Autoren der Zitate erfahren, einschließlich ihrer Biografie und anderer Zitate.
+- [x] **Einmalige Registrierung**: Eine einmalige Registrierung ermöglicht es Benutzern, in der App angemeldet zu bleiben.
+- [ ] **Bilder hinzufügen**: Integration von Bildern zur visuellen Unterstützung der Zitate.
+- [ ] **Community-Funktion**: Zukünftig können Benutzer ihre eigenen Zitate oder Gedichte erstellen und in der App hochladen.
+
+---
 
 
 ## Technischer Aufbau
 
-#### Projektaufbau
-Eine kurze Beschreibung deiner Ordnerstruktur und Architektur (MVVM, Repositories?) um Außenstehenden zu helfen, sich in deinem Projekt zurecht zu finden.
+### Projektaufbau
+Das Projekt folgt der MVVM-Architektur (Model-View-ViewModel), die eine klare Trennung von Logik und Benutzeroberfläche ermöglicht. Die Ordnerstruktur umfasst:
 
-#### Datenspeicherung
-Welche Daten speicherst du? Wo und wie (Firebase, Room)?
+- **Model**: Enthält die Datenklassen für Zitate und Autoren.
+- **View**: Beinhaltet die Benutzeroberflächen-Layouts und Fragmente.
+- **SharedViewModel**: Verwaltet die UI-bezogene Logik für mehrere Fragmente und interagiert mit dem Repository.
+- **Repository**: Zentrale Stelle, die Daten aus verschiedenen Quellen (Room, API) abruft und bereitstellt.
 
-#### API Calls
-Welche APIs verwendest du?
+### Datenspeicherung
+Die App speichert Zitate und Autoreninformationen lokal mit Room, einer SQLite-Datenbank, 
+und nutzt Firebase Authentication zur Benutzerverwaltung. Daten werden bei der Registrierung und beim Speichern von Zitaten in der App gespeichert.
 
-#### Dependencies
-Es ist eine gute Praxis, die verwendeten Dependencies aufzulisten. Das gibt den Nutzern deines Projekts eine klare Vorstellung davon, was im Projekt verwendet wird.
-- Retrofit 2.9.0 - Für Netzwerkoperationen
-- Room 2.3.0 - Für lokale Datenbankverwaltung
+### API Calls
+Die App verwendet eine MockAPI mit nur einem API-Endpunkt, um Zitate von verschiedenen bekannten Persönlichkeiten abzurufen. 
+Die API bietet die notwendigen Daten für die Anzeige in der App und wird durch Retrofit angesprochen.
 
-## Ausblick
-Beschreibe hier, wo die Reise nach deinem Praxisprojekt hin geht. Was möchtest du in Zukunft noch ergänzen? Erstelle auch hierzu Issues und verlinke sie, wie oben.
+
  

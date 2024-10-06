@@ -23,11 +23,13 @@ class QuotesAdapter(
     inner class QuoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val quoteTextView: TextView = itemView.findViewById(R.id.quoteTextView)
         private val quoteAuthor: TextView = itemView.findViewById(R.id.quoteAuthor)
+        private val tagTextView: TextView = itemView.findViewById(R.id.tagTextView)
         private val saveQuoteButton: ImageButton = itemView.findViewById(R.id.saveQuoteButton)
 
         fun bind(quote: Quote) {
             quoteTextView.text = quote.content
             quoteAuthor.text = quote.author.name // Zeigt den Namen des Autors an
+            tagTextView.text = quote.author.tag // Zeigt den Tag des Zitats an
 
             // Setze die Klick-Listener
             itemView.setOnClickListener {

@@ -2,4 +2,33 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="hintergrund_hellgrau">#F2F2F2</color>
+    <color name="hintergrund_dunkelgrau">#37474F</color>
+    <color name="hintergrund_beige">#F5F5DC</color>
+    <color name="hintergrund_helles_beige">#FFFBEB</color>
+    <color name="hintergrund_khaki">#F0E68C</color>
+    <color name="hintergrund_bisque">#FFE4C4</color>
+    <color name="hintergrund_grün">#388E3C</color>
+    <color name="hintergrund_dunkelgrün">#478B78</color>
+
+    <color name="text_schwarz">#FF000000</color>
+    <color name="text_weiss">#FFFFFFFF</color>
+
+    <color name="akzent_blau">#2B78B5</color>
+
+    <color name="grau_hell">#E0E0E0</color>
+    <color name="grau">#9E9E9E</color>
+    <color name="grau_dunkel">#616161</color>
+
+    <color name="filter_blau">#ADD8E6</color>
+    <color name="filter_grau">#A9A9A9</color>
+    <color name="filter_beige">#D3D3D3</color>
+    <color name="filter_grau_dunkel">#424242</color>
+
+    <color name="cardview_grau">#F5F6EF</color>
+    <color name="cardview_gelb">#FFF8DC</color>
+
+    <color name="error_red">#AC3131</color>"
+
 </resources>

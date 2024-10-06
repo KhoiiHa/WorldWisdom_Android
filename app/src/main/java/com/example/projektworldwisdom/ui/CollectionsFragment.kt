@@ -10,7 +10,6 @@ import androidx.fragment.app.activityViewModels
 import com.example.projektworldwisdom.adapter.CollectionsAdapter
 import com.example.projektworldwisdom.databinding.FragmentCollectionsBinding
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.viewmodel.CollectionsViewModel
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class CollectionsFragment : Fragment() {
@@ -44,12 +43,18 @@ class CollectionsFragment : Fragment() {
 
         // Beobachte die gespeicherten Zitate
         sharedViewModel.savedQuotes.observe(viewLifecycleOwner) { savedQuotes ->
-            // Update den Adapter mit den neuen Zitatdaten
-            savedQuotesAdapter.updateQuotes(savedQuotes)
+            if (savedQuotes.isNullOrEmpty()) {
+                // Wenn die Liste leer ist, zeige den emptyStateTextView und verstecke die RecyclerView
+                binding.emptyStateTextView.visibility = View.VISIBLE
+                binding.savedQuotesRecyclerView.visibility = View.GONE
+            } else {
+                // Wenn es gespeicherte Zitate gibt, zeige die RecyclerView und verstecke den emptyStateTextView
+                binding.emptyStateTextView.visibility = View.GONE
+                binding.savedQuotesRecyclerView.visibility = View.VISIBLE
+                // Update den Adapter mit den neuen Zitatdaten
+                savedQuotesAdapter.updateQuotes(savedQuotes)
+            }
         }
-
-        // Gespeicherte Zitate abrufen
-        sharedViewModel.getSavedQuotes()
     }
 
     private fun addComment(quote: Quote) {

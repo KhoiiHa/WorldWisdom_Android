@@ -5,18 +5,35 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/hintergrund_beige">
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="57dp"
+            android:layout_height="60dp"
+            android:layout_margin="16dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="40dp"
+            android:backgroundTint="@color/hintergrund_beige"
+            app:tint="@color/text_schwarz"
+            android:src="@android:drawable/ic_menu_revert"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/author_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="92dp"
+            android:layout_marginTop="232dp"
             android:layout_marginEnd="16dp"
-            android:textSize="24sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/text_schwarz"
+            android:textSize="25sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Albert Einstein" />
@@ -28,6 +45,9 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:textColor="@color/text_schwarz"
+            android:textSize="21sp"
+            android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/author_name"
@@ -38,9 +58,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
-            android:textSize="18sp"
+            android:textColor="@color/text_schwarz"
+            android:textSize="17sp"
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -52,10 +73,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:layout_marginEnd="16dp"
+            android:textColor="@color/text_schwarz"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/author_tag"
             tools:text="Albert Einstein war ein theoretischer Physiker, der für seine Entwicklung der Relativitätstheorie bekannt ist." />
@@ -65,13 +88,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:autoLink="web"
+            android:textColor="@color/akzent_blau"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/author_biography"
             tools:text="https://en.wikipedia.org/wiki/Albert_Einstein"
             tools:visibility="visible" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

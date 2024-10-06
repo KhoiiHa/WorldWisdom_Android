@@ -18,6 +18,10 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     private val repository: QuoteRepository
 
+    // MutableLiveData für die gespeicherten Zitate
+    private val _savedQuotes = MutableLiveData<List<Quote>>()
+    val savedQuotes: LiveData<List<Quote>> get() = _savedQuotes
+
     // LiveData für den ausgewählten Autor
     private val _selectedAuthor = MutableLiveData<Author>()
     val selectedAuthor: LiveData<Author> get() = _selectedAuthor
@@ -33,9 +37,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     private val _selectedQuote = MutableLiveData<Quote>()
     val selectedQuote: LiveData<Quote> get() = _selectedQuote
 
-    private val _savedQuotes = MutableLiveData<List<Quote>>()
-    val savedQuotes: LiveData<List<Quote>> get() = _savedQuotes
-
     // LiveData für alle Zitate
     val quotes: LiveData<List<Quote>>
 
@@ -50,9 +51,10 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
         // Zitate aktualisieren
         refreshQuotes()
+        loadSavedQuotes()
     }
 
-    /// Methode zum Setzen des ausgewählten Autors
+    // Methode zum Setzen des ausgewählten Autors
     fun selectAuthor(author: Author) {
         _selectedAuthor.value = author
     }
@@ -65,7 +67,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // Methode zum Abrufen der Zitate
     fun getQuotes() {
         viewModelScope.launch {
-            // Ruft die aktuellen Zitate von der API ab und speichert sie in der Datenbank
             repository.refreshQuotes()
         }
     }
@@ -73,7 +74,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // Speichert ein Zitat
     fun saveQuote(quote: Quote) {
         viewModelScope.launch {
-            // Hier wird das Zitat in die Datenbank eingefügt
             repository.saveQuote(quote)
         }
     }
@@ -84,7 +84,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             try {
                 repository.refreshQuotes() // Zitate aktualisieren
                 // Die gefilterten Zitate auf die aktuelle Zitatliste setzen
-                _filteredQuotes.value = repository.getAllQuotesFromDatabase().value // Hier holen wir uns die LiveData-Liste
+                _filteredQuotes.value = repository.getAllQuotesFromDatabase().value // Holen wir uns die LiveData-Liste
             } catch (e: Exception) {
                 Log.e("SharedViewModel", "Failed to refresh quotes: ${e.message}")
             }
@@ -119,35 +119,33 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    // Methode zum Abrufen der gespeicherten Zitate
-    fun getSavedQuotes() {
-        viewModelScope.launch {
-            // Beobachte die LiveData vom Repository und aktualisiere _savedQuotes
-            repository.getSavedQuotes().observeForever { savedQuotes ->
-                _savedQuotes.value = savedQuotes
-            }
-        }
-    }
+
 
     // Methode zum Löschen eines Zitats
     fun deleteQuote(quote: Quote) {
         viewModelScope.launch {
             try {
                 repository.deleteQuoteById(quote.id)
-                // Aktualisiere die gespeicherten Zitate nach dem Löschen
-                getSavedQuotes()
+                loadSavedQuotes() // Nach dem Löschen die gespeicherten Zitate erneut laden
             } catch (e: Exception) {
                 Log.e("SharedViewModel", "Failed to delete quote: ${e.message}")
             }
         }
     }
 
-    fun loadQuoteForAuthor(authorName: String) {
+    // Funktion zum Laden der gespeicherten Zitate
+    private fun loadSavedQuotes() {
         viewModelScope.launch {
-            // Holen Sie sich das erste Zitat für den Autor oder null, wenn kein Zitat gefunden wurde
-            _authorQuote.postValue(repository.getQuotesByAuthorName(authorName).firstOrNull())
+            repository.getSavedQuotes().observeForever { quotes ->
+                _savedQuotes.value = quotes
+            }
         }
     }
 
-
+    // Methode zum Laden eines Zitats für einen Autor
+    fun loadQuoteForAuthor(authorName: String) {
+        viewModelScope.launch {
+            _authorQuote.postValue(repository.getQuotesByAuthorName(authorName).firstOrNull())
+        }
+    }
 }

@@ -48,6 +48,13 @@ class HomeFragment : Fragment() {
             quotesAdapter.updateQuotes(filteredQuotes) // Gefilterte Liste im Adapter aktualisieren
         }
 
+        // Beobachte das ausgewählte Zitat
+        sharedViewModel.selectedQuote.observe(viewLifecycleOwner) { quote ->
+            quote?.let {
+
+            }
+        }
+
         // Zitate abrufen
         sharedViewModel.getQuotes()
 
@@ -67,6 +74,7 @@ class HomeFragment : Fragment() {
 
     private fun navigateToAuthorDetails(quote: Quote) {
         sharedViewModel.selectAuthor(quote.author) // Übergib das gesamte Author-Objekt
+        sharedViewModel.selectQuote(quote) // Wähle das Zitat aus
 
         // Logik für die Navigation zu den Details des Autors
         val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment()

@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/homeFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:iconTint="@color/text_schwarz"
+        android:icon="@drawable/cottage_24px"
         android:title="Home" />
     <item
         android:id="@+id/allQuotesFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Alle Zitate" />
 
+        android:icon="@drawable/menu_book_24px"
+        android:title="Alle Zitate" />
     <item
         android:id="@+id/collectionsFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:iconTint="@color/text_schwarz"
+        android:icon="@drawable/collections_bookmark_24px"
         android:title="Collections" />
-
 </menu>

@@ -10,9 +10,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.projektworldwisdom.databinding.FragmentAuthorDetailsBinding
 import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.viewmodel.AuthorDetailsViewModel
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class AuthorDetailsFragment : Fragment() {
@@ -37,16 +37,21 @@ class AuthorDetailsFragment : Fragment() {
             }
         }
 
-        // Beobachte das Zitat des Autors
-        sharedViewModel.authorQuote.observe(viewLifecycleOwner) { quote ->
+        // Beobachte das ausgewählte Zitat
+        sharedViewModel.selectedQuote.observe(viewLifecycleOwner) { quote ->
             quote?.let {
-                binding.authorQuote.text = it.content
+                binding.authorQuote.text = it.content // Setze das Zitat
             }
         }
 
         // Link klickbar machen
         binding.authorLink.setOnClickListener {
             openAuthorLink(binding.authorLink.text.toString())
+        }
+
+        // Zurück-Pfeil-Button
+        binding.backButton.setOnClickListener {
+            findNavController().navigateUp()
         }
     }
 

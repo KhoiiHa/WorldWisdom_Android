@@ -34,8 +34,11 @@ interface QuoteDao {
     @Query("DELETE FROM quote_table WHERE id = :id")
     suspend fun deleteQuoteById(id: Int) // Zitat nach ID löschen
 
-    @Query("SELECT * FROM quote_table WHERE isQuoteOfTheDay = 1")
-    fun getQuoteOfTheDay(): LiveData<Quote> // Zitat des Tages abrufen
+    @Query("SELECT * FROM quote_table WHERE isQuoteOfTheDay = 1 LIMIT 1")
+    fun getQuoteOfTheDay(): LiveData<Quote> // Nur ein Zitat des Tages abrufen
+
+    @Query("UPDATE quote_table SET isQuoteOfTheDay = 0") // Setze alle Zitate auf nicht Zitat des Tages
+    suspend fun resetAllQuotesOfTheDay()
 
     @Query("SELECT * FROM quote_table WHERE isSaved = 1")
     fun getSavedQuotes(): LiveData<List<Quote>> // Gespeicherte Zitate abrufen

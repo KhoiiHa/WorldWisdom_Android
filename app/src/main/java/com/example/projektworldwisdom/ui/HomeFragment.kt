@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.adapter.QuotesAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.model.Quote
@@ -51,7 +53,7 @@ class HomeFragment : Fragment() {
         // Beobachte das ausgewählte Zitat
         sharedViewModel.selectedQuote.observe(viewLifecycleOwner) { quote ->
             quote?.let {
-
+                // Hier kannst du zusätzliche Logik für das ausgewählte Zitat hinzufügen
             }
         }
 
@@ -70,6 +72,25 @@ class HomeFragment : Fragment() {
                 return true
             }
         })
+
+        // Zitat des Tages abrufen und anzeigen
+        fetchAndDisplayQuoteOfTheDay()
+
+        // ImageButton für das neue Zitat laden
+        binding.refreshButton.setOnClickListener {
+            sharedViewModel.fetchQuoteOfTheDay() // Neues Zitat des Tages abrufen
+            fetchAndDisplayQuoteOfTheDay() // Zitat des Tages neu laden und anzeigen
+        }
+    }
+
+    private fun fetchAndDisplayQuoteOfTheDay() {
+        // Beobachte das Zitat des Tages
+        sharedViewModel.quoteOfTheDay.observe(viewLifecycleOwner) { quote ->
+            quote?.let {
+                binding.affirmationText.text = it.content
+                binding.affirmationAuthor.text = it.author.name
+            }
+        }
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {

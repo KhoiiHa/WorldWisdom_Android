@@ -32,6 +32,31 @@ class QuoteRepository(
         }
     }
 
+    suspend fun refreshQuoteOfTheDay() {
+        try {
+            // Hole alle Zitate von der API
+            val quotes = apiService.getAllQuotes()
+            Log.d("QuoteRepository", "Zitate von API abgerufen: ${quotes.size} Zitate gefunden.")
+
+            val quoteOfTheDay = quotes.random() // Wähle zufällig ein Zitat aus
+            Log.d("QuoteRepository", "Neues Zitat des Tages: ${quoteOfTheDay.content}")
+
+            // Setze alle bestehenden Zitate des Tages zurück
+            quoteDao.resetAllQuotesOfTheDay()
+
+            // Markiere das neue Zitat des Tages
+            val updatedQuoteOfTheDay = quoteOfTheDay.copy(isQuoteOfTheDay = true)
+
+            // Füge das neue Zitat in die Datenbank ein (Einzelnes Zitat)
+            quoteDao.insertQuote(updatedQuoteOfTheDay)
+            Log.d("QuoteRepository", "Neues Zitat des Tages in die Datenbank eingefügt.")
+
+        } catch (e: Exception) {
+            Log.e("QuoteRepository", "Failed to refresh quotes: ${e.message}")
+        }
+    }
+
+
 
 
     suspend fun getAuthorByName(authorName: String): Author? {

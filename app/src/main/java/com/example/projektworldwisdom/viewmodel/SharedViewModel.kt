@@ -18,6 +18,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     private val repository: QuoteRepository
 
+    // LiveData für das Zitat des Tages
+    private val _quoteOfTheDay = MutableLiveData<Quote>()
+    val quoteOfTheDay: LiveData<Quote> get() = _quoteOfTheDay
     // MutableLiveData für die gespeicherten Zitate
     private val _savedQuotes = MutableLiveData<List<Quote>>()
     val savedQuotes: LiveData<List<Quote>> get() = _savedQuotes
@@ -51,7 +54,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
         // Zitate aktualisieren
         refreshQuotes()
-        loadSavedQuotes()
+        fetchQuoteOfTheDay()
+        refreshQuoteOfTheDay()
     }
 
     // Methode zum Setzen des ausgewählten Autors
@@ -88,6 +92,25 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             } catch (e: Exception) {
                 Log.e("SharedViewModel", "Failed to refresh quotes: ${e.message}")
             }
+        }
+    }
+    fun refreshQuoteOfTheDay() {
+        viewModelScope.launch {
+            // Aktualisiere das Zitat des Tages von der API und speichere es in der Datenbank
+            repository.refreshQuoteOfTheDay()
+
+            // Beobachte das Zitat des Tages aus der Datenbank
+            repository.getQuoteOfTheDay().observeForever { quote ->
+                // Aktualisiere das LiveData-Objekt mit dem neuen Zitat
+                _quoteOfTheDay.value = quote
+            }
+        }
+    }
+
+    // Funktion zum Abrufen des Zitats des Tages
+    fun fetchQuoteOfTheDay() {
+        viewModelScope.launch {
+            repository.refreshQuoteOfTheDay() // Aktualisiere das Zitat des Tages in der Datenbank
         }
     }
 

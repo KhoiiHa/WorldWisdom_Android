@@ -124,23 +124,17 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // Methode zum Löschen eines Zitats
     fun deleteQuote(quote: Quote) {
         viewModelScope.launch {
-            try {
-                repository.deleteQuoteById(quote.id)
-                loadSavedQuotes() // Nach dem Löschen die gespeicherten Zitate erneut laden
-            } catch (e: Exception) {
-                Log.e("SharedViewModel", "Failed to delete quote: ${e.message}")
-            }
+            repository.deleteQuoteById(quote.id) // Zitat löschen
         }
     }
 
     // Funktion zum Laden der gespeicherten Zitate
-    private fun loadSavedQuotes() {
-        viewModelScope.launch {
-            repository.getSavedQuotes().observeForever { quotes ->
-                _savedQuotes.value = quotes
-            }
+    fun loadSavedQuotes() {
+        repository.getSavedQuotes().observeForever { quotes ->
+            _savedQuotes.value = quotes
         }
     }
+
 
     // Methode zum Laden eines Zitats für einen Autor
     fun loadQuoteForAuthor(authorName: String) {

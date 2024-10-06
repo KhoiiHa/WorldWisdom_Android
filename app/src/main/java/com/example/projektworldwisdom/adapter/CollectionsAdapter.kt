@@ -1,5 +1,9 @@
 package com.example.projektworldwisdom.adapter
 
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,13 +24,22 @@ class CollectionsAdapter(
         private val quoteTextView: TextView = itemView.findViewById(R.id.quoteTextView)
         private val authorTextView: TextView = itemView.findViewById(R.id.authorTextView)
         private val tagTextView: TextView = itemView.findViewById(R.id.tagTextView)
+        private val keywordsTextView: TextView = itemView.findViewById(R.id.keywordsTextView)
         private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
         private val commentButton: Button = itemView.findViewById(R.id.commentButton)
 
         fun bind(quote: Quote) {
             quoteTextView.text = quote.content
-            authorTextView.text = quote.author.name // Verwende den Namen des Autors
-            tagTextView.text = quote.keywords // Sicherstellen, dass das Tag-Feld in der Quote-Klasse existiert
+            // Für den Autor
+            val authorText = SpannableString("Autor: ${quote.author.name}")
+            authorText.setSpan(StyleSpan(Typeface.BOLD), 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) // Fett für "Autor:"
+            authorTextView.text = authorText
+
+            tagTextView.text = quote.author.tag // Verwende den Tag des Autors
+            // Für die Keywords
+            val keywordsText = SpannableString("Keywords: ${quote.keywords}")
+            keywordsText.setSpan(StyleSpan(Typeface.BOLD), 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) // Fett für "Keywords:"
+            keywordsTextView.text = keywordsText
 
             // Delete button click listener
             deleteButton.setOnClickListener { onDeleteClick(quote) }

@@ -14,10 +14,6 @@ class QuoteRepository(
     private val apiService: WorldWisdomApiService
 ) {
 
-    private var _selectedAuthor = MutableLiveData<Author>()
-    val selectedAuthor: LiveData<Author> get() = _selectedAuthor
-
-
     // Holt alle Zitate als LiveData (Datenbank)
     fun getAllQuotes(): LiveData<List<Quote>> {
         return quoteDao.getAllQuotes()
@@ -35,6 +31,8 @@ class QuoteRepository(
 
         }
     }
+
+
 
     suspend fun getAuthorByName(authorName: String): Author? {
         return quoteDao.getAuthorByName(authorName)
@@ -77,6 +75,11 @@ class QuoteRepository(
         return quoteDao.getAllQuotes()
     }
 
+    // Gespeicherte Zitate abrufen (LiveData)
+    fun getSavedQuotes(): LiveData<List<Quote>> {
+        return quoteDao.getSavedQuotes() // Diese Methode gibt LiveData zurück
+    }
+
     // Löscht ein Zitat anhand der ID
     suspend fun deleteQuoteById(id: Int) {
         quoteDao.deleteQuoteById(id)
@@ -97,11 +100,6 @@ class QuoteRepository(
         quoteDao.insertQuote(quote) // Zitat in die Datenbank einfügen
     }
 
-
-    // Holt alle gespeicherten Zitate als LiveData
-    fun getSavedQuotes(): LiveData<List<Quote>> {
-        return quoteDao.getSavedQuotes()
-    }
 
     // Sucht Zitate anhand eines Stichworts als LiveData
     fun searchQuotesByKeyword(keyword: String): LiveData<List<Quote>> {

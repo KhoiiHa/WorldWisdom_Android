@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/cardview_grau"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/cardview_grau">
+    app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,8 +18,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Zitat"
-            android:textSize="20sp"
             android:textColor="@color/text_schwarz"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -29,10 +29,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Autor"
-            android:textSize="14sp"
-            android:textStyle="italic"
+            android:text="Author: "
             android:textColor="@color/text_schwarz"
+            android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/quoteTextView" />
@@ -48,6 +47,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/authorTextView" />
 
+        <!-- Neues TextView für Keywords -->
+        <TextView
+            android:id="@+id/keywordsTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Keywords: "
+            android:textColor="@color/text_schwarz"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tagTextView" />
+
         <LinearLayout
             android:id="@+id/buttonsLayout"
             android:layout_width="0dp"
@@ -56,7 +67,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tagTextView">
+            app:layout_constraintTop_toBottomOf="@id/keywordsTextView">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/deleteButton"

@@ -17,13 +17,15 @@
             android:id="@+id/quoteTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:contentDescription="Zitat Text"
             android:ellipsize="end"
-            android:maxLines="2"
+            android:maxLines="3"
             android:text="Zitat"
             android:textColor="@color/text_schwarz"
-            android:textSize="20sp"
+            android:textSize="18sp"
             app:layout_constraintEnd_toStartOf="@+id/saveQuoteButton"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -70,6 +72,20 @@
             app:layout_constraintEnd_toStartOf="@+id/saveQuoteButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/quoteAuthor"
+            app:layout_constraintWidth_percent="0.8" />
+
+        <TextView
+            android:id="@+id/keywordsTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Keywords"
+            android:textColor="@color/text_schwarz"
+            app:layout_constraintEnd_toStartOf="@+id/saveQuoteButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tagTextView"
             app:layout_constraintWidth_percent="0.8" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

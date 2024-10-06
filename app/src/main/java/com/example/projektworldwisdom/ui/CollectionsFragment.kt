@@ -1,10 +1,12 @@
 package com.example.projektworldwisdom.ui
 
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.projektworldwisdom.adapter.CollectionsAdapter
@@ -29,13 +31,12 @@ class CollectionsFragment : Fragment() {
 
         // Initialisiere den Adapter und binde ihn an die RecyclerView
         savedQuotesAdapter = CollectionsAdapter(emptyList(), // Beginne mit einer leeren Liste
-            onDeleteClick = { quote ->
+            onDeleteClick = { quote -> sharedViewModel.deleteQuote(quote)
                 // Zitat löschen
-                sharedViewModel.deleteQuote(quote)
             },
-            onCommentClick = { quote ->
+            onCommentClick = { quote -> addComment(quote)
                 // Kommentar zu dem Zitat hinzufügen oder bearbeiten
-                addComment(quote)
+
             }
         )
 
@@ -58,8 +59,21 @@ class CollectionsFragment : Fragment() {
     }
 
     private fun addComment(quote: Quote) {
-        // Logik zum Hinzufügen eines Kommentars, z.B. ein Dialog öffnen
-        // Zum Beispiel: CommentDialogFragment.show(quote)
-        // Hier könnte ein Dialog oder eine Eingabemethode zur Bearbeitung des Kommentars implementiert werden.
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Kommentar hinzufügen")
+            .setMessage("Fügen Sie Ihren Kommentar hinzu:")
+            .setView(EditText(requireContext()).apply {
+                hint = "Kommentar"
+            })
+            .setPositiveButton("Hinzufügen") { dialog, _ ->
+                // Hier kannst du die Logik zum Speichern des Kommentars implementieren
+                dialog.dismiss()
+            }
+            .setNegativeButton("Abbrechen") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+
+        dialog.show()
     }
 }

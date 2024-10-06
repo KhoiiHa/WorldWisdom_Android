@@ -1,5 +1,9 @@
 package com.example.projektworldwisdom.adapter
 
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,13 +27,26 @@ class QuotesAdapter(
     inner class QuoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val quoteTextView: TextView = itemView.findViewById(R.id.quoteTextView)
         private val quoteAuthor: TextView = itemView.findViewById(R.id.quoteAuthor)
+        private val keywordsTextView: TextView = itemView.findViewById(R.id.keywordsTextView)
         private val tagTextView: TextView = itemView.findViewById(R.id.tagTextView)
         private val saveQuoteButton: ImageButton = itemView.findViewById(R.id.saveQuoteButton)
 
         fun bind(quote: Quote) {
+            // Setze den Text für das Zitat
             quoteTextView.text = quote.content
-            quoteAuthor.text = quote.author.name // Zeigt den Namen des Autors an
-            tagTextView.text = quote.author.tag // Zeigt den Tag des Zitats an
+
+            // Für den Autor
+            val authorText = SpannableString("Autor: ${quote.author.name}")
+            authorText.setSpan(StyleSpan(Typeface.BOLD), 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) // "Autor:" fett
+            quoteAuthor.text = authorText // Zeigt den Autor mit dem fettgedruckten "Autor:" an
+
+            // Zeigt den Tag des Zitats an
+            tagTextView.text = quote.author.tag
+
+            // Für die Keywords
+            val keywordsText = SpannableString("Keywords: ${quote.keywords}")
+            keywordsText.setSpan(StyleSpan(Typeface.BOLD), 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) // "Keywords:" fett
+            keywordsTextView.text = keywordsText // Zeigt die Keywords mit dem fettgedruckten "Keywords:" an
 
             // Setze die Klick-Listener
             itemView.setOnClickListener {

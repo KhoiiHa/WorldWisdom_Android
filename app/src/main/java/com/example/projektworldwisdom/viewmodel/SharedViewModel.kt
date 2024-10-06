@@ -165,4 +165,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             _authorQuote.postValue(repository.getQuotesByAuthorName(authorName).firstOrNull())
         }
     }
+
+    fun filterQuotesByCategory(category: String): LiveData<List<Quote>> {
+        return repository.getQuotesByKeyword(category)
+    }
 }

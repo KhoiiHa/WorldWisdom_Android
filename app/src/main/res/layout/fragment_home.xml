@@ -147,7 +147,7 @@
 
             <!-- Filter-Layouts -->
             <LinearLayout
-                android:id="@+id/filter_society"
+                android:id="@+id/filter_change"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -159,7 +159,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
-                    android:text="Society"
+                    android:text="Veränderung"
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
@@ -167,7 +167,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/filter_success"
+                android:id="@+id/filter_frieden"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -179,7 +179,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
-                    android:text="Success"
+                    android:text="Frieden"
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
@@ -187,7 +187,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/filter_work"
+                android:id="@+id/filter_erfolg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -199,7 +199,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
-                    android:text="Work"
+                    android:text="Erfolg"
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
@@ -207,7 +207,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/filter_wisdom"
+                android:id="@+id/filter_motivation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -219,7 +219,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
-                    android:text="Wisdom"
+                    android:text="Motivation"
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
@@ -227,7 +227,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/filter_gratitude"
+                android:id="@+id/filter_happy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -239,7 +239,47 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
-                    android:text="Gratitude"
+                    android:text="Glück"
+                    android:textAllCaps="true"
+                    android:textColor="@color/filter_grau_dunkel"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/filter_individuality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:text="Individualität"
+                    android:textAllCaps="true"
+                    android:textColor="@color/filter_grau_dunkel"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/filter_creativity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:text="Kreativität"
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"

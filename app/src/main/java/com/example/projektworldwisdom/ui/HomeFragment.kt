@@ -50,13 +50,6 @@ class HomeFragment : Fragment() {
             quotesAdapter.updateQuotes(filteredQuotes) // Gefilterte Liste im Adapter aktualisieren
         }
 
-        // Beobachte das ausgewählte Zitat
-        sharedViewModel.selectedQuote.observe(viewLifecycleOwner) { quote ->
-            quote?.let {
-                // Hier kannst du zusätzliche Logik für das ausgewählte Zitat hinzufügen
-            }
-        }
-
         // Zitate abrufen
         sharedViewModel.getQuotes()
 
@@ -72,6 +65,61 @@ class HomeFragment : Fragment() {
                 return true
             }
         })
+
+        // Filter für Kategorien
+        binding.filterChange.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Veränderung").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterFrieden.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Frieden").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterErfolg.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Erfolg").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterMotivation.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Motivation").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterHappy.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Glück").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterIndividuality.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Individualität").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterCreativity.setOnClickListener {
+            sharedViewModel.filterQuotesByCategory("Kreativität").observe(viewLifecycleOwner) { filteredQuotes ->
+                // Aktualisiere die RecyclerView mit den gefilterten Zitaten
+                quotesAdapter.updateQuotes(filteredQuotes)
+            }
+        }
+
+        binding.filterAll.setOnClickListener {
+            // Hier kannst du alle Zitate anzeigen, z.B. indem du die Original-Liste zurücksetzt
+            sharedViewModel.getQuotes() // Alle Zitate abrufen
+        }
 
         // Zitat des Tages abrufen und anzeigen
         fetchAndDisplayQuoteOfTheDay()

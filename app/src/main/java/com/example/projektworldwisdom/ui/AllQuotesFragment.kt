@@ -73,7 +73,12 @@ class AllQuotesFragment : Fragment() {
 
     private fun addFilterButtons() {
         // Definiere die Keywords für die Filter
-        val keywords = listOf("Motivation", "Inspiration", "Humor", "Leben", "Erfolg")
+        val keywords = listOf(
+            "Motivation", "Inspiration", "Humor", "Leben", "Erfolg", "Veränderung", "Frieden", "Gestaltung", "Rache", "Glaube",
+            "Zweifel", "Träume", "Verständnis", "Kreativität", "Intelligenz", "Chancen", "Freiheit", "Produktivität", "Verantwortung",
+            "Vorbereitung", "Weg", "Ziel"
+        )
+
 
         // Für jedes Keyword einen Button dynamisch erstellen
         for (keyword in keywords) {
@@ -87,7 +92,7 @@ class AllQuotesFragment : Fragment() {
                 0, keyword.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            spannable.setSpan(StyleSpan((Typeface.BOLD)), 0, keyword.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannable.setSpan(StyleSpan(Typeface.BOLD), 0, keyword.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
             // Setze den formatierten Text auf den Button
             button.text = spannable
@@ -103,7 +108,7 @@ class AllQuotesFragment : Fragment() {
 
             // Listener für Klick auf den Button, um das Keyword als Filter anzuwenden
             button.setOnClickListener {
-                applyFilter(keyword)
+                applyFilter(keyword) // Aufruf der Methode, um den Filter anzuwenden
             }
 
             // Füge den Button dem LinearLayout im HorizontalScrollView hinzu
@@ -115,9 +120,11 @@ class AllQuotesFragment : Fragment() {
     }
 
     private fun applyFilter(keyword: String) {
-        // Filterlogik im SharedViewModel aufrufen
-        sharedViewModel.filterQuotesForAll(keyword)
-        // Optionale Rückmeldung hinzufügen, dass der Filter angewendet wurde
+        // Aufruf der Filtermethode im SharedViewModel
+        sharedViewModel.filterQuotesByCategory(keyword).observe(viewLifecycleOwner) { filteredQuotes ->
+            adapter.updateQuotes(filteredQuotes) // Aktualisiere den Adapter mit gefilterten Zitaten
+        }
+        // Optionale Rückmeldung hinzufügen
         Toast.makeText(requireContext(), "Filter angewendet: $keyword", Toast.LENGTH_SHORT).show()
     }
 

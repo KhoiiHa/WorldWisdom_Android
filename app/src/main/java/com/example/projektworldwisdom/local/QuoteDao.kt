@@ -34,6 +34,9 @@ interface QuoteDao {
     @Query("DELETE FROM quote_table WHERE id = :id")
     suspend fun deleteQuoteById(id: Int) // Zitat nach ID löschen
 
+    @Query("SELECT * FROM quote_table WHERE keywords LIKE '%' || :category || '%'")
+    fun getQuotesByCategory(category: String): LiveData<List<Quote>>
+
     @Query("SELECT * FROM quote_table WHERE isQuoteOfTheDay = 1 LIMIT 1")
     fun getQuoteOfTheDay(): LiveData<Quote> // Nur ein Zitat des Tages abrufen
 

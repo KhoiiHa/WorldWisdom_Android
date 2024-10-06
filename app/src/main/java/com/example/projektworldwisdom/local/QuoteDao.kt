@@ -2,6 +2,7 @@ package com.example.projektworldwisdom.local
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -54,4 +55,7 @@ interface QuoteDao {
 
     @Update
     suspend fun updateQuote(quote: Quote) // Zitat aktualisieren
+
+    @Delete
+    suspend fun deleteQuote(quote: Quote)
 }

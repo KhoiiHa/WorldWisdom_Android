@@ -21,6 +21,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // LiveData für das Zitat des Tages
     private val _quoteOfTheDay = MutableLiveData<Quote>()
     val quoteOfTheDay: LiveData<Quote> get() = _quoteOfTheDay
+
     // MutableLiveData für die gespeicherten Zitate
     private val _savedQuotes = MutableLiveData<List<Quote>>()
     val savedQuotes: LiveData<List<Quote>> get() = _savedQuotes
@@ -56,6 +57,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         refreshQuotes()
         fetchQuoteOfTheDay()
         refreshQuoteOfTheDay()
+        loadSavedQuotes()
     }
 
     // Methode zum Setzen des ausgewählten Autors
@@ -75,13 +77,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    // Speichert ein Zitat
-    fun saveQuote(quote: Quote) {
-        viewModelScope.launch {
-            repository.saveQuote(quote)
-        }
-    }
-
     // Funktion zum Aktualisieren der Zitate
     fun refreshQuotes() {
         viewModelScope.launch {
@@ -94,6 +89,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
+
     fun refreshQuoteOfTheDay() {
         viewModelScope.launch {
             // Aktualisiere das Zitat des Tages von der API und speichere es in der Datenbank
@@ -106,7 +102,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
-
     // Funktion zum Abrufen des Zitats des Tages
     fun fetchQuoteOfTheDay() {
         viewModelScope.launch {
@@ -142,19 +137,30 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-
-
-    // Methode zum Löschen eines Zitats
     fun deleteQuote(quote: Quote) {
         viewModelScope.launch {
-            repository.deleteQuoteById(quote.id) // Zitat löschen
+            repository.deleteQuoteById(quote.id) // Lösche das Zitat anhand der ID
+            loadSavedQuotes() // Lade die gespeicherten Zitate erneut
+        }
+    }
+
+
+    // Methode zum Speichern eines Zitats
+    fun saveQuote(quote: Quote) {
+        // Setze isSaved auf true, bevor du das Zitat speicherst
+        val updatedQuote = quote.copy(isSaved = true)
+        viewModelScope.launch {
+            repository.saveQuote(updatedQuote) // Speichere das aktualisierte Zitat über das Repository
         }
     }
 
     // Funktion zum Laden der gespeicherten Zitate
-    fun loadSavedQuotes() {
-        repository.getSavedQuotes().observeForever { quotes ->
-            _savedQuotes.value = quotes
+    private fun loadSavedQuotes() {
+        viewModelScope.launch {
+            // Wir beobachten die LiveData von Repository und setzen die _savedQuotes entsprechend
+            repository.getSavedQuotes().observeForever { quotes ->
+                _savedQuotes.value = quotes
+            }
         }
     }
 

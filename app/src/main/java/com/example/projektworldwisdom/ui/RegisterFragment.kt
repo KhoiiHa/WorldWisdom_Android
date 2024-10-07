@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentRegisterBinding
 import com.example.projektworldwisdom.viewmodel.AuthenticationViewModel
 
@@ -31,19 +32,18 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Beobachten des aktuellen Benutzers
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
-                findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToHomeFragment())
+                findNavController().navigate(R.id.action_registerFragment_to_homeFragment)
             }
         }
 
-        // Beobachten von Anmeldefehlern
-        viewModel.loginError.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-            }
-        }
+//        // Beobachten von Registrierungfehlern
+//        viewModel.registrationError.observe(viewLifecycleOwner) { errorMessage ->
+//            errorMessage?.let {
+//                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+//            }
+//        }
 
         binding.btBack.setOnClickListener {
             findNavController().navigateUp()
@@ -52,16 +52,10 @@ class RegisterFragment : Fragment() {
         binding.btRegister.setOnClickListener {
             val email = binding.textEditEmailRegister.text.toString().trim()
             val password = binding.textEditPasswordRegister.text.toString()
-            val confirmPassword = binding.textEditConfirmPasswordRegister.text.toString()
 
             // Eingabefelder validieren
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(requireContext(), "Bitte füllen Sie alle Felder aus", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (password != confirmPassword) {
-                Toast.makeText(requireContext(), "Passwörter stimmen nicht überein", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

@@ -42,7 +42,9 @@ class CollectionsAdapter(
             keywordsTextView.text = keywordsText
 
             // Delete button click listener
-            deleteButton.setOnClickListener { onDeleteClick(quote) }
+            deleteButton.setOnClickListener {
+                quote.isSaved = !quote.isSaved
+                onDeleteClick(quote) }
 
             // Comment button click listener
             commentButton.setOnClickListener { onCommentClick(quote) }

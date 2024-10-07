@@ -12,7 +12,7 @@ data class Quote(
     val content: String, // Inhalt des Zitats
     val author: Author, // Autor des Zitats (Objekt der Author-Klasse)
     var isQuoteOfTheDay: Boolean, // Ob es sich um das Zitat des Tages handelt
-    val isSaved: Boolean, // Ob das Zitat gespeichert ist
+    var isSaved: Boolean, // Ob das Zitat gespeichert ist
     val keywords: String, // Schlüsselwörter für die Suche
     val comments: String? = null // Kommentare zum Zitat
 )

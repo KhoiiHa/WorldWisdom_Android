@@ -53,18 +53,6 @@ class HomeFragment : Fragment() {
         // Zitate abrufen
         sharedViewModel.getQuotes()
 
-        // Filter-Input für die SearchView
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                // Filtere die Zitate basierend auf dem Autorennamen
-                sharedViewModel.filterQuotesForHome(newText ?: "")
-                return true
-            }
-        })
 
         // Filter für Kategorien
         binding.filterChange.setOnClickListener {

@@ -3,6 +3,7 @@ package com.example.projektworldwisdom.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ class CollectionsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        sharedViewModel.loadSavedQuotes()
         binding = FragmentCollectionsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -31,7 +33,7 @@ class CollectionsFragment : Fragment() {
 
         // Initialisiere den Adapter und binde ihn an die RecyclerView
         savedQuotesAdapter = CollectionsAdapter(emptyList(), // Beginne mit einer leeren Liste
-            onDeleteClick = { quote -> sharedViewModel.deleteQuote(quote)
+            onDeleteClick = { quote -> sharedViewModel.updateQuote(quote)
                 // Zitat löschen
             },
             onCommentClick = { quote -> addComment(quote)
@@ -45,10 +47,12 @@ class CollectionsFragment : Fragment() {
         // Beobachte die gespeicherten Zitate
         sharedViewModel.savedQuotes.observe(viewLifecycleOwner) { savedQuotes ->
             if (savedQuotes.isNullOrEmpty()) {
+                Log.d("CollectionsFragment", "Anzahl gespeicherter Zitate: ${savedQuotes}")
                 // Wenn die Liste leer ist, zeige den emptyStateTextView und verstecke die RecyclerView
                 binding.emptyStateTextView.visibility = View.VISIBLE
                 binding.savedQuotesRecyclerView.visibility = View.GONE
             } else {
+                Log.d("CollectionsFragment", "Anzahl gespeicherter Zitate: ${savedQuotes.size}")
                 // Wenn es gespeicherte Zitate gibt, zeige die RecyclerView und verstecke den emptyStateTextView
                 binding.emptyStateTextView.visibility = View.GONE
                 binding.savedQuotesRecyclerView.visibility = View.VISIBLE

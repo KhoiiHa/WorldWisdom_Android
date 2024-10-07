@@ -16,7 +16,7 @@ interface QuoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuote(quote: Quote)  // Ein einzelnes Zitat einfügen
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertQuotes(quotes: List<Quote>) // Mehrere Zitate einfügen
 
     // Abfrage für Zitate eines bestimmten Autors

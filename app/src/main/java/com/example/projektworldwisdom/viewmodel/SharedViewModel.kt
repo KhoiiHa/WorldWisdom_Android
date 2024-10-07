@@ -16,7 +16,9 @@ import kotlinx.coroutines.launch
 
 class SharedViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: QuoteRepository
+    private val quoteDao = AppDatabase.getDatabase(application).quoteDao()
+    private val apiService = WorldWisdomApi.retrofitService
+    private val repository = QuoteRepository(quoteDao, apiService)
 
     // LiveData für das Zitat des Tages
     private val _quoteOfTheDay = MutableLiveData<Quote>()
@@ -45,11 +47,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val quotes: LiveData<List<Quote>>
 
     init {
-        // Repository initialisieren
-        val quoteDao = AppDatabase.getDatabase(application).quoteDao()
-        val apiService = WorldWisdomApi.retrofitService
-        repository = QuoteRepository(quoteDao, apiService)
-
         // LiveData von Repository abrufen
         quotes = repository.getAllQuotesFromDatabase()
 
@@ -154,12 +151,18 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun updateQuote(quote: Quote) {
+        viewModelScope.launch {
+            repository.updateQuote(quote)
+        }
+    }
+
     // Funktion zum Laden der gespeicherten Zitate
-    private fun loadSavedQuotes() {
+    fun loadSavedQuotes() {
         viewModelScope.launch {
             // Wir beobachten die LiveData von Repository und setzen die _savedQuotes entsprechend
-            repository.getSavedQuotes().observeForever { quotes ->
-                _savedQuotes.value = quotes
+            repository.getSavedQuotes().observeForever {
+                _savedQuotes.value = it
             }
         }
     }

@@ -1,18 +1,16 @@
 package com.example.projektworldwisdom.ui
 
 
-import android.app.AlertDialog
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.projektworldwisdom.adapter.CollectionsAdapter
 import com.example.projektworldwisdom.databinding.FragmentCollectionsBinding
-import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class CollectionsFragment : Fragment() {
@@ -23,7 +21,7 @@ class CollectionsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        sharedViewModel.loadSavedQuotes()
+        sharedViewModel.loadSavedQuotes() // Lade gespeicherte Zitate aus der Datenbank oder API
         binding = FragmentCollectionsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -32,13 +30,16 @@ class CollectionsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialisiere den Adapter und binde ihn an die RecyclerView
-        savedQuotesAdapter = CollectionsAdapter(emptyList(), // Beginne mit einer leeren Liste
-            onDeleteClick = { quote -> sharedViewModel.updateQuote(quote)
-                // Zitat löschen
+        savedQuotesAdapter = CollectionsAdapter(
+            emptyList(), // Beginne mit einer leeren Liste
+            onDeleteClick = { quote ->
+                sharedViewModel.updateQuote(quote) // Zitat löschen oder aktualisieren
             },
-            onCommentClick = { quote -> addComment(quote)
-                // Kommentar zu dem Zitat hinzufügen oder bearbeiten
-
+            onCommentSave = { quote, comment ->
+                sharedViewModel.updateComment(quote, comment) // Speichere den Kommentar im ViewModel
+            },
+            onCommentDelete = { quote ->
+                sharedViewModel.deleteComment(quote) // Lösche den Kommentar im ViewModel
             }
         )
 
@@ -60,24 +61,5 @@ class CollectionsFragment : Fragment() {
                 savedQuotesAdapter.updateQuotes(savedQuotes)
             }
         }
-    }
-
-    private fun addComment(quote: Quote) {
-        val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("Kommentar hinzufügen")
-            .setMessage("Fügen Sie Ihren Kommentar hinzu:")
-            .setView(EditText(requireContext()).apply {
-                hint = "Kommentar"
-            })
-            .setPositiveButton("Hinzufügen") { dialog, _ ->
-                // Hier kannst du die Logik zum Speichern des Kommentars implementieren
-                dialog.dismiss()
-            }
-            .setNegativeButton("Abbrechen") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-
-        dialog.show()
     }
 }

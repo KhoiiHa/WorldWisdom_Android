@@ -130,6 +130,7 @@ class AllQuotesFragment : Fragment() {
 
     private fun navigateToAuthorDetails(quote: Quote) {
         // Setze den ausgewählten Autor im SharedViewModel
+        sharedViewModel.selectQuote(quote)
         sharedViewModel.selectAuthor(quote.author)
         val action = AllQuotesFragmentDirections.actionAllQuotesFragmentToAuthorDetailsFragment()
         findNavController().navigate(action)
@@ -138,6 +139,6 @@ class AllQuotesFragment : Fragment() {
     private fun saveQuote(quote: Quote) {
         sharedViewModel.saveQuote(quote) // Zitat speichern
         // Optionale Rückmeldung hinzufügen
-        Toast.makeText(requireContext(), "Zitat gespeichert!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Zitat wurde gespeichert!", Toast.LENGTH_SHORT).show()
     }
 }

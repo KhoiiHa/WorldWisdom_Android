@@ -141,6 +141,28 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    // Funktion zum Löschen eines Kommentars aus einem Zitat
+    fun deleteComment(quote: Quote) {
+        // Setze den Kommentar auf null
+        val updatedQuote = quote.copy(comments = null)
+        viewModelScope.launch {
+            repository.updateQuote(updatedQuote) // Aktualisiere das Zitat in der Datenbank
+            loadSavedQuotes() // Lade die gespeicherten Zitate erneut
+        }
+    }
+
+    // Funktion zum Hinzufügen oder Aktualisieren eines Kommentars zu einem Zitat
+    fun updateComment(quote: Quote, comment: String) {
+        // Aktualisiere den Kommentar im Zitat
+        val updatedQuote = quote.copy(comments = comment)
+
+        // Speichere das Zitat mit dem aktualisierten Kommentar in der Datenbank
+        viewModelScope.launch {
+            repository.updateQuote(updatedQuote)
+            loadSavedQuotes() // Aktualisiere die Liste der gespeicherten Zitate
+        }
+    }
+
 
     // Methode zum Speichern eines Zitats
     fun saveQuote(quote: Quote) {

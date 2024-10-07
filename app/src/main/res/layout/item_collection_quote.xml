@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -60,6 +61,51 @@
             app:layout_constraintTop_toBottomOf="@id/tagTextView" />
 
         <LinearLayout
+            android:id="@+id/comment_section"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/keywordsTextView">
+
+        <EditText
+            android:id="@+id/comment_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Dein Kommentar" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/save_comment_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Speichern"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/akzent_blau"
+                app:shapeAppearanceOverlay="@style/RoundedCorners" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_comment_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Löschen"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/error_red"
+                app:shapeAppearanceOverlay="@style/RoundedCorners" />
+        </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
             android:id="@+id/buttonsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -67,7 +113,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/keywordsTextView">
+            app:layout_constraintTop_toBottomOf="@id/comment_section">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/deleteButton"
@@ -89,6 +135,8 @@
                 android:textColor="@color/white"
                 app:backgroundTint="@color/akzent_blau"
                 app:shapeAppearanceOverlay="@style/RoundedCorners" />
+
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,7 +14,7 @@ data class Quote(
     var isQuoteOfTheDay: Boolean, // Ob es sich um das Zitat des Tages handelt
     var isSaved: Boolean, // Ob das Zitat gespeichert ist
     val keywords: String, // Schlüsselwörter für die Suche
-    val comments: String? = null // Kommentare zum Zitat
+    var comments: String? = null // Kommentare zum Zitat
 )
 
 

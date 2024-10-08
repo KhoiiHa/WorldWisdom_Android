@@ -1,8 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
     <style name="Base.Theme.ProjectWorldWisdom" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
+        <!-- Customize your light theme here -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Transparent status bar -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!-- Optional: Dunkle Icons für die Statusleiste, wenn die Statusleiste transparent ist -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.ProjectWorldWisdom" parent="Base.Theme.ProjectWorldWisdom" />

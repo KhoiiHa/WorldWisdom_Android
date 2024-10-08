@@ -15,6 +15,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -78,12 +79,15 @@ class AllQuotesFragment : Fragment() {
             "Zweifel", "Träume", "Verständnis", "Kreativität", "Intelligenz", "Chancen", "Freiheit", "Produktivität", "Verantwortung",
             "Vorbereitung", "Weg", "Ziel"
         )
-
+        val typeface = ResourcesCompat.getFont(requireContext(), R.font.robotoslab)
 
         // Für jedes Keyword einen Button dynamisch erstellen
         for (keyword in keywords) {
             val button = Button(requireContext())
             button.setPadding(16, 8, 16, 8) // Optionales Padding für die Buttons
+
+            // Setze die benutzerdefinierte Schriftart für den Button
+            button.typeface = typeface
 
             // SpannableString für jedes Keyword anwenden
             val spannable = SpannableString(keyword)
@@ -93,6 +97,7 @@ class AllQuotesFragment : Fragment() {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             spannable.setSpan(StyleSpan(Typeface.BOLD), 0, keyword.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
 
             // Setze den formatierten Text auf den Button
             button.text = spannable

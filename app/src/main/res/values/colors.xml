@@ -26,8 +26,15 @@
     <color name="filter_beige">#D3D3D3</color>
     <color name="filter_grau_dunkel">#424242</color>
 
-    <color name="cardview_grau">#F5F6EF</color>
+    <color name="cardview_grau">#E8F4F1</color>
     <color name="cardview_gelb">#FFF8DC</color>
+    <color name="cardview_grau1">#F5F5F5</color>
+    <color name="cardview_grau2">#EEEEEE</color>
+    <color name="cardview_grau3">#F0F0F0</color>
+    <color name="cardview_beige">#FFF8DC</color>
+    <color name="cardview_beige1">#F5F5DC</color>
+    <color name="cardview_beige2">#FAEBD7</color>
+    <color name="cardview_beige3">#FFFBEB</color>
 
     <color name="error_red">#AC3131</color>"
 

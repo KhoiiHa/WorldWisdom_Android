@@ -26,7 +26,7 @@
                 android:id="@+id/greeting_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="@font/robotoslab"
                 android:text="Herzlich Willkommen bei\nWorldWisdom! 👋"
                 android:textColor="@color/text_schwarz"
                 android:textSize="26sp"
@@ -51,7 +51,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="@color/cardview_grau"
+        app:cardBackgroundColor="@color/cardview_grau2"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="@font/robotoslab"
                 android:text="Quote of the Day"
                 android:textColor="@color/text_schwarz"
                 android:textSize="18sp"
@@ -79,11 +79,12 @@
 
             <TextView
                 android:id="@+id/affirmation_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_marginTop="20dp"
-                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                android:fontFamily="@font/robotozitate"
                 android:text="Zitat des Tages"
                 android:textColor="@color/text_schwarz"
                 app:layout_constraintStart_toStartOf="parent"
@@ -163,6 +164,7 @@
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
+                    android:fontFamily="@font/robotoslab"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -181,6 +183,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Frieden"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -201,6 +204,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Erfolg"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -221,6 +225,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Motivation"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -241,6 +246,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Glück"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -261,6 +267,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Individualität"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -281,6 +288,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Kreativität"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -301,6 +309,7 @@
                     android:layout_marginStart="2dp"
                     android:text="Alle"
                     android:textAllCaps="true"
+                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />

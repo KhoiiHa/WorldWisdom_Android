@@ -29,9 +29,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
+        app:itemTextAppearanceActive="@style/BottomNavigationView.Active"
         tools:layout_conversion_absoluteHeight="80dp"
         tools:layout_conversion_absoluteWidth="411dp"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="834dp" />
+        tools:layout_editor_absoluteY="834dp"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

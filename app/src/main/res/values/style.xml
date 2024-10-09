@@ -15,4 +15,8 @@
         <item name="cornerSize">8dp</item>
     </style>
 
+    <style name="BottomNavigationView.Active" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

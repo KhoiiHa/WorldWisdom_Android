@@ -119,27 +119,14 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Suchleiste hinzufügen -->
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_view"
-        android:layout_width="399dp"
-        android:layout_height="46dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/rounded_corners"
-        android:queryHint="Nach Autor suchen..."
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/daily_affirmation_card" />
-
 
     <HorizontalScrollView
         android:id="@+id/filter_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_view">
+        app:layout_constraintTop_toBottomOf="@+id/daily_affirmation_card">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -160,11 +147,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Veränderung"
                     android:textAllCaps="true"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
-                    android:fontFamily="@font/robotoslab"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -181,9 +168,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Frieden"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -202,9 +189,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Erfolg"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -223,9 +210,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Motivation"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -244,9 +231,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Glück"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -265,9 +252,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Individualität"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -286,9 +273,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Kreativität"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -307,9 +294,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
+                    android:fontFamily="@font/robotoslab"
                     android:text="Alle"
                     android:textAllCaps="true"
-                    android:fontFamily="@font/robotoslab"
                     android:textColor="@color/filter_grau_dunkel"
                     android:textSize="17sp"
                     android:textStyle="bold" />

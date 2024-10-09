@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.model.Quote
@@ -18,8 +19,7 @@ import com.example.projektworldwisdom.viewmodel.SharedViewModel
 class QuotesAdapter(
     private var quotes: List<Quote>,
     private val sharedViewModel: SharedViewModel,
-    private val onQuoteClick: (Quote) -> Unit,
-    private val onSaveClick: (Quote) -> Unit
+    private val onQuoteClick: (Quote) -> Unit
 ) : RecyclerView.Adapter<QuotesAdapter.QuoteViewHolder>() {
 
     class QuoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -29,7 +29,7 @@ class QuotesAdapter(
         private val tagTextView: TextView = itemView.findViewById(R.id.tagTextView)
         private val saveQuoteButton: ImageButton = itemView.findViewById(R.id.saveQuoteButton)
 
-        fun bind(quote: Quote, onQuoteClick: (Quote) -> Unit, onSaveClick: (Quote) -> Unit) {
+        fun bind(quote: Quote, onQuoteClick: (Quote) -> Unit, sharedViewModel: SharedViewModel) {
             // Setze den Text für das Zitat
             quoteTextView.text = quote.content
 
@@ -41,12 +41,29 @@ class QuotesAdapter(
             // Für die Keywords
             keywordsTextView.text = formatText("Keywords: ${quote.keywords}", "Keywords:")
 
+            // Setze den Status des Speichern-Buttons
+            updateSaveButton(quote)
+
             // Setze die Klick-Listener
             itemView.setOnClickListener {
                 onQuoteClick(quote)
             }
             saveQuoteButton.setOnClickListener {
-                onSaveClick(quote)
+                // Toggle-Funktion aufrufen und Callback für Toast-Nachricht bereitstellen
+                sharedViewModel.toggleQuoteSavedState(quote) { message ->
+                    // Zeige die Toast-Nachricht an
+                    Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
+                }
+                updateSaveButton(quote) // Status des Speichern-Buttons aktualisieren
+            }
+        }
+
+        private fun updateSaveButton(quote: Quote) {
+            // Hier wird entschieden, ob das Zitat gespeichert ist oder nicht
+            if (quote.isSaved) {
+                saveQuoteButton.setImageResource(R.drawable.bookmark_heart_40px) // Gefüllter Stern
+            } else {
+                saveQuoteButton.setImageResource(R.drawable.favorite_40px) // Leerer Stern
             }
         }
 
@@ -65,7 +82,7 @@ class QuotesAdapter(
     }
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
-        holder.bind(quotes[position], onQuoteClick, onSaveClick)
+        holder.bind(quotes[position], onQuoteClick, sharedViewModel)
     }
 
     override fun getItemCount() = quotes.size
@@ -75,6 +92,4 @@ class QuotesAdapter(
         quotes = newQuotes // Setze die aktuelle Liste der Zitate auf die neue Liste
         notifyDataSetChanged() // Benachrichtigt den Adapter, dass sich die Daten geändert haben
     }
-
-
 }

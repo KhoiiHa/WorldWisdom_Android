@@ -32,13 +32,10 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Adapter initialisieren (nur einmal)
-        quotesAdapter = QuotesAdapter(emptyList(), sharedViewModel, { quote ->
+        quotesAdapter = QuotesAdapter(emptyList(), sharedViewModel) { quote ->
             // Navigiere zu den Details des Autors
             navigateToAuthorDetails(quote)
-        }, { quote ->
-            // Speichere die Quote
-            saveQuote(quote)
-        })
+        }
         binding.quotesList.adapter = quotesAdapter
 
         // Beobachte die Zitate
@@ -139,8 +136,4 @@ class HomeFragment : Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun saveQuote(quote: Quote) {
-        sharedViewModel.saveQuote(quote) // Speicher die Quote über das SharedViewModel
-        Toast.makeText(requireContext(), "Zitat wurde gespeichert!", Toast.LENGTH_SHORT).show()
-    }
 }

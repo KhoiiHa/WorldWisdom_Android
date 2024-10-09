@@ -106,19 +106,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    // Filtermethode für HomeFragment (nach Autorname)
-    fun filterQuotesForHome(keyword: String) {
-        quotes.value?.let { allQuotes ->
-            val filteredQuotes = if (keyword.isEmpty()) {
-                allQuotes
-            } else {
-                allQuotes.filter { quote ->
-                    quote.author.name.contains(keyword, ignoreCase = true) // Filter nach Autorname
-                }
-            }
-            _filteredQuotes.value = filteredQuotes // Aktualisiere die LiveData
-        }
-    }
 
     // Filtermethode für AllQuotesFragment (nach Autorname oder Keywords)
     fun filterQuotesForAll(keyword: String) {
@@ -134,12 +121,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun deleteQuote(quote: Quote) {
-        viewModelScope.launch {
-            repository.deleteQuoteById(quote.id) // Lösche das Zitat anhand der ID
-            loadSavedQuotes() // Lade die gespeicherten Zitate erneut
-        }
-    }
 
     // Funktion zum Löschen eines Kommentars aus einem Zitat
     fun deleteComment(quote: Quote) {
@@ -199,5 +180,23 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun filterQuotesByCategory(category: String): LiveData<List<Quote>> {
         return repository.getQuotesByKeyword(category)
+    }
+
+    // Methode zum Umschalten des Speicherstatus eines Zitats
+    fun toggleQuoteSavedState(quote: Quote, callback: (String) -> Unit) {
+        viewModelScope.launch {
+            if (quote.isSaved) {
+                // Zitat entfernen (Speicherstatus auf false setzen)
+                val updatedQuote = quote.copy(isSaved = false)
+                repository.updateQuote(updatedQuote) // Aktualisiere das Zitat in der Datenbank
+                callback("Zitat wurde entfernt!") // Callback für Toast-Nachricht
+            } else {
+                // Zitat speichern (Speicherstatus auf true setzen)
+                val updatedQuote = quote.copy(isSaved = true)
+                repository.saveQuote(updatedQuote) // Speichere das aktualisierte Zitat über das Repository
+                callback("Zitat wurde gespeichert!") // Callback für Toast-Nachricht
+            }
+            loadSavedQuotes() // Lade die gespeicherten Zitate erneut, um die Änderungen zu reflektieren
+        }
     }
 }

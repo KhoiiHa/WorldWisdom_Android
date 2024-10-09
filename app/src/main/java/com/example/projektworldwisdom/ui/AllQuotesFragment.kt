@@ -41,12 +41,11 @@ class AllQuotesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Adapter initialisieren und an die RecyclerView binden
-        adapter = QuotesAdapter(emptyList(), sharedViewModel, { quote ->
+        // Adapter initialisieren (nur einmal)
+        adapter = QuotesAdapter(emptyList(), sharedViewModel) { quote ->
+            // Navigiere zu den Details des Autors
             navigateToAuthorDetails(quote)
-        }, { quote ->
-            saveQuote(quote)
-        })
+        }
         binding.allQuotesList.adapter = adapter
 
         // Zitate abrufen
@@ -77,7 +76,7 @@ class AllQuotesFragment : Fragment() {
         val keywords = listOf(
             "Motivation", "Inspiration", "Humor", "Leben", "Erfolg", "Veränderung", "Frieden", "Gestaltung", "Rache", "Glaube",
             "Zweifel", "Träume", "Verständnis", "Kreativität", "Intelligenz", "Chancen", "Freiheit", "Produktivität", "Verantwortung",
-            "Vorbereitung", "Weg", "Ziel"
+            "Vorbereitung", "Weg", "Ziel", "Schwierigkeiten", "Möglichkeiten", "Kommunikation"
         )
         val typeface = ResourcesCompat.getFont(requireContext(), R.font.robotoslab)
 
@@ -88,6 +87,7 @@ class AllQuotesFragment : Fragment() {
 
             // Setze die benutzerdefinierte Schriftart für den Button
             button.typeface = typeface
+            button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.keywordsfilter_lavender))
 
             // SpannableString für jedes Keyword anwenden
             val spannable = SpannableString(keyword)
@@ -141,9 +141,4 @@ class AllQuotesFragment : Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun saveQuote(quote: Quote) {
-        sharedViewModel.saveQuote(quote) // Zitat speichern
-        // Optionale Rückmeldung hinzufügen
-        Toast.makeText(requireContext(), "Zitat wurde gespeichert!", Toast.LENGTH_SHORT).show()
-    }
 }

@@ -29,15 +29,20 @@
     <color name="cardview_grau">#E8F4F1</color>
     <color name="cardview_gelb">#FFF8DC</color>
     <color name="cardview_grau1">#F5F5F5</color>
-    <color name="cardview_grau2">#EEEEEE</color>
+    <color name="cardview_grau2">#E1DADA</color>
     <color name="cardview_grau3">#F0F0F0</color>
     <color name="cardview_beige">#FFF8DC</color>
     <color name="cardview_beige1">#F5F5DC</color>
     <color name="cardview_beige2">#FAEBD7</color>
     <color name="cardview_beige3">#FFFBEB</color>
-    <color name="cardview_gruenhell">#D3ECD3</color>
+    <color name="cardview_gruenhell">#BFDCBF</color>
     <color name="cardview_blauhell">#A5DADA</color>
     <color name="cardview_warmesgrau">#D3D3D3</color>
+
+
+    <color name="keywordsfilter_dunkelgrau">#616161</color>
+    <color name="keywordsfilter_gruen">#90EE90</color>
+    <color name="keywordsfilter_lavender">#D5D5EF</color>
 
     <color name="error_red">#AC3131</color>"
 

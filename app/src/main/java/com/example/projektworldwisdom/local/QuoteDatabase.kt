@@ -10,7 +10,7 @@ import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Quote
 
 @Database(entities = [Author::class, Quote::class], version = 1, exportSchema = false)
-@TypeConverters(Converters::class) // Konverter hier registrieren
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun quoteDao(): QuoteDao

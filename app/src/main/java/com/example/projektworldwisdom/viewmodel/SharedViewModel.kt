@@ -80,7 +80,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             try {
                 repository.refreshQuotes() // Zitate aktualisieren
                 // Die gefilterten Zitate auf die aktuelle Zitatliste setzen
-                _filteredQuotes.value = repository.getAllQuotesFromDatabase().value // Holen wir uns die LiveData-Liste
+                _filteredQuotes.value = repository.getAllQuotesFromDatabase().value
             } catch (e: Exception) {
                 Log.e("SharedViewModel", "Failed to refresh quotes: ${e.message}")
             }
@@ -145,15 +145,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    // Methode zum Speichern eines Zitats
-    fun saveQuote(quote: Quote) {
-        // Setze isSaved auf true, bevor du das Zitat speicherst
-        val updatedQuote = quote.copy(isSaved = true)
-        viewModelScope.launch {
-            repository.saveQuote(updatedQuote) // Speichere das aktualisierte Zitat über das Repository
-        }
-    }
-
     fun updateQuote(quote: Quote) {
         viewModelScope.launch {
             repository.updateQuote(quote)
@@ -163,7 +154,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // Funktion zum Laden der gespeicherten Zitate
     fun loadSavedQuotes() {
         viewModelScope.launch {
-            // Wir beobachten die LiveData von Repository und setzen die _savedQuotes entsprechend
+
             repository.getSavedQuotes().observeForever {
                 _savedQuotes.value = it
             }

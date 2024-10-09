@@ -34,7 +34,7 @@ class CollectionsAdapter(
         private val commentSection: LinearLayout = itemView.findViewById(R.id.comment_section)
         private val commentInput: EditText = itemView.findViewById(R.id.comment_input)
         private val saveCommentButton: Button = itemView.findViewById(R.id.save_comment_button)
-        private val deleteCommentButton: Button = itemView.findViewById(R.id.delete_comment_button) // Button zum Löschen des Kommentars
+        private val deleteCommentButton: Button = itemView.findViewById(R.id.delete_comment_button)
 
         fun bind(quote: Quote) {
             // Setze das Zitat, den Autor und die Tags
@@ -82,7 +82,7 @@ class CollectionsAdapter(
                 onCommentDelete(quote) // Rufe die Funktion zum Löschen des Kommentars auf
                 commentInput.text.clear() // Leere das Kommentar-Input-Feld
                 commentSection.visibility = View.GONE // Schließe den Kommentarbereich
-                Snackbar.make(itemView, "Kommentar gelöscht", Snackbar.LENGTH_SHORT).show() // Zeige Snackbar an
+                Snackbar.make(itemView, "Kommentar gelöscht", Snackbar.LENGTH_SHORT).show()
             }
         }
     }

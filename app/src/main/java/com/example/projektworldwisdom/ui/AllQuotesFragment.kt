@@ -41,7 +41,7 @@ class AllQuotesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Adapter initialisieren (nur einmal)
+
         adapter = QuotesAdapter(emptyList(), sharedViewModel) { quote ->
             // Navigiere zu den Details des Autors
             navigateToAuthorDetails(quote)
@@ -107,8 +107,8 @@ class AllQuotesFragment : Fragment() {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            params.marginStart = 8 // 8dp Abstand links
-            params.marginEnd = 8 // 8dp Abstand rechts
+            params.marginStart = 8
+            params.marginEnd = 8
             button.layoutParams = params
 
             // Listener für Klick auf den Button, um das Keyword als Filter anzuwenden
@@ -116,7 +116,6 @@ class AllQuotesFragment : Fragment() {
                 applyFilter(keyword) // Aufruf der Methode, um den Filter anzuwenden
             }
 
-            // Füge den Button dem LinearLayout im HorizontalScrollView hinzu
             binding.filterContainer.addView(button)
         }
 
@@ -129,7 +128,7 @@ class AllQuotesFragment : Fragment() {
         sharedViewModel.filterQuotesByCategory(keyword).observe(viewLifecycleOwner) { filteredQuotes ->
             adapter.updateQuotes(filteredQuotes) // Aktualisiere den Adapter mit gefilterten Zitaten
         }
-        // Optionale Rückmeldung hinzufügen
+
         Toast.makeText(requireContext(), "Filter angewendet: $keyword", Toast.LENGTH_SHORT).show()
     }
 

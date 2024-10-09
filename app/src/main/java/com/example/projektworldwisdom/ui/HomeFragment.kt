@@ -31,7 +31,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Adapter initialisieren (nur einmal)
+
         quotesAdapter = QuotesAdapter(emptyList(), sharedViewModel) { quote ->
             // Navigiere zu den Details des Autors
             navigateToAuthorDetails(quote)
@@ -103,7 +103,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.filterAll.setOnClickListener {
-            // Hier kannst du alle Zitate anzeigen, z.B. indem du die Original-Liste zurücksetzt
+
             sharedViewModel.getQuotes() // Alle Zitate abrufen
         }
 
@@ -128,8 +128,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
-        sharedViewModel.selectAuthor(quote.author) // Übergib das gesamte Author-Objekt
-        sharedViewModel.selectQuote(quote) // Wähle das Zitat aus
+        sharedViewModel.selectAuthor(quote.author)
+        sharedViewModel.selectQuote(quote)
 
         // Logik für die Navigation zu den Details des Autors
         val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment()

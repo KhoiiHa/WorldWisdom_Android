@@ -61,9 +61,9 @@ class QuotesAdapter(
         private fun updateSaveButton(quote: Quote) {
             // Hier wird entschieden, ob das Zitat gespeichert ist oder nicht
             if (quote.isSaved) {
-                saveQuoteButton.setImageResource(R.drawable.bookmark_heart_40px) // Gefüllter Stern
+                saveQuoteButton.setImageResource(R.drawable.bookmark_heart_40px)
             } else {
-                saveQuoteButton.setImageResource(R.drawable.favorite_40px) // Leerer Stern
+                saveQuoteButton.setImageResource(R.drawable.favorite_40px)
             }
         }
 

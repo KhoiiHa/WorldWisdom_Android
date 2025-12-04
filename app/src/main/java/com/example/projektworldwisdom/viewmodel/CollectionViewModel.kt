@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.projektworldwisdom.home.HomeViewModel
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.remote.FirebaseRepository
 import com.example.projektworldwisdom.remote.QuoteRepository
@@ -16,15 +15,16 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
-class CollectionViewModel(private val homeViewModel: HomeViewModel) : ViewModel() {
+class CollectionViewModel : ViewModel() {
 
     private val firebaseRepository = FirebaseRepository()
     private val quoteRepository = QuoteRepository(WorldWisdomApi.retrofitService)
 
     val downloading: LiveData<Boolean> = firebaseRepository.downloading
 
-    // Verwende das quotes LiveData aus dem HomeViewModel
-    val quotes: LiveData<List<Quote>> = homeViewModel.quotes
+    // Eigene Zitat-Liste für die Collection-Ansicht
+    private val _quotes = MutableLiveData<List<Quote>>()
+    val quotes: LiveData<List<Quote>> = _quotes
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -43,12 +43,14 @@ class CollectionViewModel(private val homeViewModel: HomeViewModel) : ViewModel(
             _isLoading.postValue(true)
             try {
                 val idCollection = firebaseRepository.getUserCollection()
-                val quoteDeferreds = idCollection?.map { id ->
-                    async { quoteRepository.getRandomQuote(id) }
+                val quoteDeferreds = idCollection?.map {
+                    // Aktuell gibt es keinen echten ID-basierten Endpunkt.
+                    // Für jedes Collection-Item holen wir ein zufälliges Zitat.
+                    async { quoteRepository.getRandomQuote() }
                 }
                 val quotesTMP = quoteDeferreds?.awaitAll()?.filterNotNull() ?: emptyList()
 
-                homeViewModel._quotes.postValue(quotesTMP)
+                _quotes.postValue(quotesTMP)
                 _error.postValue(null)
             } catch (e: IOException) {
                 _error.postValue("Netzwerkfehler: ${e.message}")
@@ -63,18 +65,8 @@ class CollectionViewModel(private val homeViewModel: HomeViewModel) : ViewModel(
     }
 
     fun refreshUserCollection() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val userCollection = firebaseRepository.getUserCollection()
-                _error.value = null
-            } catch (e: Exception) {
-                _error.value = "Fehler beim Aktualisieren der Sammlung: ${e.message}"
-                Log.e("CollectionViewModel", "Error refreshing user collection", e)
-            } finally {
-                _isLoading.value = false
-            }
-        }
+        // Nutzt dieselbe Lade-Logik wie beim Initial-Load
+        getQuotes()
     }
 
 

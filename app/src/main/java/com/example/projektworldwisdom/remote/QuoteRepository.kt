@@ -8,23 +8,21 @@ import kotlinx.coroutines.withContext
 
 
 class QuoteRepository(
-    private val QuoteApi: WorldWisdomApiService
+    private val quoteApi: WorldWisdomApiService
 ) {
 
     private val _downloading = MutableLiveData(false)
     val downloading: LiveData<Boolean> = _downloading
 
-    private val _uploading = MutableLiveData(false)
-    val uploading: LiveData<Boolean> = _uploading
 
-    suspend fun getRandomQuote(id: Int): Quote? {
+    suspend fun getRandomQuote(): Quote? {
         _downloading.postValue(true)
         return withContext(Dispatchers.IO) {
             try {
-                val result = QuoteApi.getMultipleRandomQuotes(count = 1)
-                result.results.firstOrNull()
+                val quotes = quoteApi.getAllQuotes()
+                quotes.randomOrNull()
             } catch (e: Exception) {
-                // Fehlerbehandlung
+                // TODO: Logging oder spezifischere Fehlerbehandlung bei Bedarf
                 null
             } finally {
                 _downloading.postValue(false)

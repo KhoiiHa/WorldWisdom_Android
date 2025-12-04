@@ -17,7 +17,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import com.squareup.moshi.Types
 
-private const val BASE_URL = "https://api.quotable.io"
+private const val BASE_URL = "http://10.0.2.2:3002/"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -38,55 +38,9 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 interface WorldWisdomApiService {
-    // Methoden für Zitate
-
-    //https://api.quotable.io/random
-    // Gibt ein zufälliges Zitat zurück
-    @GET("random")
-    suspend fun getRandomQuote(): Quote
-
-    //https://api.quotable.io/quotes/random
-    // Gibt mehrere zufällige Zitate zurück
-    @GET("quotes/random")
-    suspend fun getMultipleRandomQuotes(@Query("count") count: Int = 1): QuoteSearchResult
-
-    //https://api.quotable.io/quotes
-    // Gibt alle Zitate zurück
-    @GET("quotes")
+    // Gibt alle Zitate aus dem lokalen Mockoon-Backend zurück
+    @GET("api/quotes")
     suspend fun getAllQuotes(): List<Quote>
-
-    //https://api.quotable.io/search/quotes?query=life
-    // Suche nach Zitaten basierend auf einem Suchbegriff
-    @GET("search/quotes")
-    suspend fun searchQuotes(@Query("query") query: String): QuoteSearchResult
-
-    // Methoden für Autoren und Tags
-
-    //https://api.quotable.io/authors
-    // Gibt alle Autoren zurück
-    @GET("authors")
-    suspend fun getAllAuthors(): List<Author>
-
-    //https://api.quotable.io/authors/random
-    // Gibt einen zufälligen Autor zurück
-    @GET("authors/random")
-    suspend fun getRandomAuthor(): Author
-
-    //https://api.quotable.io/search/authors?query=Albert
-    // Suche nach Autoren basierend auf einem Suchbegriff
-    @GET("search/authors")
-    suspend fun searchAuthors(@Query("query") query: String): AuthorSearchResult
-
-    //https://api.quotable.io/authors/123
-    // Gibt einen Autor anhand seiner ID zurück
-    @GET("authors/{id}")
-    suspend fun getAuthorById(@Path("id") id: String): Author
-
-    //https://api.quotable.io/tags
-    // Gibt alle Tags zurück
-    @GET("tags")
-    suspend fun getAllTags(): List<Tag>
-
 }
 
 object WorldWisdomApi {

@@ -10,11 +10,7 @@
         android:label="HomeFragment" >
         <action
             android:id="@+id/action_homeFragment_to_authorDetailsFragment"
-            app:destination="@id/authorDetailsFragment" >
-            <argument
-                android:name="authorSlug"
-                app:argType="string" />
-        </action>
+            app:destination="@id/authorDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -41,6 +37,7 @@
         android:label="AuthorDetailsFragment" >
         <argument
             android:name="authorSlug"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="false" />
     </fragment>
 </navigation>

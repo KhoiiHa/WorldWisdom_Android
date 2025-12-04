@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <!-- Keine ViewModel-Variablen mehr nötig:
@@ -8,44 +11,62 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:fillViewport="true"
+        tools:context=".ui.author.AuthorDetailsFragment">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/author_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                android:text="" />
+                android:textColor="?android:textColorPrimary"
+                android:paddingBottom="8dp"
+                tools:text="Marcus Aurelius" />
 
             <TextView
                 android:id="@+id/author_description"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="" />
+                android:textSize="16sp"
+                android:textColor="?android:textColorSecondary"
+                android:paddingBottom="12dp"
+                tools:text="Römischer Kaiser und stoischer Philosoph, bekannt für seine Meditations." />
 
-            <TextView
-                android:id="@+id/author_bio"
-                android:layout_width="wrap_content"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="" />
+                android:layout_marginTop="12dp"
+                app:cardUseCompatPadding="true"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <TextView
+                    android:id="@+id/author_bio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:textSize="15sp"
+                    android:textColor="?android:textColorPrimary"
+                    tools:text="Kurzbiografie, Hintergrund und relevante Lebensstationen der Autorin oder des Autors." />
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:id="@+id/author_link"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:autoLink="web"
-                android:text="" />
-
+                android:textSize="14sp"
+                android:textColor="?android:textColorLink"
+                tools:text="https://de.wikipedia.org/wiki/Marcus_Aurelius" />
         </LinearLayout>
     </ScrollView>
 </layout>

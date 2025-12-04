@@ -1,162 +1,114 @@
 package com.example.projektworldwisdom.viewmodel
 
-import android.app.Application
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.example.projektworldwisdom.local.AppDatabase
+import androidx.lifecycle.ViewModel
 import com.example.projektworldwisdom.model.Author
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.remote.WorldWisdomApi
-import com.example.projektworldwisdom.repository.QuoteRepository
-import kotlinx.coroutines.launch
 
-class SharedViewModel(application: Application) : AndroidViewModel(application) {
+class SharedViewModel : ViewModel() {
 
-    private val quoteDao = AppDatabase.getDatabase(application).quoteDao()
-    private val apiService = WorldWisdomApi.retrofitService
-    private val repository = QuoteRepository(quoteDao, apiService)
+    // komplette Zitate-Liste (z.B. aus DB / API – aktuell nur placeholder)
+    private val _quotes = MutableLiveData<List<Quote>>(emptyList())
+    val quotes: LiveData<List<Quote>> = _quotes
 
-    // LiveData für das Zitat des Tages (direkt aus dem Repository)
-    val quoteOfTheDay: LiveData<Quote> = repository.getQuoteOfTheDay()
+    // aktuell gefilterte Liste
+    private val _filteredQuotes = MutableLiveData<List<Quote>>(emptyList())
+    val filteredQuotes: LiveData<List<Quote>> = _filteredQuotes
 
-    // LiveData für die gespeicherten Zitate (direkt aus der Datenbank)
-    val savedQuotes: LiveData<List<Quote>> = repository.getSavedQuotes()
+    // Quote of the Day
+    private val _quoteOfTheDay = MutableLiveData<Quote?>()
+    val quoteOfTheDay: LiveData<Quote?> = _quoteOfTheDay
 
-    // LiveData für den ausgewählten Autor
-    private val _selectedAuthor = MutableLiveData<Author>()
-    val selectedAuthor: LiveData<Author> get() = _selectedAuthor
+    // Selektion für das AuthorDetailsFragment
+    private val _selectedAuthor = MutableLiveData<Author?>()
+    val selectedAuthor: LiveData<Author?> = _selectedAuthor
 
-    // LiveData für gefilterte Zitate
-    private val _filteredQuotes = MutableLiveData<List<Quote>>()
-    val filteredQuotes: LiveData<List<Quote>> get() = _filteredQuotes
+    private val _selectedQuote = MutableLiveData<Quote?>()
+    val selectedQuote: LiveData<Quote?> = _selectedQuote
 
-    private val _authorQuote = MutableLiveData<Quote>()
-    val authorQuote: LiveData<Quote> get() = _authorQuote
+    // -------------------------------------------------------------------------
+    // Daten laden / filtern
+    // -------------------------------------------------------------------------
 
-    // LiveData für das ausgewählte Zitat
-    private val _selectedQuote = MutableLiveData<Quote>()
-    val selectedQuote: LiveData<Quote> get() = _selectedQuote
-
-    // LiveData für alle Zitate
-    val quotes: LiveData<List<Quote>>
-
-    init {
-        // LiveData von Repository abrufen
-        quotes = repository.getAllQuotesFromDatabase()
-
-        // Zitate aktualisieren
-        refreshQuotes()
-        fetchQuoteOfTheDay()
+    /**
+     * Platzhalter: hier später DB / API anbinden.
+     * Aktuell bleibt die Liste leer, damit der Code kompiliert.
+     */
+    fun getQuotes() {
+        // TODO: Repository anbinden und _quotes.value setzen
+        // Beispiel:
+        // _quotes.value = repository.getAllQuotes()
     }
 
-    // Methode zum Setzen des ausgewählten Autors
+    /**
+     * Filtert die aktuell geladene Liste anhand einer Kategorie.
+     * Aktuell noch Platzhalter, damit das Projekt kompiliert.
+     */
+    fun filterQuotesByCategory(category: String) {
+        val allQuotes = _quotes.value.orEmpty()
+
+        // TODO: Hier später echte Filter-Logik einbauen, z.B. über quote.category / tags etc.
+        // Temporär: kein echter Filter, nur Rückgabe der kompletten Liste,
+        // damit der Code kompiliert und die UI nicht crasht.
+        _filteredQuotes.value = allQuotes
+    }
+
+    /**
+     * Setzt den Filter zurück (zeigt alle Zitate).
+     */
+    fun clearFilter() {
+        _filteredQuotes.value = _quotes.value.orEmpty()
+    }
+
+    /**
+     * Wählt eine zufällige Quote als "Quote of the Day".
+     */
+    fun fetchQuoteOfTheDay() {
+        val source = _quotes.value.orEmpty()
+        _quoteOfTheDay.value = if (source.isNotEmpty()) {
+            source.random()
+        } else {
+            null
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Home-Screen Daten (Username + Affirmation des Tages)
+    // -------------------------------------------------------------------------
+
+    private val _userName = MutableLiveData<String>("Benutzer")
+    val userName: LiveData<String> = _userName
+
+    private val _affirmationText = MutableLiveData<String>("Stay focused and keep learning 💡")
+    val affirmationText: LiveData<String> = _affirmationText
+
+    private val _affirmationAuthor = MutableLiveData<String>("ChatGPT Mentor")
+    val affirmationAuthor: LiveData<String> = _affirmationAuthor
+
+    /**
+     * Setzt Username dynamisch (falls später Login kommt)
+     */
+    fun setUserName(name: String) {
+        _userName.value = name
+    }
+
+    /**
+     * Setzt Affirmation manuell oder über eine API
+     */
+    fun updateAffirmation(text: String, author: String) {
+        _affirmationText.value = text
+        _affirmationAuthor.value = author
+    }
+    // -------------------------------------------------------------------------
+    // Selektion für Details
+    // -------------------------------------------------------------------------
+
     fun selectAuthor(author: Author) {
         _selectedAuthor.value = author
     }
 
-    // Methode zum Setzen des ausgewählten Zitats
     fun selectQuote(quote: Quote) {
         _selectedQuote.value = quote
-    }
-
-    // Methode zum Abrufen der Zitate
-    fun getQuotes() {
-        viewModelScope.launch {
-            repository.refreshQuotes()
-        }
-    }
-
-    // Funktion zum Aktualisieren der Zitate
-    fun refreshQuotes() {
-        viewModelScope.launch {
-            try {
-                repository.refreshQuotes() // Zitate aktualisieren
-                // Die gefilterten Zitate auf die aktuelle Zitatliste setzen
-                _filteredQuotes.value = repository.getAllQuotesFromDatabase().value
-            } catch (e: Exception) {
-                Log.e("SharedViewModel", "Failed to refresh quotes: ${e.message}")
-            }
-        }
-    }
-
-    // Funktion zum Abrufen des Zitats des Tages
-    fun fetchQuoteOfTheDay() {
-        viewModelScope.launch {
-            repository.refreshQuoteOfTheDay() // Aktualisiere das Zitat des Tages in der Datenbank
-        }
-    }
-
-
-    // Filtermethode für AllQuotesFragment (nach Autorname oder Keywords)
-    fun filterQuotesForAll(keyword: String) {
-        quotes.value?.let { allQuotes ->
-            val filteredQuotes = if (keyword.isEmpty()) {
-                allQuotes
-            } else {
-                allQuotes.filter { quote ->
-                    quote.keywords.contains(keyword, ignoreCase = true) || quote.author.name.contains(keyword, ignoreCase = true) // Filter nach Keywords oder Autorname
-                }
-            }
-            _filteredQuotes.value = filteredQuotes // Aktualisiere die LiveData
-        }
-    }
-
-
-    // Funktion zum Löschen eines Kommentars aus einem Zitat
-    fun deleteComment(quote: Quote) {
-        // Setze den Kommentar auf null
-        val updatedQuote = quote.copy(comments = null)
-        viewModelScope.launch {
-            repository.updateQuote(updatedQuote) // Aktualisiere das Zitat in der Datenbank
-        }
-    }
-
-    // Funktion zum Hinzufügen oder Aktualisieren eines Kommentars zu einem Zitat
-    fun updateComment(quote: Quote, comment: String) {
-        // Aktualisiere den Kommentar im Zitat
-        val updatedQuote = quote.copy(comments = comment)
-
-        // Speichere das Zitat mit dem aktualisierten Kommentar in der Datenbank
-        viewModelScope.launch {
-            repository.updateQuote(updatedQuote)
-        }
-    }
-
-
-    fun updateQuote(quote: Quote) {
-        viewModelScope.launch {
-            repository.updateQuote(quote)
-        }
-    }
-
-    // Methode zum Laden eines Zitats für einen Autor
-    fun loadQuoteForAuthor(authorName: String) {
-        viewModelScope.launch {
-            _authorQuote.postValue(repository.getQuotesByAuthorName(authorName).firstOrNull())
-        }
-    }
-
-    fun filterQuotesByCategory(category: String): LiveData<List<Quote>> {
-        return repository.getQuotesByKeyword(category)
-    }
-
-    // Methode zum Umschalten des Speicherstatus eines Zitats
-    fun toggleQuoteSavedState(quote: Quote, callback: (String) -> Unit) {
-        viewModelScope.launch {
-            if (quote.isSaved) {
-                // Zitat entfernen (Speicherstatus auf false setzen)
-                val updatedQuote = quote.copy(isSaved = false)
-                repository.updateQuote(updatedQuote) // Aktualisiere das Zitat in der Datenbank
-                callback("Zitat wurde entfernt!") // Callback für Toast-Nachricht
-            } else {
-                // Zitat speichern (Speicherstatus auf true setzen)
-                val updatedQuote = quote.copy(isSaved = true)
-                repository.saveQuote(updatedQuote) // Speichere das aktualisierte Zitat über das Repository
-                callback("Zitat wurde gespeichert!") // Callback für Toast-Nachricht
-            }
-        }
     }
 }

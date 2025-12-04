@@ -39,7 +39,7 @@
                 android:id="@+id/user_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.userName"
+                android:text=""
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -96,14 +96,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@{viewModel.affirmationText}"  />
+                android:text=""  />
 
             <TextView
                 android:id="@+id/affirmation_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="@{`- ` + viewModel.affirmationAuthor}"
+                android:text=""
                 android:textStyle="italic" />
 
         </LinearLayout>

@@ -12,47 +12,50 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-
-import com.example.projektworldwisdom.adapter.QuoteAdapter
+import com.example.projektworldwisdom.adapter.QuotesAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.model.Quote
-
-
-
-
+import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class HomeFragment : Fragment() {
-    private val viewModel: HomeViewModel by activityViewModels()
 
-    //    private val viewModel: HomeViewModel by hiltViewModel() {
-//        val sharedPrefs = requireActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-//        HomeViewModelFactory(sharedPrefs)
-//    }
-    private lateinit var binding: FragmentHomeBinding
-    private lateinit var quoteAdapter: QuoteAdapter
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: HomeViewModel by activityViewModels()
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private lateinit var quotesAdapter: QuotesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        // Lade alle Zitate beim Start des Fragments
+        // Alle Zitate beim Start laden
         viewModel.loadQuotes()
 
-        // Ladeanzeige standardmäßig anzeigen
-        viewModel?.isLoading?.observe(viewLifecycleOwner) { isLoading ->
+        // Ladeanzeige
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // RecyclerView einrichten
-        quoteAdapter = QuoteAdapter(emptyList())
-        binding.quotesList?.let { recyclerView ->
-            recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            recyclerView.adapter = quoteAdapter
+        // RecyclerView + Adapter
+        quotesAdapter = QuotesAdapter(emptyList()).apply {
+            setOnItemClickListener(object : QuotesAdapter.OnItemClickListener {
+                override fun onItemClick(quote: Quote) {
+                    val authorSlug = quote.author
+                    val action =
+                        HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorSlug)
+                    findNavController().navigate(action)
+                }
+            })
         }
 
+        binding.quotesList?.let { recyclerView ->
+            recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            recyclerView.adapter = quotesAdapter
+        }
 
         return binding.root
     }
@@ -60,66 +63,54 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sharedPrefs = requireActivity().getSharedPreferences(
-            "app_prefs",
-            Context.MODE_PRIVATE
-        )
-        viewModel.setSharedPrefs(sharedPrefs) // Methode im ViewModel erstellen
+        val sharedPrefs = requireActivity()
+            .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        viewModel.setSharedPrefs(sharedPrefs)
 
-        // ...
-
-
-        // LiveData beobachten und Adapter aktualisieren
-        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            quoteAdapter.updateQuotes(quotes)
+        // Header: Username und Affirmation des Tages aus dem SharedViewModel
+        sharedViewModel.userName.observe(viewLifecycleOwner) { name ->
+            binding.userName.text = name
         }
 
-//        viewModel.initializeData()
+        sharedViewModel.affirmationText.observe(viewLifecycleOwner) { text ->
+            binding.affirmationText.text = text
+        }
 
-        quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
-            override fun onItemClick(quote: Quote) {
-                val authorSlug = quote.authorSlug
-                val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(authorSlug)
-                findNavController().navigate(action)
-            }
-        })
+        sharedViewModel.affirmationAuthor.observe(viewLifecycleOwner) { author ->
+            binding.affirmationAuthor.text = "– $author"
+        }
 
+        // LiveData beobachten und Adapter updaten
+        viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
+            quotesAdapter.updateQuotes(quotes)
+        }
 
-
-//        quoteAdapter.setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
-//            override fun onItemClick(quote: Quote) {
-//                viewModel._selectedAuthorSlug.value = quote.authorSlug
-//                findNavController().navigate(R.id.action_homeFragment_to_authorDetailsFragment)
-//            }
-//        })
-
+        // Suche
         binding.searchBar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Nicht benötigt
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                // nicht benötigt
             }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
                 viewModel.searchQuotes(s.toString())
             }
 
             override fun afterTextChanged(s: Editable?) {
-                // Nicht benötigt
+                // nicht benötigt
             }
         })
 
-//        viewModel.dailyAffirmation.observe(viewLifecycleOwner) { quote ->
-//            quote?.let {
-//                binding.affirmationText.text = it.content
-//                binding.affirmationAuthor.text = "- ${it.author}"
-//            } ?: run {
-//                // Handle den Fall, dass kein Zitat geladen wurde (optional)
-//                binding.affirmationText.text = "Keine Zitate gefunden."
-//                binding.affirmationAuthor.text = ""
-//            }
-//        }
-
-
-        // Klick-Listener für Filter
+        // Filter-Buttons
         binding.filterSociety.setOnClickListener {
             viewModel.loadQuotesByTag("society")
         }
@@ -145,15 +136,16 @@ class HomeFragment : Fragment() {
         }
 
         // Fehlerbehandlung
-        viewModel?.error?.observe(viewLifecycleOwner)
-        { errorMessage ->
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-
-                viewModel?._error?.postValue(null)
+                viewModel._error?.postValue(null) // später gern über eine clearError()-Funktion
             }
         }
+    }
 
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

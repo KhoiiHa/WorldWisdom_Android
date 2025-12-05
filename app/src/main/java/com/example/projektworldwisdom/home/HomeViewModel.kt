@@ -43,23 +43,30 @@ class HomeViewModel : ViewModel() {
 
     fun loadQuotes() {
         viewModelScope.launch {
-            _isLoading.postValue(true)
+            _isLoading.value = true
             try {
                 val result = WorldWisdomApi.retrofitService.getAllQuotes()
+                Log.d("HomeViewModel", "Fetched ${result.size} quotes from API")
+
                 allQuotesCache = result
-                _quotes.postValue(result)
-                _error.postValue(null)
+                _quotes.value = result
+                _error.value = null
+
+                // Wenn wir Zitate bekommen haben, wähle direkt eine tägliche Affirmation
+                if (result.isNotEmpty()) {
+                    _dailyAffirmation.value = result.random()
+                }
             } catch (e: IOException) {
-                _error.postValue("Netzwerkfehler: ${e.message}")
+                _error.value = "Netzwerkfehler: ${e.message}"
                 Log.e("HomeViewModel", "Network error fetching quotes", e)
             } catch (e: HttpException) {
-                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
+                _error.value = "API-Fehler: ${e.code()} - ${e.message()}"
                 Log.e("HomeViewModel", "HTTP error fetching quotes", e)
             } catch (e: Exception) {
-                _error.postValue("Unbekannter Fehler: ${e.message}")
+                _error.value = "Unbekannter Fehler: ${e.message}"
                 Log.e("HomeViewModel", "Fehler beim Laden der Zitate", e)
             } finally {
-                _isLoading.postValue(false)
+                _isLoading.value = false
             }
         }
     }

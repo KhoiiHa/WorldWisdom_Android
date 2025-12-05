@@ -6,7 +6,6 @@ import com.example.projektworldwisdom.model.Quote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-
 class QuoteRepository(
     private val quoteApi: WorldWisdomApiService
 ) {
@@ -14,19 +13,30 @@ class QuoteRepository(
     private val _downloading = MutableLiveData(false)
     val downloading: LiveData<Boolean> = _downloading
 
-
-    suspend fun getRandomQuote(): Quote? {
+    /**
+     * Holt ALLE Zitate von der Mockoon-API.
+     * Wird von Home-Liste und Random-Quote gemeinsam verwendet.
+     */
+    suspend fun getAllQuotes(): List<Quote> {
         _downloading.postValue(true)
         return withContext(Dispatchers.IO) {
             try {
-                val quotes = quoteApi.getAllQuotes()
-                quotes.randomOrNull()
+                quoteApi.getAllQuotes()
             } catch (e: Exception) {
-                // TODO: Logging oder spezifischere Fehlerbehandlung bei Bedarf
-                null
+                // TODO: Logging bei Bedarf
+                emptyList()
             } finally {
                 _downloading.postValue(false)
             }
         }
+    }
+
+    /**
+     * Liefert ein einziges zufälliges Zitat.
+     * Nutzt intern getAllQuotes().
+     */
+    suspend fun getRandomQuote(): Quote? {
+        val quotes = getAllQuotes()
+        return quotes.randomOrNull()
     }
 }

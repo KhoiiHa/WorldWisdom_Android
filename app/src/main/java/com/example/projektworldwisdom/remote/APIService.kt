@@ -1,11 +1,6 @@
 package com.example.projektworldwisdom.remote
 
-import com.example.projektworldwisdom.model.Author
-import com.example.projektworldwisdom.model.AuthorSearchResult
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.model.QuoteSearchResult
-import com.example.projektworldwisdom.model.SingleQuoteResponse
-import com.example.projektworldwisdom.model.Tag
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -13,10 +8,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
-import com.squareup.moshi.Types
 
+// 🔗 WICHTIG: Emulator → Localhost = 10.0.2.2
 private const val BASE_URL = "http://10.0.2.2:3002/"
 
 private val moshi = Moshi.Builder()
@@ -32,17 +25,19 @@ private val client = OkHttpClient.Builder()
     .build()
 
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi))
     .baseUrl(BASE_URL)
+    .addConverterFactory(MoshiConverterFactory.create(moshi))
     .client(client)
     .build()
 
 interface WorldWisdomApiService {
-    // Gibt alle Zitate aus dem lokalen Mockoon-Backend zurück
+    // Holt alle Zitate aus Mockoon
     @GET("api/quotes")
     suspend fun getAllQuotes(): List<Quote>
 }
 
 object WorldWisdomApi {
-    val retrofitService: WorldWisdomApiService by lazy { retrofit.create(WorldWisdomApiService::class.java) }
+    val retrofitService: WorldWisdomApiService by lazy {
+        retrofit.create(WorldWisdomApiService::class.java)
+    }
 }

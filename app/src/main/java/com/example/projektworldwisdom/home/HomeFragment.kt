@@ -11,16 +11,22 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.projektworldwisdom.adapter.QuotesAdapter
+import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.model.Quote
+import com.example.projektworldwisdom.viewmodel.SharedViewModel
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: HomeViewModel by activityViewModels()
-    private lateinit var quotesAdapter: QuotesAdapter
+
+    private val viewModel: SharedViewModel by activityViewModels()
+    private lateinit var quotesAdapter: QuoteAdapter
+
+    private var allQuotes: List<Quote> = emptyList()
+    private var currentCategory: String? = null
+    private var currentSearchQuery: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,7 +35,7 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        // Alle Zitate beim Start laden
+        // Zitate laden
         viewModel.loadQuotes()
 
         // Ladeanzeige
@@ -38,11 +44,12 @@ class HomeFragment : Fragment() {
         }
 
         // RecyclerView + Adapter
-        quotesAdapter = QuotesAdapter(emptyList()).apply {
-            setOnItemClickListener(object : QuotesAdapter.OnItemClickListener {
+        quotesAdapter = QuoteAdapter(emptyList()).apply {
+            setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
                 override fun onItemClick(quote: Quote) {
+                    // Navigation: wir nehmen den Autor-Namen
                     val action = HomeFragmentDirections
-                        .actionHomeFragmentToAuthorDetailsFragment(quote.authorSlug)
+                        .actionHomeFragmentToAuthorDetailsFragment(quote.author)
                     findNavController().navigate(action)
                 }
             })
@@ -57,12 +64,13 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // LiveData beobachten und Adapter updaten
+        // Zitate-Liste beobachten
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            quotesAdapter.updateQuotes(quotes)
+            allQuotes = quotes ?: emptyList()
+            applyFilters()
         }
 
-        // Suche
+        // Suchfeld
         binding.searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
                 s: CharSequence?,
@@ -79,7 +87,8 @@ class HomeFragment : Fragment() {
                 before: Int,
                 count: Int
             ) {
-                viewModel.searchQuotes(s.toString())
+                currentSearchQuery = s?.toString().orEmpty()
+                applyFilters()
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -87,38 +96,60 @@ class HomeFragment : Fragment() {
             }
         })
 
-        // Filter-Buttons
+        // Kategorie-Filter
         binding.filterSociety.setOnClickListener {
-            viewModel.loadQuotesByTag("society")
+            currentCategory = "society"
+            applyFilters()
         }
-
         binding.filterSuccess.setOnClickListener {
-            viewModel.loadQuotesByTag("success")
+            currentCategory = "success"
+            applyFilters()
         }
-
         binding.filterWork.setOnClickListener {
-            viewModel.loadQuotesByTag("work")
+            currentCategory = "work"
+            applyFilters()
         }
-
         binding.filterWisdom.setOnClickListener {
-            viewModel.loadQuotesByTag("wisdom")
+            currentCategory = "wisdom"
+            applyFilters()
         }
-
         binding.filterGratitude.setOnClickListener {
-            viewModel.loadQuotesByTag("gratitude")
+            currentCategory = "gratitude"
+            applyFilters()
         }
-
         binding.filterAlle.setOnClickListener {
-            viewModel.loadQuotesByTag("Alle")
+            currentCategory = null
+            applyFilters()
         }
 
-        // Fehlerbehandlung
+        // Fehler anzeigen & danach zurücksetzen
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.clearError()
             }
         }
+    }
+
+    private fun applyFilters() {
+        val search = currentSearchQuery.trim()
+        val category = currentCategory
+
+        val filtered = allQuotes
+            .filter { quote ->
+                category == null ||
+                        quote.category.equals(category, ignoreCase = true)
+            }
+            .filter { quote ->
+                if (search.isEmpty()) {
+                    true
+                } else {
+                    quote.quote.contains(search, ignoreCase = true) ||
+                            quote.author.contains(search, ignoreCase = true)
+                }
+            }
+
+        quotesAdapter.updateQuotes(filtered)
     }
 
     override fun onDestroyView() {

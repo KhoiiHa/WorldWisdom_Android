@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.databinding.ItemQuoteBinding
 import com.example.projektworldwisdom.model.Quote
 
-class QuotesAdapter(private var quotes: List<Quote>) : RecyclerView.Adapter<QuotesAdapter.QuoteViewHolder>() {
+class QuoteAdapter(private var quotes: List<Quote> = emptyList()) : RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
 
     inner class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
 

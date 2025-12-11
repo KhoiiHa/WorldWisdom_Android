@@ -4,6 +4,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
+    <!-- Home (Startscreen) -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.projektworldwisdom.home.HomeFragment"
@@ -12,6 +13,20 @@
             android:id="@+id/action_homeFragment_to_authorDetailsFragment"
             app:destination="@id/authorDetailsFragment" />
     </fragment>
+
+    <!-- Collection-Screen für die gespeicherten Zitate -->
+    <fragment
+        android:id="@+id/collectionFragment"
+        android:name="com.example.projektworldwisdom.collection.CollectionFragment"
+        android:label="CollectionFragment" />
+
+    <!-- Profil-Screen (optional – falls du schon einen hast) -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.projektworldwisdom.profile.ProfileFragment"
+        android:label="ProfileFragment" />
+
+    <!-- Login / Register wie gehabt -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.projektworldwisdom.login.LoginFragment"
@@ -23,6 +38,7 @@
             android:id="@+id/action_loginFragment_to_homeFragment2"
             app:destination="@id/homeFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.projektworldwisdom.register.RegisterFragment"
@@ -31,6 +47,8 @@
             android:id="@+id/action_registerFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+
+    <!-- Author Details -->
     <fragment
         android:id="@+id/authorDetailsFragment"
         android:name="com.example.projektworldwisdom.AuthorDetail.AuthorDetailsFragment"
@@ -40,4 +58,5 @@
             app:argType="string"
             app:nullable="false" />
     </fragment>
+
 </navigation>

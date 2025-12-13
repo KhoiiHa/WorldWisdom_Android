@@ -45,4 +45,6 @@
     <color name="keywordsfilter_lavender">#D5D5EF</color>
 
     <color name="error_red">#AC3131</color>
+
+    <color name="favorite_star_on">#FFC107</color>
 </resources>

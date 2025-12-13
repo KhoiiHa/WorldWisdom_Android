@@ -1,4 +1,28 @@
 <resources>
     <string name="app_name">Project WorldWisdom</string>
     <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
+    <string name="content_desc_favorite">Zu Favoriten hinzufügen</string>
+
+    <!-- Collection (Favorites) -->
+    <string name="collection_title">Favoriten</string>
+    <string name="collection_subtitle">Deine gespeicherten Zitate an einem Ort</string>
+
+    <string name="collection_empty_title">Noch keine Favoriten</string>
+    <string name="collection_empty_subtitle">Tippe auf den Stern bei einem Zitat, um es hier zu speichern.</string>
+    <string name="collection_cta_discover">Entdecken</string>
+    <!-- Backwards-compatible keys used in some layouts -->
+    <string name="collection_empty_cta">Entdecken</string>
+
+    <string name="collection_error_title">Etwas ist schiefgelaufen</string>
+    <string name="collection_error_subtitle">Bitte versuche es erneut.</string>
+    <string name="action_retry">Erneut versuchen</string>
+
+    <!-- Common / Shared -->
+    <string name="common_error_subtitle">Bitte versuche es später erneut.</string>
+    <string name="common_error_title">Etwas ist schiefgelaufen</string>
+    <string name="common_retry">Erneut versuchen</string>
+
+    <!-- Home (Daily Affirmation) -->
+    <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>
+    <string name="daily_affirmation_text">%1$s\n\n— %2$s</string>
 </resources>

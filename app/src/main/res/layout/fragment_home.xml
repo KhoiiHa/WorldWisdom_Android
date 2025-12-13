@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF9FB"
+    android:background="?attr/colorSurface"
     tools:context=".home.HomeFragment">
 
     <!-- Header: Greeting + Username -->
@@ -26,7 +26,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Good Morning 👋"
-            android:textColor="#5F5F5F"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -36,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text=""
-            android:textColor="#111111"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="24sp"
             android:textStyle="bold"
             tools:text="Benutzer" />
@@ -44,37 +45,61 @@
     </LinearLayout>
 
     <!-- Search bar -->
-    <EditText
-        android:id="@+id/search_bar"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/search_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:background="@android:color/transparent"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:hint="Search"
-        android:imeOptions="actionSearch"
-        android:padding="12dp"
-        android:textSize="16sp"
-        android:singleLine="true"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutline"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
         app:layout_constraintTop_toBottomOf="@id/profile_section"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <EditText
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="10dp"
+            android:drawableTint="?attr/colorOnSurface"
+            android:hint="Search quotes or authors"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:paddingStart="16dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="14dp"
+            android:singleLine="true"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?android:attr/textColorHint"
+            android:textSize="16sp" />
+
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Daily Affirmation Card -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/daily_affirmation_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true"
-        app:layout_constraintTop_toBottomOf="@id/search_bar"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutline"
+        app:layout_constraintTop_toBottomOf="@id/search_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -89,7 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Daily Affirmation"
-                android:textColor="#111111"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -98,7 +123,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="#333333"
+                android:text="Loading your daily quote…"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.85"
                 android:textSize="14sp"
                 tools:text="Stay focused and keep learning 💡" />
 
@@ -107,7 +134,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="#777777"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.65"
                 android:textSize="12sp"
                 android:textStyle="italic"
                 android:gravity="end"
@@ -116,131 +144,95 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Filter bar -->
+    <!-- Filter bar (modern chips) -->
     <HorizontalScrollView
         android:id="@+id/filter_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
+        android:layout_marginEnd="24dp"
+        android:overScrollMode="never"
         android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/daily_affirmation_card"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupFilters"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:singleLine="true"
+            app:chipSpacingHorizontal="10dp">
 
-            <LinearLayout
+            <com.google.android.material.chip.Chip
                 android:id="@+id/filter_Society"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
+                android:text="Gesellschaft"
+                android:textAllCaps="false"
+                app:checkedIconVisible="false"
+                app:chipCornerRadius="18dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Society"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.chip.Chip
                 android:id="@+id/filter_success"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
+                android:text="Erfolg"
+                android:textAllCaps="false"
+                app:checkedIconVisible="false"
+                app:chipCornerRadius="18dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Success"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.chip.Chip
                 android:id="@+id/filter_work"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
+                android:text="Arbeit"
+                android:textAllCaps="false"
+                app:checkedIconVisible="false"
+                app:chipCornerRadius="18dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Work"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.chip.Chip
                 android:id="@+id/filter_wisdom"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
+                android:text="Wissen"
+                android:textAllCaps="false"
+                app:checkedIconVisible="false"
+                app:chipCornerRadius="18dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Wisdom"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.chip.Chip
                 android:id="@+id/filter_gratitude"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
+                android:text="Dankbarkeit"
+                android:textAllCaps="false"
+                app:checkedIconVisible="false"
+                app:chipCornerRadius="18dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Gratitude"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.chip.Chip
                 android:id="@+id/filter_alle"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
+                android:text="Alle"
+                android:textAllCaps="false"
+                android:checked="true"
+                app:checkedIconVisible="false"
+                app:chipCornerRadius="18dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Alle"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-        </LinearLayout>
+        </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
     <!-- RecyclerView for quotes -->

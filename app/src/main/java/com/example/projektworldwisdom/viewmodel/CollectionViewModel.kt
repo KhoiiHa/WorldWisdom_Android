@@ -1,73 +1,54 @@
 package com.example.projektworldwisdom.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.projektworldwisdom.model.Quote
-import com.example.projektworldwisdom.remote.FirebaseRepository
-import com.example.projektworldwisdom.remote.QuoteRepository
-import com.example.projektworldwisdom.remote.WorldWisdomApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 
+/**
+ * CollectionViewModel (XML)
+ *
+ * WICHTIG: Die Collection zeigt in diesem Projekt die lokal gespeicherten Favoriten.
+ * Das Laden/Syncen der Quotes (API) und das Favoriten-Management laufen zentral über SharedViewModel.
+ *
+ * Dieses ViewModel ist bewusst schlank und hält nur den UI-State für die Collection.
+ * (Kein Firebase, kein Netzwerk, kein Random-Quote-Fetch.)
+ */
 class CollectionViewModel : ViewModel() {
 
-    private val firebaseRepository = FirebaseRepository()
-    private val quoteRepository = QuoteRepository(WorldWisdomApi.retrofitService)
-
-    val downloading: LiveData<Boolean> = firebaseRepository.downloading
-
-    // Eigene Zitat-Liste für die Collection-Ansicht
-    private val _quotes = MutableLiveData<List<Quote>>()
+    private val _quotes = MutableLiveData<List<Quote>>(emptyList())
     val quotes: LiveData<List<Quote>> = _quotes
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _error = MutableLiveData<String?>()
+    private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
-
-    init {
-        getQuotes()
+    /**
+     * Wird vom Fragment/SharedViewModel gefüttert, sobald sich die Favoriten ändern.
+     */
+    fun setFavorites(favorites: List<Quote>) {
+        _quotes.value = favorites
+        _error.value = null
+        _isLoading.value = false
     }
 
-
-    fun getQuotes() {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            try {
-                val idCollection = firebaseRepository.getUserCollection()
-                val quoteDeferreds = idCollection?.map {
-                    // Aktuell gibt es keinen echten ID-basierten Endpunkt.
-                    // Für jedes Collection-Item holen wir ein zufälliges Zitat.
-                    async { quoteRepository.getRandomQuote() }
-                }
-                val quotesTMP = quoteDeferreds?.awaitAll()?.filterNotNull() ?: emptyList()
-
-                _quotes.postValue(quotesTMP)
-                _error.postValue(null)
-            } catch (e: IOException) {
-                _error.postValue("Netzwerkfehler: ${e.message}")
-                Log.e("CollectionViewModel", "Network error fetching quotes", e)
-            } catch (e: HttpException) {
-                _error.postValue("API-Fehler: ${e.code()} - ${e.message()}")
-                Log.e("CollectionViewModel", "HTTP error fetching quotes", e)
-            } finally {
-                _isLoading.postValue(false)
-            }
+    /**
+     * Optional: wenn du im Fragment kurz einen Loading-State zeigen willst.
+     */
+    fun setLoading(isLoading: Boolean) {
+        _isLoading.value = isLoading
+        if (isLoading) {
+            _error.value = null
         }
     }
 
-    fun refreshUserCollection() {
-        // Nutzt dieselbe Lade-Logik wie beim Initial-Load
-        getQuotes()
+    /**
+     * Optional: Fehlerstate setzen (z.B. falls SharedViewModel einen Fehler meldet).
+     */
+    fun setError(message: String?) {
+        _error.value = message
+        _isLoading.value = false
     }
-
-
 }

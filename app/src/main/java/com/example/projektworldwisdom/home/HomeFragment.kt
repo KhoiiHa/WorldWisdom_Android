@@ -11,10 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentHomeBinding
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
+import java.util.Calendar
 
 class HomeFragment : Fragment() {
 
@@ -25,7 +27,7 @@ class HomeFragment : Fragment() {
     private lateinit var quotesAdapter: QuoteAdapter
 
     private var allQuotes: List<Quote> = emptyList()
-    private var currentCategory: String? = null
+    private var currentCategoryKey: String? = null
     private var currentSearchQuery: String = ""
 
     override fun onCreateView(
@@ -35,25 +37,24 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        // Zitate laden
-        viewModel.loadQuotes()
-
-        // Ladeanzeige
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-
         // RecyclerView + Adapter
-        quotesAdapter = QuoteAdapter(emptyList()).apply {
-            setOnItemClickListener(object : QuoteAdapter.OnItemClickListener {
-                override fun onItemClick(quote: Quote) {
-                    // Navigation: wir nehmen den Autor-Namen
-                    val action = HomeFragmentDirections
-                        .actionHomeFragmentToAuthorDetailsFragment(quote.author)
-                    findNavController().navigate(action)
-                }
-            })
-        }
+        quotesAdapter = QuoteAdapter(
+            onQuoteClick = { quote ->
+                val action = HomeFragmentDirections
+                    .actionHomeFragmentToAuthorDetailsFragment(quote.author)
+                findNavController().navigate(action)
+            },
+            // ✅ Preferred: Adapter liefert den Zielzustand (true=speichern, false=entfernen)
+            // Wir nutzen hier bewusst weiterhin toggleFavorite, weil der Zielzustand bereits
+            // aus dem aktuellen Quote-State abgeleitet wurde.
+            onFavoriteToggle = { quote: Quote, _ ->
+                viewModel.toggleFavorite(quote)
+            },
+            // ✅ Fallback: falls du noch eine ältere Adapter-Signatur offen hast
+            onFavoriteClick = { quote: Quote ->
+                viewModel.toggleFavorite(quote)
+            }
+        )
 
         binding.quotesList.layoutManager = LinearLayoutManager(requireContext())
         binding.quotesList.adapter = quotesAdapter
@@ -64,29 +65,25 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Ladeanzeige
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
         // Zitate-Liste beobachten
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
             allQuotes = quotes ?: emptyList()
             applyFilters()
+            renderDailyAffirmation(allQuotes)
         }
 
         // Suchfeld
         binding.searchBar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // nicht benötigt
             }
 
-            override fun onTextChanged(
-                s: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 currentSearchQuery = s?.toString().orEmpty()
                 applyFilters()
             }
@@ -96,29 +93,20 @@ class HomeFragment : Fragment() {
             }
         })
 
-        // Kategorie-Filter
-        binding.filterSociety.setOnClickListener {
-            currentCategory = "society"
-            applyFilters()
-        }
-        binding.filterSuccess.setOnClickListener {
-            currentCategory = "success"
-            applyFilters()
-        }
-        binding.filterWork.setOnClickListener {
-            currentCategory = "work"
-            applyFilters()
-        }
-        binding.filterWisdom.setOnClickListener {
-            currentCategory = "wisdom"
-            applyFilters()
-        }
-        binding.filterGratitude.setOnClickListener {
-            currentCategory = "gratitude"
-            applyFilters()
-        }
-        binding.filterAlle.setOnClickListener {
-            currentCategory = null
+        // Kategorie-Filter (Material Chips)
+        binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: View.NO_ID
+
+            currentCategoryKey = when (checkedId) {
+                R.id.filter_Society -> "society"
+                R.id.filter_success -> "success"
+                R.id.filter_work -> "work"
+                R.id.filter_wisdom -> "wisdom"
+                R.id.filter_gratitude -> "gratitude"
+                R.id.filter_alle, View.NO_ID -> null
+                else -> null
+            }
+
             applyFilters()
         }
 
@@ -131,23 +119,128 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun renderDailyAffirmation(quotes: List<Quote>) {
+        // Minimal & deterministisch: „Quote of the Day“ aus der vorhandenen Liste
+        // Kein Over-Engineering, keine extra API.
+        if (quotes.isEmpty()) {
+            binding.affirmationText.text = getString(R.string.loading_daily_quote)
+            binding.dailyAffirmationCard.setOnClickListener(null)
+            return
+        }
+
+        val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        val index = dayOfYear % quotes.size
+        val quote = quotes[index]
+
+        // Ein TextView reicht: Quote + Autor, damit wir kein zusätzliches Layout brauchen.
+        binding.affirmationText.text = getString(
+            R.string.daily_affirmation_text,
+            quote.quote,
+            quote.author
+        )
+
+        // Tap auf die Card → Author Details
+        binding.dailyAffirmationCard.setOnClickListener {
+            val action = HomeFragmentDirections
+                .actionHomeFragmentToAuthorDetailsFragment(quote.author)
+            findNavController().navigate(action)
+        }
+    }
+
     private fun applyFilters() {
         val search = currentSearchQuery.trim()
-        val category = currentCategory
+        val key = currentCategoryKey
+
+        val mappedCategories: List<String> = when (key) {
+
+            // Society: Gesellschaft, Werte, Politik, Gerechtigkeit
+            "society" -> listOf(
+                "Weltanschauung",
+                "Politik",
+                "Gerechtigkeit",
+                "Freiheit",
+                "Gleichheit",
+                "Wahrheit",
+                "Charakter",
+                "Zusammenarbeit"
+            )
+
+            // Success: Erfolg, Motivation, Herausforderungen, Dranbleiben
+            "success" -> listOf(
+                "Erfolg",
+                "Motivation",
+                "Meisterschaft",
+                "Herausforderungen",
+                "Zweifel",
+                "Entscheidungen"
+            )
+
+            // Work: Arbeit & Umsetzung
+            "work" -> listOf(
+                "Arbeit",
+                "Produktivität",
+                "Innovation",
+                "Problemlösung"
+            )
+
+            // Wisdom: Wissen, Philosophie, Lernen, Wissenschaft
+            "wisdom" -> listOf(
+                "Wissen",
+                "Weisheit",
+                "Philosophie",
+                "Bildung",
+                "Wissenschaft",
+                "Intelligenz",
+                "Fragen",
+                "Fehler",
+                "Zeit",
+                "Menschlichkeit",
+                "Selbstkenntnis",
+                "Selbstentdeckung"
+            )
+
+            // Gratitude: Leben, Liebe, Hoffnung, Frieden, Veränderung
+            "gratitude" -> listOf(
+                "Leben",
+                "Leben und Prioritäten",
+                "Liebe",
+                "Liebe und Mitgefühl",
+                "Hoffnung",
+                "Frieden",
+                "Gewaltlosigkeit",
+                "Veränderung",
+                "Inspiration",
+                "Träume",
+                "Zukunft",
+                "Kreativität",
+                "Verführung"
+            )
+
+            else -> emptyList() // "Alle"
+        }
 
         val filtered = allQuotes
+            .asSequence()
             .filter { quote ->
-                category == null ||
-                        quote.category.equals(category, ignoreCase = true)
+                // Kategorie-Filter
+                if (mappedCategories.isEmpty()) {
+                    true
+                } else {
+                    mappedCategories.any { mapped ->
+                        mapped.equals(quote.category, ignoreCase = true)
+                    }
+                }
             }
             .filter { quote ->
+                // Search-Filter
                 if (search.isEmpty()) {
                     true
                 } else {
                     quote.quote.contains(search, ignoreCase = true) ||
-                            quote.author.contains(search, ignoreCase = true)
+                        quote.author.contains(search, ignoreCase = true)
                 }
             }
+            .toList()
 
         quotesAdapter.updateQuotes(filtered)
     }

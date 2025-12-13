@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.adapter.QuoteAdapter
@@ -18,16 +20,14 @@ class CollectionFragment : Fragment() {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
 
-    // Gemeinsames ViewModel mit Home-Fragment
+    // Gemeinsames ViewModel (liefert aktuell die Quote-Liste aus der API)
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private lateinit var quoteAdapter: QuoteAdapter
 
-    // Volle Liste aus dem ViewModel (für Filter)
-    private var allQuotes: List<Quote> = emptyList()
-
-    // Merkt sich, welcher Kategorie-Tab gerade aktiv ist (society, success, work, wisdom, gratitude, all/null)
-    private var currentCategoryKey: String? = null
+    private var latestFavorites: List<Quote> = emptyList()
+    private var latestError: String? = null
+    private var latestLoading: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,127 +42,142 @@ class CollectionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
-        observeQuotes()
-        setupCategoryChips()
+        setupActions()
+
+        setupObservers()
     }
 
     private fun setupRecyclerView() {
-        quoteAdapter = QuoteAdapter()
+        quoteAdapter = QuoteAdapter(
+            onFavoriteClick = { quote: Quote ->
+                // In Favorites-Screen bedeutet ⭐-Klick: entfernen/hinzufügen (toggle)
+                sharedViewModel.toggleFavorite(quote)
+            }
+        )
+
         binding.recyclerViewCollection.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = quoteAdapter
+            setHasFixedSize(true)
         }
     }
 
-    private fun observeQuotes() {
-        sharedViewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            allQuotes = quotes ?: emptyList()
-            // Immer mit der aktuell gewählten Kategorie filtern
-            applyFilters()
+    private fun setupActions() {
+        // Empty CTA → zurück zu Home (Entdecken)
+        binding.btnEmptyCta.setOnClickListener {
+            navigateToHome()
+        }
+
+        // Retry → nochmal den aktuellen Zustand auswerten
+        // (Später: ViewModel.triggerReload())
+        binding.btnRetry.setOnClickListener {
+            retryRender()
         }
     }
 
-    private fun setupCategoryChips() {
-        // Standard: "All" ist aktiv → wir zeigen alles
-        binding.chipCategoryAll.isChecked = true
-        currentCategoryKey = null
+    private fun setupObservers() {
+        sharedViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            latestLoading = isLoading == true
+            renderFromState()
+        }
 
-        binding.chipGroupCategories.setOnCheckedStateChangeListener { _, checkedIds ->
-            val checkedId = checkedIds.firstOrNull()
+        sharedViewModel.error.observe(viewLifecycleOwner) { errorMsg ->
+            latestError = errorMsg
+            renderFromState()
+        }
 
-            currentCategoryKey = when (checkedId) {
-                R.id.chipCategorySociety -> "society"
-                R.id.chipCategorySuccess -> "success"
-                R.id.chipCategoryWork -> "work"
-                R.id.chipCategoryWisdom -> "wisdom"
-                R.id.chipCategoryGratitude -> "gratitude"
-                R.id.chipCategoryAll, null -> null
-                else -> null
+        sharedViewModel.favoriteQuotes.observe(viewLifecycleOwner) { favorites ->
+            latestFavorites = favorites.orEmpty()
+            if (latestFavorites.isNotEmpty()) {
+                latestError = null
             }
-
-            applyFilters()
+            renderFromState()
         }
     }
 
-    /**
-     * Wendet die aktuell gewählte Kategorie auf die volle Liste an.
-     * Wenn keine Kategorie gewählt ist (All), werden alle Zitate angezeigt.
-     * Wenn eine Kategorie keine Treffer hat, fallen wir auf die komplette Liste zurück.
-     */
-    private fun applyFilters() {
-        val categoryKey = currentCategoryKey
+    private fun renderFromState() {
+        when {
+            latestLoading -> {
+                renderLoading()
+            }
+            latestFavorites.isNotEmpty() -> {
+                renderContent(latestFavorites)
+            }
+            latestError != null -> {
+                renderError(latestError)
+            }
+            else -> {
+                renderEmpty()
+            }
+        }
+    }
 
-        val filtered: List<Quote> = if (categoryKey == null) {
-            allQuotes
+    private fun retryRender() {
+        latestError = null
+        sharedViewModel.clearError()
+        sharedViewModel.loadQuotes()
+    }
+
+    private fun navigateToHome() {
+        val navController = findNavController()
+
+        // Prefer popping back to Home if it exists in the back stack.
+        val popped = navController.popBackStack(R.id.homeFragment, false)
+        if (!popped) {
+            navController.navigate(R.id.homeFragment)
+        }
+    }
+
+    // --- UI State Rendering ---
+
+    private fun renderLoading() {
+        binding.progressLoading.isVisible = true
+        binding.layoutEmptyState.isVisible = false
+        binding.layoutErrorState.isVisible = false
+        binding.recyclerViewCollection.isVisible = false
+
+        // Reset any previous error message (prevents stale text after leaving error state)
+        binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
+    }
+
+    private fun renderEmpty() {
+        binding.progressLoading.isVisible = false
+        binding.layoutEmptyState.isVisible = true
+        binding.layoutErrorState.isVisible = false
+        binding.recyclerViewCollection.isVisible = false
+
+        // Reset any previous error message
+        binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
+
+        quoteAdapter.updateQuotes(emptyList())
+    }
+
+    private fun renderError(message: String?) {
+        binding.progressLoading.isVisible = false
+        binding.layoutEmptyState.isVisible = false
+        binding.layoutErrorState.isVisible = true
+        binding.recyclerViewCollection.isVisible = false
+
+        val msg = message?.takeIf { it.isNotBlank() }
+        if (msg != null) {
+            binding.tvErrorSubtitle.text = msg
         } else {
-            filterByCategoryKey(allQuotes, categoryKey)
-                .ifEmpty { allQuotes } // Fallback: lieber alles zeigen als einen komplett leeren Screen
+            binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
         }
 
-        quoteAdapter.updateQuotes(filtered)
+        quoteAdapter.updateQuotes(emptyList())
     }
 
-    /**
-     * Mappt deine englischen Kategorien (Society, Success, Work, Wisdom, Gratitude)
-     * auf die deutschen Kategorien aus deinem JSON (Weltanschauung, Motivation, Arbeit, Wissen, ...).
-     *
-     * Das ist eine pragmatische Zuordnung:
-     * - lieber leicht überlappende Gruppen als "perfekt logisch, aber leer".
-     */
-    private fun filterByCategoryKey(quotes: List<Quote>, key: String): List<Quote> {
-        val categoriesForKey: List<String> = when (key.lowercase()) {
-            // Gesellschaft, Politik, Gerechtigkeit, Freiheit
-            "society" -> listOf(
-                "Weltanschauung",
-                "Politik",
-                "Gerechtigkeit",
-                "Freiheit",
-                "Gleichheit"
-            )
+    private fun renderContent(quotes: List<Quote>) {
+        binding.progressLoading.isVisible = false
+        binding.layoutEmptyState.isVisible = false
+        binding.layoutErrorState.isVisible = false
+        binding.recyclerViewCollection.isVisible = true
 
-            // Erfolg, Motivation, Meisterschaft
-            "success" -> listOf(
-                "Erfolg",
-                "Motivation",
-                "Meisterschaft"
-            )
+        // Reset any previous error message
+        binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
 
-            // Arbeit & Produktivität
-            "work" -> listOf(
-                "Arbeit",
-                "Produktivität"
-            )
-
-            // Wissen, Weisheit, Philosophie, Bildung
-            "wisdom" -> listOf(
-                "Wissen",
-                "Weisheit",
-                "Philosophie",
-                "Bildung",
-                "Intelligenz"
-            )
-
-            // Dankbarkeit / positive Lebensperspektive
-            "gratitude" -> listOf(
-                "Leben",
-                "Liebe",
-                "Hoffnung",
-                "Inspiration",
-                "Träume"
-            )
-
-            else -> emptyList()
-        }
-
-        // Wenn für den Key keine Kategorien hinterlegt sind,
-        // geben wir die Liste unverändert zurück.
-        if (categoriesForKey.isEmpty()) return quotes
-
-        return quotes.filter { quote ->
-            categoriesForKey.any { mappedCategory ->
-                mappedCategory.equals(quote.category, ignoreCase = true)
-            }
-        }
+        quoteAdapter.updateQuotes(quotes)
     }
 
     override fun onDestroyView() {

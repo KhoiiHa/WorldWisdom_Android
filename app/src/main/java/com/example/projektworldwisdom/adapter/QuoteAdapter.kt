@@ -1,27 +1,50 @@
 package com.example.projektworldwisdom.adapter
 
-
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.ItemQuoteBinding
 import com.example.projektworldwisdom.model.Quote
+import com.google.android.material.color.MaterialColors
 
-class QuoteAdapter(private var quotes: List<Quote> = emptyList()) : RecyclerView.Adapter<QuoteAdapter.QuoteViewHolder>() {
+class QuoteAdapter(
+    private val onQuoteClick: ((Quote) -> Unit)? = null,
+    /**
+     * NEW (empfohlen): liefert den Ziel-Zustand (true = speichern, false = entfernen)
+     * → damit Home/Collection wirklich als Toggle funktionieren.
+     */
+    private val onFavoriteToggle: ((quote: Quote, isFavorite: Boolean) -> Unit)? = null,
+    /**
+     * Legacy: lässt bestehenden Code weiterlaufen.
+     * Wenn `onFavoriteToggle` gesetzt ist, wird diese Callback nicht mehr genutzt.
+     */
+    private val onFavoriteClick: ((Quote) -> Unit)? = null
+) : ListAdapter<Quote, QuoteAdapter.QuoteViewHolder>(DIFF_CALLBACK) {
 
-    inner class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
+    // Keeps the UI responsive while the ViewModel updates the source-of-truth list.
+    // Key = quote.id, Value = desired favorite state.
+    private val favoriteOverrides = mutableMapOf<String, Boolean>()
 
-    // Interface für den Klick-Listener
+    class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
+
+    /**
+     * Legacy-API (damit bestehender Code nicht kaputt geht).
+     * Kann später entfernt werden, wenn überall Lambdas genutzt werden.
+     */
     interface OnItemClickListener {
         fun onItemClick(quote: Quote)
     }
 
-    // Variable zum Speichern des Klick-Listeners
-    private var listener: OnItemClickListener? = null
+    private var legacyListener: OnItemClickListener? = null
 
-    // Methode zum Setzen des Klick-Listeners
     fun setOnItemClickListener(listener: OnItemClickListener) {
-        this.listener = listener
+        this.legacyListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
@@ -30,22 +53,114 @@ class QuoteAdapter(private var quotes: List<Quote> = emptyList()) : RecyclerView
     }
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
-        val currentQuote = quotes[position]
-        holder.binding.quoteText.text = currentQuote.quote
-        holder.binding.quoteAuthor.text = "- ${currentQuote.author}"
+        val quote = getItem(position)
 
-        // Klick-Listener hinzufügen
+        holder.binding.quoteText.text = quote.quote
+        holder.binding.quoteAuthor.text = "- ${quote.author}".trim()
+
+        // ⭐ Favoriten-Status anzeigen (Drawables + klare Tint-Logik)
+        val favoriteButton = holder.binding.btnFavorite
+        val displayFavorite = favoriteOverrides[quote.id] ?: quote.isFavorite
+        bindFavoriteState(favoriteButton, displayFavorite)
+
+        // ⭐ Toggle (optimistic UI + Source of Truth = ViewModel/submitList)
+        favoriteButton.setOnClickListener {
+            // Use the most compatible position API (works even if newer APIs are not available)
+            val pos = holder.adapterPosition
+            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+
+            val current = getItem(pos)
+            val currentDisplayedState = favoriteOverrides[current.id] ?: current.isFavorite
+            val newState = !currentDisplayedState
+
+            // Optimistic UI: update immediately.
+            favoriteOverrides[current.id] = newState
+            bindFavoriteState(favoriteButton, newState)
+
+            // NEW: Preferred toggle callback (lets the VM decide add/remove)
+            if (onFavoriteToggle != null) {
+                onFavoriteToggle.invoke(current, newState)
+            } else {
+                // Legacy behavior (existing screens might still call "toggleFavorite(quote)")
+                onFavoriteClick?.invoke(current)
+            }
+        }
+
+        // Item-Tap → Details
         holder.itemView.setOnClickListener {
-            listener?.onItemClick(currentQuote)
+            // Priorität: neue Lambda-API → fallback: alte Interface-API
+            onQuoteClick?.invoke(quote) ?: legacyListener?.onItemClick(quote)
         }
     }
 
-    override fun getItemCount(): Int {
-        return quotes.size
+    /**
+     * Kompatibel mit deinem bisherigen Code (Home/Collection rufen updateQuotes()).
+     * Intern nutzen wir ListAdapter + DiffUtil für saubere Updates.
+     */
+    private fun bindFavoriteState(button: AppCompatImageButton, isFavorite: Boolean) {
+        val starRes = if (isFavorite) {
+            R.drawable.ic_star_filled
+        } else {
+            R.drawable.ic_star_outline
+        }
+        button.setImageResource(starRes)
+
+        val tintColor = if (isFavorite) {
+            // Highlight color for saved quotes
+            ContextCompat.getColor(button.context, R.color.favorite_star_on)
+        } else {
+            // Neutral, theme-safe color for the outline state
+            MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSurfaceVariant)
+        }
+
+        button.imageTintList = ColorStateList.valueOf(tintColor)
+        button.alpha = 1f
     }
 
     fun updateQuotes(newQuotes: List<Quote>) {
-        this.quotes = newQuotes
-        notifyDataSetChanged()
+        // If the ViewModel list now matches our optimistic UI state, we can drop overrides.
+        for (q in newQuotes) {
+            val override = favoriteOverrides[q.id]
+            if (override != null && override == q.isFavorite) {
+                favoriteOverrides.remove(q.id)
+            }
+        }
+        submitList(newQuotes.toList())
+    }
+
+    override fun submitList(list: List<Quote>?) {
+        if (list == null) {
+            favoriteOverrides.clear()
+            super.submitList(null)
+            return
+        }
+
+        // Remove overrides that have been confirmed by the source-of-truth list.
+        for (q in list) {
+            val override = favoriteOverrides[q.id]
+            if (override != null && override == q.isFavorite) {
+                favoriteOverrides.remove(q.id)
+            }
+        }
+
+        // Also remove overrides for items that are no longer present.
+        val ids = list.asSequence().map { it.id }.toSet()
+        val toRemove = favoriteOverrides.keys.filter { it !in ids }
+        toRemove.forEach { favoriteOverrides.remove(it) }
+
+        super.submitList(list)
+    }
+
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Quote>() {
+            override fun areItemsTheSame(oldItem: Quote, newItem: Quote): Boolean {
+                // Falls du später eine stabile ID im Model hast (z.B. quoteId), kannst du hier darauf wechseln.
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Quote, newItem: Quote): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }

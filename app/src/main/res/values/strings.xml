@@ -21,6 +21,8 @@
     <string name="common_error_subtitle">Bitte versuche es später erneut.</string>
     <string name="common_error_title">Etwas ist schiefgelaufen</string>
     <string name="common_retry">Erneut versuchen</string>
+    <string name="quote_author_format">— %1$s</string>
+    <string name="search_hint">Suche nach Zitaten oder Autoren</string>
 
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>

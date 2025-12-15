@@ -22,16 +22,58 @@ class HomeViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    private val _userName = MutableLiveData<String>()
+    private val _userName = MutableLiveData("Guest")
     val userName: LiveData<String> = _userName
 
-    private val _dailyAffirmation = MutableLiveData<Quote>()
-    val dailyAffirmation: LiveData<Quote> = _dailyAffirmation
+    private val _dailyAffirmation = MutableLiveData<Quote?>(null)
+    val dailyAffirmation: LiveData<Quote?> = _dailyAffirmation
 
     private var allQuotesCache: List<Quote> = emptyList()
 
-    val _selectedAuthorSlug = MutableLiveData<String?>()
+    private var currentTag: String = "Alle"
+    private var currentQuery: String = ""
+
+    private fun applyFilters() {
+        val source = allQuotesCache
+        if (source.isEmpty()) {
+            _quotes.value = emptyList()
+            return
+        }
+
+        val lowerQuery = currentQuery.trim().lowercase()
+
+        val filtered = source
+            .asSequence()
+            .filter { quote ->
+                // Tag filter
+                currentTag.equals("Alle", ignoreCase = true) ||
+                        quote.tags.any { t -> t.equals(currentTag, ignoreCase = true) }
+            }
+            .filter { quote ->
+                // Search filter
+                lowerQuery.isBlank() ||
+                        quote.quote.lowercase().contains(lowerQuery) ||
+                        quote.author.lowercase().contains(lowerQuery)
+            }
+            .toList()
+
+        _quotes.value = filtered
+    }
+
+    private fun pickDailyAffirmation() {
+        _dailyAffirmation.value = if (allQuotesCache.isNotEmpty()) {
+            allQuotesCache.random()
+        } else {
+            null
+        }
+    }
+
+    private val _selectedAuthorSlug = MutableLiveData<String?>(null)
     val selectedAuthorSlug: LiveData<String?> = _selectedAuthorSlug
+
+    fun setSelectedAuthorSlug(slug: String?) {
+        _selectedAuthorSlug.value = slug
+    }
 
     fun clearError() {
         _error.value = null
@@ -49,13 +91,13 @@ class HomeViewModel : ViewModel() {
                 Log.d("HomeViewModel", "Fetched ${result.size} quotes from API")
 
                 allQuotesCache = result
-                _quotes.value = result
                 _error.value = null
 
-                // Wenn wir Zitate bekommen haben, wähle direkt eine tägliche Affirmation
-                if (result.isNotEmpty()) {
-                    _dailyAffirmation.value = result.random()
-                }
+                // Apply current filters (tag + search) to the fresh data
+                applyFilters()
+
+                // Daily affirmation from the full cache
+                pickDailyAffirmation()
             } catch (e: IOException) {
                 _error.value = "Netzwerkfehler: ${e.message}"
                 Log.e("HomeViewModel", "Network error fetching quotes", e)
@@ -72,62 +114,25 @@ class HomeViewModel : ViewModel() {
     }
 
     fun loadQuotesByTag(tag: String) {
-        _isLoading.value = true
-
-        val source = allQuotesCache
-        if (source.isEmpty()) {
-            _isLoading.value = false
-            _error.value = "Keine Zitate zum Filtern verfügbar."
-            return
-        }
-
-        val filtered = if (tag.equals("Alle", ignoreCase = true)) {
-            source
-        } else {
-            source.filter { quote ->
-                quote.tags.any { t -> t.equals(tag, ignoreCase = true) }
-            }
-        }
-
-        _quotes.value = filtered
+        currentTag = tag
         _error.value = null
-        _isLoading.value = false
+        applyFilters()
     }
 
     fun loadDailyAffirmation() {
-        val source = if (allQuotesCache.isNotEmpty()) {
-            allQuotesCache
-        } else {
-            _quotes.value.orEmpty()
-        }
-
-        if (source.isNotEmpty()) {
-            _dailyAffirmation.value = source.random()
-            _error.value = null
-        } else {
-            _error.value = "Keine Zitate für die tägliche Affirmation verfügbar."
+        if (allQuotesCache.isEmpty()) {
+            _dailyAffirmation.value = null
             Log.w("HomeViewModel", "No quotes available for daily affirmation")
-        }
-    }
-
-    fun searchQuotes(query: String) {
-        _isLoading.value = true
-
-        val source = allQuotesCache
-        if (source.isEmpty()) {
-            _isLoading.value = false
-            _error.value = "Keine Zitate zum Durchsuchen verfügbar."
             return
         }
 
-        val lowerQuery = query.trim().lowercase()
-        val filtered = source.filter { quote ->
-            quote.quote.lowercase().contains(lowerQuery) ||
-                    quote.author.lowercase().contains(lowerQuery)
-        }
-
-        _quotes.value = filtered
+        pickDailyAffirmation()
         _error.value = null
-        _isLoading.value = false
+    }
+
+    fun searchQuotes(query: String) {
+        currentQuery = query
+        _error.value = null
+        applyFilters()
     }
 }

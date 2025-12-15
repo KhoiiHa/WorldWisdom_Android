@@ -37,125 +37,133 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Content: Favoriten-Liste -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewCollection"
+    <!-- Content container: RecyclerView + States (Empty / Loading / Error) -->
+    <FrameLayout
+        android:id="@+id/collectionContentContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingBottom="24dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/tvCollectionSubtitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_quote" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Empty State (default: GONE) -->
-    <LinearLayout
-        android:id="@+id/layoutEmptyState"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:paddingHorizontal="24dp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/recyclerViewCollection"
-        app:layout_constraintBottom_toBottomOf="@id/recyclerViewCollection"
-        app:layout_constraintStart_toStartOf="@id/recyclerViewCollection"
-        app:layout_constraintEnd_toEndOf="@id/recyclerViewCollection"
-        tools:visibility="visible">
+        <!-- Content: Favoriten-Liste -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewCollection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="24dp"
+            android:overScrollMode="never"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_quote" />
 
-        <TextView
-            android:id="@+id/tvEmptyTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/collection_empty_title"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface" />
-
-        <TextView
-            android:id="@+id/tvEmptySubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:layout_marginHorizontal="24dp"
+        <!-- Empty State (default: GONE) -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/collection_empty_subtitle"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.7" />
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEmptyCta"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivEmptyIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="@null"
+                android:alpha="0.9"
+                android:src="@drawable/ic_star_outline"
+                app:tint="?attr/colorOnSurface" />
+
+            <TextView
+                android:id="@+id/tvEmptyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/collection_empty_title"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvEmptySubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/collection_empty_subtitle"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="14sp"
+                android:alpha="0.7" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEmptyCta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/collection_empty_cta"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp"
+                app:iconPadding="8dp" />
+
+        </LinearLayout>
+
+        <!-- Loading State (default: GONE) -->
+        <ProgressBar
+            android:id="@+id/progressLoading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/collection_empty_cta"
-            android:textAllCaps="false"
-            app:iconPadding="8dp" />
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:visibility="gone" />
 
-    </LinearLayout>
-
-    <!-- Loading State (default: GONE) -->
-    <ProgressBar
-        android:id="@+id/progressLoading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/recyclerViewCollection"
-        app:layout_constraintBottom_toBottomOf="@id/recyclerViewCollection"
-        app:layout_constraintStart_toStartOf="@id/recyclerViewCollection"
-        app:layout_constraintEnd_toEndOf="@id/recyclerViewCollection"
-        tools:visibility="gone" />
-
-    <!-- Error State (default: GONE) -->
-    <LinearLayout
-        android:id="@+id/layoutErrorState"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:paddingHorizontal="24dp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/recyclerViewCollection"
-        app:layout_constraintBottom_toBottomOf="@id/recyclerViewCollection"
-        app:layout_constraintStart_toStartOf="@id/recyclerViewCollection"
-        app:layout_constraintEnd_toEndOf="@id/recyclerViewCollection"
-        tools:visibility="gone">
-
-        <TextView
-            android:id="@+id/tvErrorTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/common_error_title"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface" />
-
-        <TextView
-            android:id="@+id/tvErrorSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:layout_marginHorizontal="24dp"
+        <!-- Error State (default: GONE) -->
+        <LinearLayout
+            android:id="@+id/layoutErrorState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/common_error_subtitle"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.7" />
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:visibility="gone"
+            tools:visibility="gone">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRetry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/common_retry"
-            android:textAllCaps="false"
-            style="?attr/materialButtonOutlinedStyle" />
+            <TextView
+                android:id="@+id/tvErrorTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/common_error_title"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tvErrorSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/common_error_subtitle"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="14sp"
+                android:alpha="0.7" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRetry"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/common_retry"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

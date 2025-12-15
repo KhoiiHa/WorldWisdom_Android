@@ -58,7 +58,6 @@ class CollectionFragment : Fragment() {
         binding.recyclerViewCollection.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = quoteAdapter
-            setHasFixedSize(true)
         }
     }
 
@@ -128,23 +127,39 @@ class CollectionFragment : Fragment() {
         }
     }
 
+    private fun setUiState(
+        showContent: Boolean,
+        showEmpty: Boolean,
+        showLoading: Boolean,
+        showError: Boolean
+    ) {
+        binding.recyclerViewCollection.isVisible = showContent
+        binding.layoutEmptyState.isVisible = showEmpty
+        binding.progressLoading.isVisible = showLoading
+        binding.layoutErrorState.isVisible = showError
+    }
+
     // --- UI State Rendering ---
 
     private fun renderLoading() {
-        binding.progressLoading.isVisible = true
-        binding.layoutEmptyState.isVisible = false
-        binding.layoutErrorState.isVisible = false
-        binding.recyclerViewCollection.isVisible = false
+        setUiState(
+            showContent = false,
+            showEmpty = false,
+            showLoading = true,
+            showError = false
+        )
 
         // Reset any previous error message (prevents stale text after leaving error state)
         binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
     }
 
     private fun renderEmpty() {
-        binding.progressLoading.isVisible = false
-        binding.layoutEmptyState.isVisible = true
-        binding.layoutErrorState.isVisible = false
-        binding.recyclerViewCollection.isVisible = false
+        setUiState(
+            showContent = false,
+            showEmpty = true,
+            showLoading = false,
+            showError = false
+        )
 
         // Reset any previous error message
         binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
@@ -153,10 +168,12 @@ class CollectionFragment : Fragment() {
     }
 
     private fun renderError(message: String?) {
-        binding.progressLoading.isVisible = false
-        binding.layoutEmptyState.isVisible = false
-        binding.layoutErrorState.isVisible = true
-        binding.recyclerViewCollection.isVisible = false
+        setUiState(
+            showContent = false,
+            showEmpty = false,
+            showLoading = false,
+            showError = true
+        )
 
         val msg = message?.takeIf { it.isNotBlank() }
         if (msg != null) {
@@ -169,10 +186,12 @@ class CollectionFragment : Fragment() {
     }
 
     private fun renderContent(quotes: List<Quote>) {
-        binding.progressLoading.isVisible = false
-        binding.layoutEmptyState.isVisible = false
-        binding.layoutErrorState.isVisible = false
-        binding.recyclerViewCollection.isVisible = true
+        setUiState(
+            showContent = true,
+            showEmpty = false,
+            showLoading = false,
+            showError = false
+        )
 
         // Reset any previous error message
         binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)

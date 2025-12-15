@@ -44,31 +44,33 @@
 
     </LinearLayout>
 
-    <!-- Search bar -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- Search bar (Material) -->
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/search_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="?attr/colorOutline"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
+        app:boxBackgroundColor="?attr/colorSurfaceContainerHighest"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxStrokeColor="?attr/colorOutline"
+        app:endIconMode="clear_text"
+        app:hintEnabled="false"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="?attr/colorOnSurface"
         app:layout_constraintTop_toBottomOf="@id/profile_section"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="10dp"
-            android:drawableTint="?attr/colorOnSurface"
             android:hint="Search quotes or authors"
             android:imeOptions="actionSearch"
             android:inputType="text"
@@ -78,10 +80,9 @@
             android:paddingBottom="14dp"
             android:singleLine="true"
             android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?android:attr/textColorHint"
-            android:textSize="16sp" />
+            android:textColorHint="?attr/colorOnSurface" />
 
-    </com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Daily Affirmation Card -->
     <com.google.android.material.card.MaterialCardView
@@ -240,8 +241,8 @@
         android:id="@+id/quotes_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
         android:paddingBottom="24dp"

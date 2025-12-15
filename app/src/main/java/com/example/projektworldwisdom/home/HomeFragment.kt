@@ -49,10 +49,6 @@ class HomeFragment : Fragment() {
             // aus dem aktuellen Quote-State abgeleitet wurde.
             onFavoriteToggle = { quote: Quote, _ ->
                 viewModel.toggleFavorite(quote)
-            },
-            // ✅ Fallback: falls du noch eine ältere Adapter-Signatur offen hast
-            onFavoriteClick = { quote: Quote ->
-                viewModel.toggleFavorite(quote)
             }
         )
 

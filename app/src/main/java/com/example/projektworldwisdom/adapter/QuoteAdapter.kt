@@ -43,6 +43,7 @@ class QuoteAdapter(
 
     private var legacyListener: OnItemClickListener? = null
 
+    @Suppress("unused")
     fun setOnItemClickListener(listener: OnItemClickListener) {
         this.legacyListener = listener
     }
@@ -56,7 +57,10 @@ class QuoteAdapter(
         val quote = getItem(position)
 
         holder.binding.quoteText.text = quote.quote
-        holder.binding.quoteAuthor.text = "- ${quote.author}".trim()
+        holder.binding.quoteAuthor.text = holder.itemView.context.getString(
+            R.string.quote_author_format,
+            quote.author
+        )
 
         // ⭐ Favoriten-Status anzeigen (Drawables + klare Tint-Logik)
         val favoriteButton = holder.binding.btnFavorite
@@ -66,7 +70,7 @@ class QuoteAdapter(
         // ⭐ Toggle (optimistic UI + Source of Truth = ViewModel/submitList)
         favoriteButton.setOnClickListener {
             // Use the most compatible position API (works even if newer APIs are not available)
-            val pos = holder.adapterPosition
+            val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
 
             val current = getItem(pos)

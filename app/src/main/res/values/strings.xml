@@ -27,4 +27,7 @@
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>
     <string name="daily_affirmation_text">%1$s\n\n— %2$s</string>
+    <string name="greeting_default">Guten Morgen 👋</string>
+    <string name="daily_affirmation_title">Daily Affirmation</string>
+    <string name="daily_affirmation_loading">Lade dein Tageszitat…</string>
 </resources>

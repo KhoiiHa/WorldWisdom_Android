@@ -1,12 +1,11 @@
 package com.example.projektworldwisdom.home
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -74,20 +73,10 @@ class HomeFragment : Fragment() {
         }
 
         // Suchfeld
-        binding.searchBar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // nicht benötigt
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                currentSearchQuery = s?.toString().orEmpty()
-                applyFilters()
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                // nicht benötigt
-            }
-        })
+        binding.searchBar.doOnTextChanged { text, _, _, _ ->
+            currentSearchQuery = text?.toString().orEmpty()
+            applyFilters()
+        }
 
         // Kategorie-Filter (Material Chips)
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
@@ -119,7 +108,7 @@ class HomeFragment : Fragment() {
         // Minimal & deterministisch: „Quote of the Day“ aus der vorhandenen Liste
         // Kein Over-Engineering, keine extra API.
         if (quotes.isEmpty()) {
-            binding.affirmationText.text = getString(R.string.loading_daily_quote)
+            binding.affirmationText.text = getString(R.string.daily_affirmation_loading)
             binding.dailyAffirmationCard.setOnClickListener(null)
             return
         }

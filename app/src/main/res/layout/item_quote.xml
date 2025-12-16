@@ -44,10 +44,10 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:contentDescription="@string/content_desc_favorite"
+            android:contentDescription="@string/content_desc_favorite_add"
             android:focusable="true"
             android:padding="12dp"
-            app:tint="?attr/colorOnSurface"
+            app:tint="?attr/colorOnSurfaceVariant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/quote_text"
             app:srcCompat="@drawable/ic_star_outline" />

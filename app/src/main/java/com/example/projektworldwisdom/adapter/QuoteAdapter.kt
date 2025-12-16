@@ -109,6 +109,14 @@ class QuoteAdapter(
         }
         button.setImageResource(starRes)
 
+        // Accessibility: announce the correct action depending on state
+        val contentDescRes = if (isFavorite) {
+            R.string.content_desc_favorite_remove
+        } else {
+            R.string.content_desc_favorite_add
+        }
+        button.contentDescription = button.context.getString(contentDescRes)
+
         val tintColor = if (isFavorite) {
             // Highlight color for saved quotes
             ContextCompat.getColor(button.context, R.color.favorite_star_on)

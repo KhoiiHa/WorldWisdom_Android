@@ -20,6 +20,87 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     private val quoteRepository: QuoteRepository = QuoteRepository(quoteApi)
 
     // ------------------------------------------------------------------------
+    // HOME FILTER STATE (Phase 2) — Kategorie + Suche (ohne Over-Engineering)
+    // ------------------------------------------------------------------------
+
+    enum class CategoryFilter {
+        ALL, SOCIETY, SUCCESS, WORK, WISDOM, GRATITUDE
+    }
+
+    /**
+     * Mapping: UI-Chip (CategoryFilter) -> echte Quote-Kategorien aus der API.
+     * (Einmal definiert, damit wir bei jedem Recompute nicht neue Sets bauen.)
+     */
+    private val categoryMappings: Map<CategoryFilter, Set<String>> = mapOf(
+        CategoryFilter.SOCIETY to setOf(
+            "Weltanschauung",
+            "Politik",
+            "Gerechtigkeit",
+            "Freiheit",
+            "Gleichheit",
+            "Wahrheit",
+            "Charakter",
+            "Zusammenarbeit"
+        ),
+        CategoryFilter.SUCCESS to setOf(
+            "Erfolg",
+            "Motivation",
+            "Meisterschaft",
+            "Herausforderungen",
+            "Zweifel",
+            "Entscheidungen"
+        ),
+        CategoryFilter.WORK to setOf(
+            "Arbeit",
+            "Produktivität",
+            "Innovation",
+            "Problemlösung"
+        ),
+        CategoryFilter.WISDOM to setOf(
+            "Wissen",
+            "Weisheit",
+            "Philosophie",
+            "Bildung",
+            "Wissenschaft",
+            "Intelligenz",
+            "Fragen",
+            "Fehler",
+            "Zeit",
+            "Menschlichkeit",
+            "Selbstkenntnis",
+            "Selbstentdeckung"
+        ),
+        CategoryFilter.GRATITUDE to setOf(
+            "Leben",
+            "Leben und Prioritäten",
+            "Liebe",
+            "Liebe und Mitgefühl",
+            "Hoffnung",
+            "Frieden",
+            "Gewaltlosigkeit",
+            "Veränderung",
+            "Inspiration",
+            "Träume",
+            "Zukunft",
+            "Kreativität",
+            "Verführung"
+        )
+    )
+
+    private val _selectedCategoryFilter = MutableLiveData(CategoryFilter.ALL)
+    val selectedCategoryFilter: LiveData<CategoryFilter> = _selectedCategoryFilter
+
+    private val _searchQuery = MutableLiveData("")
+    val searchQuery: LiveData<String> = _searchQuery
+
+    /**
+     * Gefilterte Liste für den Home-Screen.
+     * Quelle: `_quotes` (inkl. isFavorite-Status) + selectedCategoryFilter + searchQuery
+     */
+    private val _filteredQuotes = MediatorLiveData<List<Quote>>().apply { value = emptyList() }
+    val filteredQuotes: LiveData<List<Quote>> = _filteredQuotes
+
+    // ------------------------------------------------------------------------
     // FAVORITES (persistiert, aber bewusst "lightweight")
     // ------------------------------------------------------------------------
 
@@ -60,6 +141,11 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             recomputeFavoriteQuotes()
         }
 
+        // Home Filter (Phase 2): immer konsistent halten
+        _filteredQuotes.addSource(_quotes) { recomputeFilteredQuotes() }
+        _filteredQuotes.addSource(_selectedCategoryFilter) { recomputeFilteredQuotes() }
+        _filteredQuotes.addSource(_searchQuery) { recomputeFilteredQuotes() }
+
         // Beim Start direkt Zitate laden
         loadQuotes()
     }
@@ -90,6 +176,26 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun clearError() {
         _error.value = null
+    }
+
+    // ------------------------------------------------------------------------
+    // HOME FILTER API (Phase 2)
+    // ------------------------------------------------------------------------
+
+    fun setCategoryFilter(filter: CategoryFilter) {
+        if (_selectedCategoryFilter.value == filter) return
+        _selectedCategoryFilter.value = filter
+    }
+
+    fun setSearchQuery(query: String) {
+        val normalized = query.trim()
+        if (_searchQuery.value == normalized) return
+        _searchQuery.value = normalized
+    }
+
+    fun resetHomeFilters() {
+        _selectedCategoryFilter.value = CategoryFilter.ALL
+        _searchQuery.value = ""
     }
 
     /**
@@ -157,6 +263,32 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // ------------------------------------------------------------------------
     // INTERNAL HELPERS
     // ------------------------------------------------------------------------
+
+    private fun recomputeFilteredQuotes() {
+        val base = _quotes.value.orEmpty()
+        val filter = _selectedCategoryFilter.value ?: CategoryFilter.ALL
+        val search = _searchQuery.value.orEmpty()
+
+        val categoriesForFilter: Set<String> = categoryMappings[filter].orEmpty()
+
+        val filtered = base
+            .asSequence()
+            .filter { quote ->
+                if (categoriesForFilter.isEmpty()) true
+                else categoriesForFilter.any { mapped -> mapped.equals(quote.category, ignoreCase = true) }
+            }
+            .filter { quote ->
+                if (search.isBlank()) true
+                else {
+                    quote.quote.contains(search, ignoreCase = true) ||
+                        quote.author.contains(search, ignoreCase = true) ||
+                        quote.category.contains(search, ignoreCase = true)
+                }
+            }
+            .toList()
+
+        _filteredQuotes.value = filtered
+    }
 
     private fun publishQuotesWithFavorites() {
         val favorites = _favoriteKeys.value.orEmpty()

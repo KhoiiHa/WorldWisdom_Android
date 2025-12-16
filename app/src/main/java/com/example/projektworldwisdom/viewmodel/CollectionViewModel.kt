@@ -29,7 +29,7 @@ class CollectionViewModel : ViewModel() {
      * Wird vom Fragment/SharedViewModel gefüttert, sobald sich die Favoriten ändern.
      */
     fun setFavorites(favorites: List<Quote>) {
-        _quotes.value = favorites
+        _quotes.value = favorites.toList()
         _error.value = null
         _isLoading.value = false
     }

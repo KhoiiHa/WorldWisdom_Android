@@ -25,9 +25,9 @@ class HomeFragment : Fragment() {
     private val viewModel: SharedViewModel by activityViewModels()
     private lateinit var quotesAdapter: QuoteAdapter
 
-    private var allQuotes: List<Quote> = emptyList()
-    private var currentCategoryKey: String? = null
-    private var currentSearchQuery: String = ""
+    // Guards to prevent feedback loops when we update UI from LiveData observers
+    private var isProgrammaticSearchUpdate = false
+    private var isProgrammaticChipUpdate = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +53,7 @@ class HomeFragment : Fragment() {
 
         binding.quotesList.layoutManager = LinearLayoutManager(requireContext())
         binding.quotesList.adapter = quotesAdapter
+        binding.quotesList.setHasFixedSize(true)
 
         return binding.root
     }
@@ -65,34 +66,73 @@ class HomeFragment : Fragment() {
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Zitate-Liste beobachten
+        // Basis-Quotes (für Daily Affirmation)
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            allQuotes = quotes ?: emptyList()
-            applyFilters()
-            renderDailyAffirmation(allQuotes)
+            renderDailyAffirmation(quotes.orEmpty())
         }
 
-        // Suchfeld
+        // Gefilterte Quotes (Phase 2) — Home Feed
+        viewModel.filteredQuotes.observe(viewLifecycleOwner) { quotes ->
+            quotesAdapter.updateQuotes(quotes.orEmpty())
+        }
+
+        // Suchfeld → ViewModel (Phase 2)
         binding.searchBar.doOnTextChanged { text, _, _, _ ->
-            currentSearchQuery = text?.toString().orEmpty()
-            applyFilters()
+            if (isProgrammaticSearchUpdate) return@doOnTextChanged
+            viewModel.setSearchQuery(text?.toString().orEmpty())
         }
 
-        // Kategorie-Filter (Material Chips)
+        // Restore UI state when returning (z.B. nach Navigation)
+        viewModel.searchQuery.observe(viewLifecycleOwner) { query ->
+            val current = binding.searchBar.text?.toString().orEmpty()
+            if (current != query) {
+                isProgrammaticSearchUpdate = true
+                binding.searchBar.setText(query)
+                // Keep cursor at end for a nicer UX
+                binding.searchBar.setSelection(binding.searchBar.text?.length ?: 0)
+                isProgrammaticSearchUpdate = false
+            }
+        }
+
+        // Kategorie-Filter (Material Chips) → ViewModel (Phase 2)
+        // Defensive: sorgt für konsistentes Verhalten, auch wenn XML mal nicht gesetzt ist.
+        binding.chipGroupFilters.isSingleSelection = true
+
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (isProgrammaticChipUpdate) return@setOnCheckedStateChangeListener
+
             val checkedId = checkedIds.firstOrNull() ?: View.NO_ID
 
-            currentCategoryKey = when (checkedId) {
-                R.id.filter_Society -> "society"
-                R.id.filter_success -> "success"
-                R.id.filter_work -> "work"
-                R.id.filter_wisdom -> "wisdom"
-                R.id.filter_gratitude -> "gratitude"
-                R.id.filter_alle, View.NO_ID -> null
-                else -> null
+            val filter = when (checkedId) {
+                R.id.filter_society -> SharedViewModel.CategoryFilter.SOCIETY
+                R.id.filter_success -> SharedViewModel.CategoryFilter.SUCCESS
+                R.id.filter_work -> SharedViewModel.CategoryFilter.WORK
+                R.id.filter_wisdom -> SharedViewModel.CategoryFilter.WISDOM
+                R.id.filter_gratitude -> SharedViewModel.CategoryFilter.GRATITUDE
+                R.id.filter_alle, View.NO_ID -> SharedViewModel.CategoryFilter.ALL
+                else -> SharedViewModel.CategoryFilter.ALL
             }
 
-            applyFilters()
+            viewModel.setCategoryFilter(filter)
+        }
+
+        // Restore UI state when returning
+        viewModel.selectedCategoryFilter.observe(viewLifecycleOwner) { filter ->
+            val targetChipId = when (filter) {
+                SharedViewModel.CategoryFilter.SOCIETY -> R.id.filter_society
+                SharedViewModel.CategoryFilter.SUCCESS -> R.id.filter_success
+                SharedViewModel.CategoryFilter.WORK -> R.id.filter_work
+                SharedViewModel.CategoryFilter.WISDOM -> R.id.filter_wisdom
+                SharedViewModel.CategoryFilter.GRATITUDE -> R.id.filter_gratitude
+                else -> R.id.filter_alle
+            }
+
+            // Avoid redundant check updates + prevent feedback loop
+            if (binding.chipGroupFilters.checkedChipId != targetChipId) {
+                isProgrammaticChipUpdate = true
+                binding.chipGroupFilters.check(targetChipId)
+                isProgrammaticChipUpdate = false
+            }
         }
 
         // Fehler anzeigen & danach zurücksetzen
@@ -130,104 +170,6 @@ class HomeFragment : Fragment() {
                 .actionHomeFragmentToAuthorDetailsFragment(quote.author)
             findNavController().navigate(action)
         }
-    }
-
-    private fun applyFilters() {
-        val search = currentSearchQuery.trim()
-        val key = currentCategoryKey
-
-        val mappedCategories: List<String> = when (key) {
-
-            // Society: Gesellschaft, Werte, Politik, Gerechtigkeit
-            "society" -> listOf(
-                "Weltanschauung",
-                "Politik",
-                "Gerechtigkeit",
-                "Freiheit",
-                "Gleichheit",
-                "Wahrheit",
-                "Charakter",
-                "Zusammenarbeit"
-            )
-
-            // Success: Erfolg, Motivation, Herausforderungen, Dranbleiben
-            "success" -> listOf(
-                "Erfolg",
-                "Motivation",
-                "Meisterschaft",
-                "Herausforderungen",
-                "Zweifel",
-                "Entscheidungen"
-            )
-
-            // Work: Arbeit & Umsetzung
-            "work" -> listOf(
-                "Arbeit",
-                "Produktivität",
-                "Innovation",
-                "Problemlösung"
-            )
-
-            // Wisdom: Wissen, Philosophie, Lernen, Wissenschaft
-            "wisdom" -> listOf(
-                "Wissen",
-                "Weisheit",
-                "Philosophie",
-                "Bildung",
-                "Wissenschaft",
-                "Intelligenz",
-                "Fragen",
-                "Fehler",
-                "Zeit",
-                "Menschlichkeit",
-                "Selbstkenntnis",
-                "Selbstentdeckung"
-            )
-
-            // Gratitude: Leben, Liebe, Hoffnung, Frieden, Veränderung
-            "gratitude" -> listOf(
-                "Leben",
-                "Leben und Prioritäten",
-                "Liebe",
-                "Liebe und Mitgefühl",
-                "Hoffnung",
-                "Frieden",
-                "Gewaltlosigkeit",
-                "Veränderung",
-                "Inspiration",
-                "Träume",
-                "Zukunft",
-                "Kreativität",
-                "Verführung"
-            )
-
-            else -> emptyList() // "Alle"
-        }
-
-        val filtered = allQuotes
-            .asSequence()
-            .filter { quote ->
-                // Kategorie-Filter
-                if (mappedCategories.isEmpty()) {
-                    true
-                } else {
-                    mappedCategories.any { mapped ->
-                        mapped.equals(quote.category, ignoreCase = true)
-                    }
-                }
-            }
-            .filter { quote ->
-                // Search-Filter
-                if (search.isEmpty()) {
-                    true
-                } else {
-                    quote.quote.contains(search, ignoreCase = true) ||
-                        quote.author.contains(search, ignoreCase = true)
-                }
-            }
-            .toList()
-
-        quotesAdapter.updateQuotes(filtered)
     }
 
     override fun onDestroyView() {

@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
+// NOTE (Phase 2): Home nutzt jetzt SharedViewModel für Kategorie/Suche-Filter (filteredQuotes).
+// Dieses ViewModel ist vorerst noch drin, um den Übergang sauber zu halten.
 class HomeViewModel : ViewModel() {
 
     private val _quotes = MutableLiveData<List<Quote>>()

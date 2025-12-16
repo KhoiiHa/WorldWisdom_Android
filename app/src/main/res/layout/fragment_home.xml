@@ -59,10 +59,13 @@
         app:boxCornerRadiusTopEnd="16dp"
         app:boxCornerRadiusTopStart="16dp"
         app:boxStrokeColor="?attr/colorOutline"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="2dp"
         app:endIconMode="clear_text"
-        app:hintEnabled="false"
+        app:hintEnabled="true"
+        android:hint="@string/search_hint"
         app:startIconDrawable="@android:drawable/ic_menu_search"
-        app:startIconTint="?attr/colorOnSurface"
+        app:startIconTint="?attr/colorOnSurfaceVariant"
         app:layout_constraintTop_toBottomOf="@id/profile_section"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -71,16 +74,15 @@
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/search_hint"
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:paddingStart="16dp"
-            android:paddingTop="14dp"
+            android:paddingTop="12dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="14dp"
+            android:paddingBottom="12dp"
             android:singleLine="true"
             android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurface" />
+            android:textColorHint="?attr/colorOnSurfaceVariant" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -170,17 +172,24 @@
             app:singleSelection="true"
             app:selectionRequired="true"
             app:singleLine="true"
-            app:chipSpacingHorizontal="10dp">
+            app:chipSpacingHorizontal="8dp"
+            app:chipSpacingVertical="8dp">
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/filter_Society"
+                android:id="@+id/filter_society"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Gesellschaft"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
-                app:chipCornerRadius="18dp" />
+                app:chipCornerRadius="18dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="?attr/colorOnSurface"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorOutline" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_success"
@@ -190,7 +199,13 @@
                 android:text="Erfolg"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
-                app:chipCornerRadius="18dp" />
+                app:chipCornerRadius="18dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="?attr/colorOnSurface"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorOutline" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_work"
@@ -200,7 +215,13 @@
                 android:text="Arbeit"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
-                app:chipCornerRadius="18dp" />
+                app:chipCornerRadius="18dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="?attr/colorOnSurface"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorOutline" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_wisdom"
@@ -210,7 +231,13 @@
                 android:text="Wissen"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
-                app:chipCornerRadius="18dp" />
+                app:chipCornerRadius="18dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="?attr/colorOnSurface"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorOutline" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_gratitude"
@@ -220,7 +247,13 @@
                 android:text="Dankbarkeit"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
-                app:chipCornerRadius="18dp" />
+                app:chipCornerRadius="18dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="?attr/colorOnSurface"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorOutline" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_alle"
@@ -231,7 +264,13 @@
                 android:textAllCaps="false"
                 android:checked="true"
                 app:checkedIconVisible="false"
-                app:chipCornerRadius="18dp" />
+                app:chipCornerRadius="18dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="?attr/colorOnSurface"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="?attr/colorOutline" />
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
@@ -246,6 +285,7 @@
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
         android:paddingBottom="24dp"
+        android:paddingTop="4dp"
         app:layout_constraintTop_toBottomOf="@id/filter_bar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

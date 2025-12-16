@@ -20,11 +20,12 @@ class CollectionFragment : Fragment() {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
 
-    // Gemeinsames ViewModel (liefert aktuell die Quote-Liste aus der API)
+    // Shared app state (favorites + loading + error)
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
     private lateinit var quoteAdapter: QuoteAdapter
 
+    // Local UI state snapshot (keeps this Fragment lean, no extra ViewModel needed)
     private var latestFavorites: List<Quote> = emptyList()
     private var latestError: String? = null
     private var latestLoading: Boolean = false
@@ -43,14 +44,13 @@ class CollectionFragment : Fragment() {
 
         setupRecyclerView()
         setupActions()
-
         setupObservers()
     }
 
     private fun setupRecyclerView() {
         quoteAdapter = QuoteAdapter(
             onFavoriteClick = { quote: Quote ->
-                // In Favorites-Screen bedeutet ⭐-Klick: entfernen/hinzufügen (toggle)
+                // In Favorites screen: ⭐ toggles add/remove
                 sharedViewModel.toggleFavorite(quote)
             }
         )
@@ -58,20 +58,16 @@ class CollectionFragment : Fragment() {
         binding.recyclerViewCollection.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = quoteAdapter
+            setHasFixedSize(true)
         }
     }
 
     private fun setupActions() {
-        // Empty CTA → zurück zu Home (Entdecken)
-        binding.btnEmptyCta.setOnClickListener {
-            navigateToHome()
-        }
+        // Empty CTA → back to Home
+        binding.btnEmptyCta.setOnClickListener { navigateToHome() }
 
-        // Retry → nochmal den aktuellen Zustand auswerten
-        // (Später: ViewModel.triggerReload())
-        binding.btnRetry.setOnClickListener {
-            retryRender()
-        }
+        // Retry → clear error + reload
+        binding.btnRetry.setOnClickListener { retryRender() }
     }
 
     private fun setupObservers() {
@@ -87,27 +83,21 @@ class CollectionFragment : Fragment() {
 
         sharedViewModel.favoriteQuotes.observe(viewLifecycleOwner) { favorites ->
             latestFavorites = favorites.orEmpty()
-            if (latestFavorites.isNotEmpty()) {
-                latestError = null
-            }
+            // If we have favorites, we prefer showing them over a stale error
+            if (latestFavorites.isNotEmpty()) latestError = null
             renderFromState()
         }
     }
 
     private fun renderFromState() {
+        updateHeaderCount(latestFavorites.size)
+
         when {
-            latestLoading -> {
-                renderLoading()
-            }
-            latestFavorites.isNotEmpty() -> {
-                renderContent(latestFavorites)
-            }
-            latestError != null -> {
-                renderError(latestError)
-            }
-            else -> {
-                renderEmpty()
-            }
+            // Prefer showing content if we have it (even if a background reload is happening)
+            latestFavorites.isNotEmpty() -> renderContent(latestFavorites)
+            latestLoading -> renderLoading()
+            latestError != null -> renderError(latestError)
+            else -> renderEmpty()
         }
     }
 
@@ -115,6 +105,7 @@ class CollectionFragment : Fragment() {
         latestError = null
         sharedViewModel.clearError()
         sharedViewModel.loadQuotes()
+        renderFromState()
     }
 
     private fun navigateToHome() {
@@ -139,6 +130,12 @@ class CollectionFragment : Fragment() {
         binding.layoutErrorState.isVisible = showError
     }
 
+    private fun updateHeaderCount(count: Int) {
+        // Minimal: show count only if > 0
+        binding.tvCollectionCount.isVisible = count > 0
+        binding.tvCollectionCount.text = if (count > 0) count.toString() else ""
+    }
+
     // --- UI State Rendering ---
 
     private fun renderLoading() {
@@ -149,8 +146,11 @@ class CollectionFragment : Fragment() {
             showError = false
         )
 
-        // Reset any previous error message (prevents stale text after leaving error state)
+        // Prevent stale error text
         binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
+
+        // Optional: clear list while loading
+        quoteAdapter.updateQuotes(emptyList())
     }
 
     private fun renderEmpty() {
@@ -161,9 +161,7 @@ class CollectionFragment : Fragment() {
             showError = false
         )
 
-        // Reset any previous error message
         binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
-
         quoteAdapter.updateQuotes(emptyList())
     }
 
@@ -193,9 +191,7 @@ class CollectionFragment : Fragment() {
             showError = false
         )
 
-        // Reset any previous error message
         binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
-
         quoteAdapter.updateQuotes(quotes)
     }
 

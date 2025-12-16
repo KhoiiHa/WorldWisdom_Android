@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">Project WorldWisdom</string>
+    <string name="app_name">WorldWisdom</string>
     <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
     <string name="content_desc_favorite">Zu Favoriten hinzufügen</string>
+    <string name="content_desc_favorite_add">Zu Favoriten hinzufügen</string>
+    <string name="content_desc_favorite_remove">Aus Favoriten entfernen</string>
 
     <!-- Collection (Favorites) -->
     <string name="collection_title">Favoriten</string>
@@ -22,7 +24,7 @@
     <string name="common_error_title">Etwas ist schiefgelaufen</string>
     <string name="common_retry">Erneut versuchen</string>
     <string name="quote_author_format">— %1$s</string>
-    <string name="search_hint">Suche nach Zitaten oder Autoren</string>
+    <string name="search_hint">Suche nach Zitaten, Autoren oder Tags</string>
 
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>

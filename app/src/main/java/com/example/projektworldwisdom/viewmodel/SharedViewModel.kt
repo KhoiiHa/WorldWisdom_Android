@@ -2,6 +2,7 @@ package com.example.projektworldwisdom.viewmodel
 
 import android.app.Application
 import android.content.Context
+import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -32,6 +33,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
      * (Einmal definiert, damit wir bei jedem Recompute nicht neue Sets bauen.)
      */
     private val categoryMappings: Map<CategoryFilter, Set<String>> = mapOf(
+        CategoryFilter.ALL to emptySet(),
         CategoryFilter.SOCIETY to setOf(
             "Weltanschauung",
             "Politik",
@@ -194,8 +196,23 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun resetHomeFilters() {
-        _selectedCategoryFilter.value = CategoryFilter.ALL
-        _searchQuery.value = ""
+        setCategoryFilter(CategoryFilter.ALL)
+        clearSearchQuery()
+    }
+
+    /**
+     * UX-Helper: Nur das Suchfeld leeren (z.B. wenn Nutzer auf "X" klickt).
+     */
+    fun clearSearchQuery() {
+        setSearchQuery("")
+    }
+
+    /**
+     * UX-Helper: Wird vom "Entdecken"-CTA im Collection-Empty-State verwendet.
+     * (Kein Navigation-Wissen im ViewModel – nur State resetten.)
+     */
+    fun resetExplore() {
+        resetHomeFilters()
     }
 
     /**
@@ -309,7 +326,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun saveFavoriteKeys(keys: Set<String>) {
         // SharedPreferences erwartet ein MutableSet, aber wir speichern immer defensiv eine Kopie.
-        prefs.edit().putStringSet(KEY_FAVORITES, keys.toMutableSet()).apply()
+        prefs.edit {
+            putStringSet(KEY_FAVORITES, keys.toMutableSet())
+        }
     }
 
     // ------------------------------------------------------------------------

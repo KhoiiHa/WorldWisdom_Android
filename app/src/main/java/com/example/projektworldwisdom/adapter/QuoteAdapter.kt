@@ -130,13 +130,8 @@ class QuoteAdapter(
     }
 
     fun updateQuotes(newQuotes: List<Quote>) {
-        // If the ViewModel list now matches our optimistic UI state, we can drop overrides.
-        for (q in newQuotes) {
-            val override = favoriteOverrides[q.id]
-            if (override != null && override == q.isFavorite) {
-                favoriteOverrides.remove(q.id)
-            }
-        }
+        // Compatibility helper for existing screens (Home/Collection).
+        // `submitList()` already clears optimistic overrides once the source-of-truth list confirms them.
         submitList(newQuotes.toList())
     }
 

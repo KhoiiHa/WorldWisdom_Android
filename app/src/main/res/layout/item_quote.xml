@@ -7,50 +7,57 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="24dp"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="14dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
+    app:cardElevation="1dp"
     app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="18dp">
+
+        <!-- Favorite (star) button: fixed to top-right with safe touch target -->
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnFavorite"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/content_desc_favorite_add"
+            android:focusable="true"
+            android:padding="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_star_outline"
+            app:tint="?attr/colorOnSurfaceVariant" />
 
         <!-- Quote text -->
         <TextView
             android:id="@+id/quote_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:lineSpacingExtra="2dp"
+            android:layout_marginEnd="10dp"
+            android:ellipsize="end"
+            android:lineSpacingExtra="3dp"
+            android:maxLines="5"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
+            android:includeFontPadding="false"
             app:layout_constraintEnd_toStartOf="@id/btnFavorite"
-            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Phantasie ist wichtiger als Wissen, denn Wissen ist begrenzt." />
-
-        <!-- Favorite (star) button -->
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnFavorite"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="@string/content_desc_favorite_add"
-            android:focusable="true"
-            android:padding="12dp"
-            app:tint="?attr/colorOnSurfaceVariant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/quote_text"
-            app:srcCompat="@drawable/ic_star_outline" />
+            tools:text="Phantasie ist wichtiger als Wissen, denn Wissen ist begrenzt. Ohne Phantasie wären wir nicht in der Lage, Neues zu entdecken." />
 
         <!-- Author -->
         <TextView
@@ -59,10 +66,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="end"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.85"
-            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="13sp"
             android:textStyle="italic"
+            android:includeFontPadding="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/quote_text"

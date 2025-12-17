@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projektworldwisdom.R
@@ -63,8 +64,11 @@ class CollectionFragment : Fragment() {
     }
 
     private fun setupActions() {
-        // Empty CTA → back to Home
-        binding.btnEmptyCta.setOnClickListener { navigateToHome() }
+        // Empty CTA → Reset Explore (Home filters + search) and go back to Home
+        binding.btnEmptyCta.setOnClickListener {
+            sharedViewModel.resetExplore()
+            navigateToHome()
+        }
 
         // Retry → clear error + reload
         binding.btnRetry.setOnClickListener { retryRender() }
@@ -114,7 +118,10 @@ class CollectionFragment : Fragment() {
         // Prefer popping back to Home if it exists in the back stack.
         val popped = navController.popBackStack(R.id.homeFragment, false)
         if (!popped) {
-            navController.navigate(R.id.homeFragment)
+            val options = NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .build()
+            navController.navigate(R.id.homeFragment, null, options)
         }
     }
 
@@ -131,9 +138,13 @@ class CollectionFragment : Fragment() {
     }
 
     private fun updateHeaderCount(count: Int) {
-        // Minimal: show count only if > 0
+        // Show a human-friendly count (e.g., “3 Favoriten”) only when > 0
         binding.tvCollectionCount.isVisible = count > 0
-        binding.tvCollectionCount.text = if (count > 0) count.toString() else ""
+        binding.tvCollectionCount.text = if (count > 0) {
+            resources.getQuantityString(R.plurals.collection_favorites_count, count, count)
+        } else {
+            ""
+        }
     }
 
     // --- UI State Rendering ---
@@ -145,9 +156,6 @@ class CollectionFragment : Fragment() {
             showLoading = true,
             showError = false
         )
-
-        // Prevent stale error text
-        binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
 
         // Optional: clear list while loading
         quoteAdapter.updateQuotes(emptyList())
@@ -161,7 +169,6 @@ class CollectionFragment : Fragment() {
             showError = false
         )
 
-        binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
         quoteAdapter.updateQuotes(emptyList())
     }
 
@@ -191,7 +198,6 @@ class CollectionFragment : Fragment() {
             showError = false
         )
 
-        binding.tvErrorSubtitle.setText(R.string.common_error_subtitle)
         quoteAdapter.updateQuotes(quotes)
     }
 

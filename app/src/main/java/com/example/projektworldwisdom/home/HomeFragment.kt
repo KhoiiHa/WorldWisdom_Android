@@ -1,9 +1,13 @@
 package com.example.projektworldwisdom.home
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -82,6 +86,19 @@ class HomeFragment : Fragment() {
             viewModel.setSearchQuery(text?.toString().orEmpty())
         }
 
+        // IME Search: Keyboard schließen + Fokus entfernen
+        binding.searchBar.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyboard(v)
+                v.clearFocus()
+                // Kleiner UX-Boost: nach „Suchen“ wieder oben anfangen
+                binding.quotesList.scrollToPosition(0)
+                true
+            } else {
+                false
+            }
+        }
+
         // Restore UI state when returning (z.B. nach Navigation)
         viewModel.searchQuery.observe(viewLifecycleOwner) { query ->
             val current = binding.searchBar.text?.toString().orEmpty()
@@ -91,6 +108,13 @@ class HomeFragment : Fragment() {
                 // Keep cursor at end for a nicer UX
                 binding.searchBar.setSelection(binding.searchBar.text?.length ?: 0)
                 isProgrammaticSearchUpdate = false
+
+                // Wenn wir per Reset auf "leer" gehen: Keyboard zu + Liste nach oben
+                if (query.isBlank()) {
+                    hideKeyboard(binding.searchBar)
+                    binding.searchBar.clearFocus()
+                    binding.quotesList.scrollToPosition(0)
+                }
             }
         }
 
@@ -100,7 +124,6 @@ class HomeFragment : Fragment() {
 
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
             if (isProgrammaticChipUpdate) return@setOnCheckedStateChangeListener
-
             val checkedId = checkedIds.firstOrNull() ?: View.NO_ID
 
             val filter = when (checkedId) {
@@ -114,6 +137,7 @@ class HomeFragment : Fragment() {
             }
 
             viewModel.setCategoryFilter(filter)
+            binding.quotesList.scrollToPosition(0)
         }
 
         // Restore UI state when returning
@@ -144,11 +168,14 @@ class HomeFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun renderDailyAffirmation(quotes: List<Quote>) {
         // Minimal & deterministisch: „Quote of the Day“ aus der vorhandenen Liste
         // Kein Over-Engineering, keine extra API.
         if (quotes.isEmpty()) {
             binding.affirmationText.text = getString(R.string.daily_affirmation_loading)
+            binding.affirmationAuthor.text = ""
+            binding.affirmationHint.visibility = View.GONE
             binding.dailyAffirmationCard.setOnClickListener(null)
             return
         }
@@ -157,12 +184,10 @@ class HomeFragment : Fragment() {
         val index = dayOfYear % quotes.size
         val quote = quotes[index]
 
-        // Ein TextView reicht: Quote + Autor, damit wir kein zusätzliches Layout brauchen.
-        binding.affirmationText.text = getString(
-            R.string.daily_affirmation_text,
-            quote.quote,
-            quote.author
-        )
+        // Card Content
+        binding.affirmationText.text = quote.quote
+        binding.affirmationAuthor.text = "– ${quote.author}"
+        binding.affirmationHint.visibility = View.VISIBLE
 
         // Tap auf die Card → Author Details
         binding.dailyAffirmationCard.setOnClickListener {
@@ -170,6 +195,11 @@ class HomeFragment : Fragment() {
                 .actionHomeFragmentToAuthorDetailsFragment(quote.author)
             findNavController().navigate(action)
         }
+    }
+
+    private fun hideKeyboard(view: View) {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun onDestroyView() {

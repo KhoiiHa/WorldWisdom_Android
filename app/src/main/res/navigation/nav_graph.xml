@@ -34,7 +34,8 @@
         android:label="@string/nav_profile" >
         <action
             android:id="@+id/action_profileFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
+            app:destination="@id/settingsFragment"
+            app:launchSingleTop="true" />
     </fragment>
 
     <!-- Settings (MVP) -->
@@ -53,7 +54,10 @@
             app:destination="@id/registerFragment" />
         <action
             android:id="@+id/action_loginFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            app:destination="@id/homeFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -62,7 +66,10 @@
         android:label="@string/nav_register" >
         <action
             android:id="@+id/action_registerFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            app:destination="@id/homeFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <!-- Quote Details -->

@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -16,7 +17,10 @@
             android:layout_height="wrap_content"
             app:navigationIcon="@drawable/ic_arrow_back_24"
             app:title="@string/quote_details_title"
-            app:titleCentered="false" />
+            app:titleCentered="false"
+            app:contentInsetStartWithNavigation="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -84,12 +88,13 @@
                             android:id="@+id/btnFavorite"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:background="@android:color/transparent"
+                            android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/content_desc_favorite"
+                            android:tooltipText="@string/content_desc_favorite"
                             android:minWidth="48dp"
                             android:minHeight="48dp"
                             android:padding="12dp"
-                            android:tint="?attr/colorOnSurface"
+                            android:tint="?attr/colorOnSurfaceVariant"
                             app:srcCompat="@drawable/ic_star_outline" />
 
                         <TextView
@@ -130,7 +135,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20dp"
-                android:text="@string/quote_details_author_details" />
+                android:text="@string/quote_details_author_details"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSource"
@@ -138,7 +144,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="12dp"
-                android:text="@string/quote_details_open_source" />
+                android:text="@string/quote_details_open_source"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

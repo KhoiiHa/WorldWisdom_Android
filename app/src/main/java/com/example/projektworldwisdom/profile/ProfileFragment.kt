@@ -50,7 +50,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun navigateSafe(destinationId: Int) {
+    private fun navigateSafe(actionId: Int) {
         try {
             val navController = findNavController()
 
@@ -58,9 +58,9 @@ class ProfileFragment : Fragment() {
                 .setLaunchSingleTop(true)
                 .build()
 
-            val action = navController.currentDestination?.getAction(destinationId)
+            val action = navController.currentDestination?.getAction(actionId)
             if (action != null) {
-                navController.navigate(destinationId, null, navOptions)
+                navController.navigate(actionId, null, navOptions)
             } else {
                 Toast.makeText(
                     requireContext(),

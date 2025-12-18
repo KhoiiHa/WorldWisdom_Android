@@ -20,8 +20,6 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val context = requireContext()
-
         val toolbar = view.findViewById<MaterialToolbar>(R.id.settingsToolbar)
         val tvAppName = view.findViewById<TextView>(R.id.tvSettingsAppNameValue)
         val tvVersion = view.findViewById<TextView>(R.id.tvSettingsVersionValue)
@@ -33,17 +31,20 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             findNavController().navigateUp()
         }
 
-        tvAppName.text = context.getString(R.string.app_name)
-        tvVersion.text = BuildConfig.VERSION_NAME.ifBlank { context.getString(R.string.common_placeholder_dash) }
+        tvAppName.text = getString(R.string.app_name)
+        tvVersion.text = BuildConfig.VERSION_NAME.ifBlank { getString(R.string.common_placeholder_dash) }
 
         // Reuse your existing URLs from Profile (keine Dopplung)
-        btnGithub.setOnClickListener {
-            openUrl(getString(R.string.profile_github_url))
-        }
+        val githubUrl = getString(R.string.profile_github_url).trim()
+        val caseStudyUrl = getString(R.string.profile_case_study_url).trim()
 
-        btnCaseStudy.setOnClickListener {
-            openUrl(getString(R.string.profile_case_study_url))
-        }
+        btnGithub.isEnabled = githubUrl.isNotBlank()
+        btnGithub.alpha = if (btnGithub.isEnabled) 1f else 0.5f
+        btnGithub.setOnClickListener { openUrl(githubUrl) }
+
+        btnCaseStudy.isEnabled = caseStudyUrl.isNotBlank()
+        btnCaseStudy.alpha = if (btnCaseStudy.isEnabled) 1f else 0.5f
+        btnCaseStudy.setOnClickListener { openUrl(caseStudyUrl) }
     }
 
     private fun showToast(@StringRes messageRes: Int) {

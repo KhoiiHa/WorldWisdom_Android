@@ -173,7 +173,7 @@ class QuoteDetailsFragment : Fragment() {
         val action = QuoteDetailsFragmentDirections.actionQuoteDetailsFragmentToAuthorDetailsFragment(
             authorSlug = quote.author,
             authorName = quote.author,
-            authorDescription = quote.category.takeIf { it.isNotBlank() },
+            authorDescription = null,
             authorBio = quote.description.takeIf { it.isNotBlank() },
             authorSourceUrl = quote.source.takeIf { it.isNotBlank() }
         )
@@ -185,7 +185,7 @@ class QuoteDetailsFragment : Fragment() {
         val action = QuoteDetailsFragmentDirections.actionQuoteDetailsFragmentToAuthorDetailsFragment(
             authorSlug = author,
             authorName = author,
-            authorDescription = args.category?.takeIf { it.isNotBlank() },
+            authorDescription = null,
             authorBio = null,
             authorSourceUrl = args.sourceUrl?.takeIf { it.isNotBlank() }
         )

@@ -9,8 +9,8 @@
     <color name="hintergrund_helles_beige">#FFFBEB</color>
     <color name="hintergrund_khaki">#F0E68C</color>
     <color name="hintergrund_bisque">#FFE4C4</color>
-    <color name="hintergrund_grün">#388E3C</color>
-    <color name="hintergrund_dunkelgrün">#478B78</color>
+    <color name="hintergrund_gruen">#388E3C</color>
+    <color name="hintergrund_dunkelgruen">#478B78</color>
 
     <color name="text_schwarz">#FF000000</color>
     <color name="text_weiss">#FFFFFFFF</color>

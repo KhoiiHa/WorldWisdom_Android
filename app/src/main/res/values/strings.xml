@@ -42,4 +42,21 @@
 
     <!-- Profile (Placeholder) -->
     <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
+
+    <!-- Quote Details -->
+    <string name="quote_details_title">Zitat</string>
+    <string name="quote_details_quote_placeholder">Quote Text</string>
+    <string name="quote_details_author_placeholder">— Author</string>
+    <string name="quote_details_category_placeholder">Kategorie</string>
+    <string name="quote_details_favorite_label">Speichern</string>
+    <string name="quote_details_favorite_saved">Gespeichert</string>
+    <string name="quote_details_tags_label">Tags</string>
+    <string name="quote_details_author_details">Mehr über den Autor</string>
+    <string name="quote_details_open_source">Quelle öffnen</string>
+
+    <!-- Quote Details (Formatting / Toasts) -->
+    <string name="quote_details_author_prefix">— %1$s</string>
+    <string name="quote_details_toast_quote_not_found">Zitat nicht gefunden.</string>
+    <string name="quote_details_toast_no_source">Keine Quelle vorhanden.</string>
+    <string name="quote_details_toast_open_url_failed">Link konnte nicht geöffnet werden.</string>
 </resources>

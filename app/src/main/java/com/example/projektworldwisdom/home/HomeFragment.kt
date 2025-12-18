@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         // RecyclerView + Adapter
         quotesAdapter = QuoteAdapter(
             onQuoteClick = { quote ->
-                navigateToAuthorDetails(quote)
+                navigateToQuoteDetails(quote)
             },
             // ✅ Preferred: Adapter liefert den Zielzustand (true=speichern, false=entfernen)
             // Wir nutzen hier bewusst weiterhin toggleFavorite, weil der Zielzustand bereits
@@ -187,10 +187,24 @@ class HomeFragment : Fragment() {
         binding.affirmationAuthor.text = "– ${quote.author}"
         binding.affirmationHint.visibility = View.VISIBLE
 
-        // Tap auf die Card → Author Details
+        // Tap auf die Card → Quote Details (von dort optional weiter zu Author Details)
         binding.dailyAffirmationCard.setOnClickListener {
-            navigateToAuthorDetails(quote)
+            navigateToQuoteDetails(quote)
         }
+    }
+
+    private fun navigateToQuoteDetails(quote: Quote) {
+        val action = HomeFragmentDirections.actionHomeFragmentToQuoteDetailsFragment(
+            quoteId = quote.id,
+            author = quote.author.takeIf { it.isNotBlank() },
+            quoteText = quote.quote.takeIf { it.isNotBlank() },
+            category = quote.category.takeIf { it.isNotBlank() },
+            tags = quote.tags.takeIf { it.isNotEmpty() }?.toTypedArray(),
+            sourceUrl = quote.source.takeIf { it.isNotBlank() },
+            isFavorite = quote.isFavorite
+        )
+
+        findNavController().navigate(action)
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {

@@ -8,6 +8,9 @@
     <!-- Collection (Favorites) -->
     <string name="collection_title">Favoriten</string>
     <string name="collection_subtitle">Deine gespeicherten Zitate an einem Ort</string>
+    <!-- Collection (Explore by Category) -->
+    <string name="collection_explore_title">Entdecken nach Kategorie</string>
+    <string name="collection_explore_subtitle">Tippe eine Kategorie an, um passende Zitate zu sehen.</string>
 
     <plurals name="collection_favorites_count">
         <item quantity="one">%d Favorit</item>
@@ -25,6 +28,7 @@
 
     <string name="collection_error_title">Etwas ist schiefgelaufen</string>
     <string name="collection_error_subtitle">Bitte versuche es erneut.</string>
+    <string name="collection_chip_all">Alle</string>
 
     <!-- Common / Shared -->
     <string name="common_error_subtitle">Bitte versuche es später erneut.</string>
@@ -32,16 +36,53 @@
     <string name="common_retry">Erneut versuchen</string>
     <string name="quote_author_format">— %1$s</string>
     <string name="search_hint">Suche nach Zitaten, Autoren oder Tags</string>
+    <string name="error_navigation">Navigation fehlgeschlagen</string>
 
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>
     <string name="daily_affirmation_text">%1$s\n\n— %2$s</string>
     <string name="greeting_default">Guten Morgen 👋</string>
     <string name="daily_affirmation_title">Daily Affirmation</string>
+    <string name="daily_affirmation_hint_tap_for_details">Tippe auf die Karte für Details</string>
     <string name="daily_affirmation_loading">Lade dein Tageszitat…</string>
 
     <!-- Profile (Placeholder) -->
     <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
+
+    <!-- Profile (Screen) -->
+    <string name="profile_title">Profil</string>
+    <string name="profile_subtitle">WorldWisdom · Android (XML)</string>
+    <string name="profile_description">Diese Android-Version ist ein XML-Port meiner iOS-App WorldWisdom. Fokus: saubere Architektur (MVVM), Navigation Component und ein stabiles, verständliches UI.</string>
+
+    <string name="profile_action_github">GitHub öffnen</string>
+    <string name="profile_action_case_study">Case Study öffnen</string>
+    <string name="profile_action_app_info">App-Info</string>
+
+    <string name="profile_footer">Diese Seite bleibt bewusst schlank — kein Login, kein Overkill.</string>
+
+    <!-- Profile URLs (anpassen) -->
+    <string name="profile_github_url">https://github.com/</string>
+    <string name="profile_case_study_url">https://</string>
+
+    <!-- Settings (MVP) -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">App-Einstellungen/Infos</string>
+
+    <string name="settings_section_about">Über die App</string>
+    <string name="settings_app_name_label">App</string>
+    <string name="settings_version_label">Version</string>
+
+    <string name="settings_section_links">Links</string>
+    <string name="settings_open_github">GitHub öffnen</string>
+    <string name="settings_open_case_study">Case Study öffnen</string>
+
+    <string name="settings_section_preferences">Preferences</string>
+    <string name="settings_dark_mode_title">Dark Mode</string>
+    <string name="settings_dark_mode_subtitle">Kommt später (XML-MVP)</string>
+
+    <string name="profile_app_info_message">Version: %1$s</string>
+    <string name="profile_url_missing">Link fehlt – bitte in strings.xml eintragen</string>
+    <string name="error_no_browser">Kein Browser gefunden</string>
 
     <!-- Quote Details -->
     <string name="quote_details_title">Zitat</string>

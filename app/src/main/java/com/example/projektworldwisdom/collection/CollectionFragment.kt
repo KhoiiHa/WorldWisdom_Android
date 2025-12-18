@@ -16,6 +16,7 @@ import com.example.projektworldwisdom.adapter.QuoteAdapter
 import com.example.projektworldwisdom.databinding.FragmentCollectionBinding
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
+import com.google.android.material.chip.Chip
 
 class CollectionFragment : Fragment() {
 
@@ -32,6 +33,9 @@ class CollectionFragment : Fragment() {
     private var latestError: String? = null
     private var latestLoading: Boolean = false
 
+    // Explore by Category (local filter for Favorites list)
+    private var selectedCategory: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,6 +49,7 @@ class CollectionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
+        setupExploreCategoriesUi()
         setupActions()
         setupObservers()
     }
@@ -65,6 +70,85 @@ class CollectionFragment : Fragment() {
             adapter = quoteAdapter
             setHasFixedSize(true)
         }
+    }
+
+    private fun setupExploreCategoriesUi() {
+        // Keep it simple: single selection, and we provide an explicit “Alle” chip to reset.
+        binding.chipGroupCategories.isSingleSelection = true
+        binding.chipGroupCategories.isSelectionRequired = true
+
+        // Start with a stable baseline even before favorites arrive
+        renderCategoryChips(emptyList())
+    }
+
+    private fun renderCategoryChips(quotes: List<Quote>) {
+        val categories = quotes
+            .map { it.category.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .sorted()
+
+        binding.chipGroupCategories.removeAllViews()
+
+        // “Alle” = reset filter
+        val chipAll = createCategoryChip(
+            label = getString(R.string.collection_chip_all),
+            categoryValue = null
+        )
+        binding.chipGroupCategories.addView(chipAll)
+
+        // Real categories
+        categories.forEach { category ->
+            binding.chipGroupCategories.addView(
+                createCategoryChip(label = category, categoryValue = category)
+            )
+        }
+
+        // Keep selection consistent after chip rebuild
+        val want = selectedCategory
+        when {
+            want == null -> chipAll.isChecked = true
+            else -> {
+                // If selected category no longer exists (e.g., favorites changed), fallback to “Alle”
+                val stillExists = categories.contains(want)
+                if (!stillExists) {
+                    selectedCategory = null
+                    chipAll.isChecked = true
+                } else {
+                    // Find and check the matching chip
+                    for (i in 0 until binding.chipGroupCategories.childCount) {
+                        val v = binding.chipGroupCategories.getChildAt(i)
+                        if (v is Chip && v.tag == want) {
+                            v.isChecked = true
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createCategoryChip(label: String, categoryValue: String?): Chip {
+        return Chip(requireContext()).apply {
+            text = label
+            isCheckable = true
+            isCheckedIconVisible = false
+            // Tag is used to identify the category later
+            tag = categoryValue
+
+            setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedCategory = categoryValue
+                    renderFromState()
+                }
+            }
+        }
+    }
+
+    private fun applyCategoryFilter(quotes: List<Quote>): List<Quote> {
+        val cat = selectedCategory
+        if (cat.isNullOrBlank()) return quotes
+        return quotes.filter { it.category.equals(cat, ignoreCase = true) }
     }
 
     private fun setupActions() {
@@ -91,18 +175,27 @@ class CollectionFragment : Fragment() {
 
         sharedViewModel.favoriteQuotes.observe(viewLifecycleOwner) { favorites ->
             latestFavorites = favorites.orEmpty()
+
+            // Rebuild chips from the *current* favorites (keeps UI consistent)
+            renderCategoryChips(latestFavorites)
+
             // If we have favorites, we prefer showing them over a stale error
             if (latestFavorites.isNotEmpty()) latestError = null
+
             renderFromState()
         }
     }
 
     private fun renderFromState() {
-        updateHeaderCount(latestFavorites.size)
+        val filtered = applyCategoryFilter(latestFavorites)
+        updateHeaderCount(filtered.size)
+
+        // Show category explorer only when there is something to explore
+        binding.cardExploreCategories.isVisible = latestFavorites.isNotEmpty()
 
         when {
             // Prefer showing content if we have it (even if a background reload is happening)
-            latestFavorites.isNotEmpty() -> renderContent(latestFavorites)
+            filtered.isNotEmpty() -> renderContent(filtered)
             latestLoading -> renderLoading()
             latestError != null -> renderError(latestError)
             else -> renderEmpty()

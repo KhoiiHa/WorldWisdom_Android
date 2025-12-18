@@ -1,22 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:padding="24dp"
+    android:clipToPadding="false">
 
-    <TextView
-        android:id="@+id/tvProfilePlaceholder"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/profile_placeholder"
-        android:textAlignment="center"
-        android:textAppearance="?attr/textAppearanceBody1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="Profil kommt später – aktuell Fokus auf Zitate und Collection" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvProfileTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_title"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Profil" />
+
+        <TextView
+            android:id="@+id/tvProfileSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/profile_subtitle"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintTop_toBottomOf="@id/tvProfileTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="WorldWisdom · Android (XML)" />
+
+        <TextView
+            android:id="@+id/tvProfileDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/profile_description"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            app:layout_constraintTop_toBottomOf="@id/tvProfileSubtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Diese Android-Version ist ein XML-Port meiner iOS-App. Fokus: saubere Architektur, MVVM und Navigation." />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardProfileActions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            app:layout_constraintTop_toBottomOf="@id/tvProfileDescription"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnProfileGithub"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_action_github" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnProfileCaseStudy"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/profile_action_case_study" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnProfileAppInfo"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/profile_action_app_info" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnProfileSettings"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Einstellungen"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/tvProfileFooter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/profile_footer"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintTop_toBottomOf="@id/cardProfileActions"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Tipp: Diese Seite ist bewusst schlank gehalten — kein Login, kein Overkill." />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

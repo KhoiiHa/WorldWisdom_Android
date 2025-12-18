@@ -50,9 +50,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="24dp"
-        android:elevation="1dp"
         android:hint="@string/search_hint"
         app:boxBackgroundColor="?attr/colorSurfaceContainerHighest"
         app:boxBackgroundMode="filled"
@@ -61,11 +60,12 @@
         app:boxCornerRadiusTopEnd="16dp"
         app:boxCornerRadiusTopStart="16dp"
         app:boxStrokeColor="?attr/colorOutline"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="2dp"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="1dp"
         app:endIconMode="clear_text"
         app:endIconTint="?attr/colorOnSurfaceVariant"
         app:hintEnabled="true"
+        app:hintTextColor="?attr/colorOnSurfaceVariant"
         app:startIconDrawable="@android:drawable/ic_menu_search"
         app:startIconTint="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,12 +81,13 @@
             android:importantForAutofill="no"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:paddingStart="16dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp"
+            android:paddingStart="0dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="14dp"
             android:singleLine="true"
-            android:textColor="?attr/colorOnSurface" />
+            android:textColor="?attr/colorOnSurface"
+            android:minHeight="48dp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -157,7 +158,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Tippe auf die Karte für Details"
+                android:text="@string/daily_affirmation_hint_tap_for_details"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:alpha="0.8"
                 android:textSize="12sp" />

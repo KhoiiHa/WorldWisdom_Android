@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentLoginBinding
 import com.example.projektworldwisdom.viewmodel.AuthenticationViewModel
 
@@ -30,9 +31,10 @@ class LoginFragment : Fragment() {
 
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
-                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment2())
+                if (findNavController().currentDestination?.id == R.id.loginFragment) {
+                    findNavController().navigate(R.id.homeFragment)
+                }
             }
-
         }
 
         viewModel.loginError.observe(viewLifecycleOwner) { errorMessage ->

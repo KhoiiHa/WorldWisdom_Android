@@ -120,9 +120,19 @@ class HomeFragment : Fragment() {
         // Defensive: sorgt für konsistentes Verhalten, auch wenn XML mal nicht gesetzt ist.
         binding.chipGroupFilters.isSingleSelection = true
 
+        binding.chipGroupFilters.isSelectionRequired = true
+
+        // Ensure a sane default on first launch
+        if (binding.chipGroupFilters.checkedChipId == View.NO_ID) {
+            isProgrammaticChipUpdate = true
+            binding.chipGroupFilters.check(R.id.filter_alle)
+            isProgrammaticChipUpdate = false
+            viewModel.setCategoryFilter(SharedViewModel.CategoryFilter.ALL)
+        }
+
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
             if (isProgrammaticChipUpdate) return@setOnCheckedStateChangeListener
-            val checkedId = checkedIds.firstOrNull() ?: View.NO_ID
+            val checkedId = checkedIds.firstOrNull() ?: R.id.filter_alle
 
             val filter = when (checkedId) {
                 R.id.filter_society -> SharedViewModel.CategoryFilter.SOCIETY

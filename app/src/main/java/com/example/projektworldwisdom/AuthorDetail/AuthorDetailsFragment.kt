@@ -1,11 +1,14 @@
 package com.example.projektworldwisdom.AuthorDetail
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.fragment.findNavController
 import com.example.projektworldwisdom.databinding.FragmentAuthorDetailsBinding
 
 class AuthorDetailsFragment : Fragment() {
@@ -27,20 +30,68 @@ class AuthorDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Toolbar: Back navigation
+        binding.toolbarAuthorDetails.apply {
+            // Use a safe built-in back icon (no extra drawable needed)
+            setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+            setNavigationOnClickListener { findNavController().navigateUp() }
+        }
+
         // authorSlug aus den Safe Args lesen
         val slug = args.authorSlug
 
-        // TODO: Später AuthorDetailsViewModel + Repository nutzen, um
-        // anhand des Slugs die vollständigen Autor:innen-Daten aus API/Firestore zu laden.
-        // Für den aktuellen Stand zeigen wir den Slug bzw. verwenden ihn als Platzhalter.
+        // Optional: wenn wir beim Navigieren echte Detaildaten mitgeben,
+        // nutzen wir diese direkt (kein extra Fetch nötig).
+        val authorName = args.authorName?.takeIf { it.isNotBlank() } ?: slug
 
+        // Toolbar title matches the current author
+        binding.toolbarAuthorDetails.title = authorName
+
+        val authorDescription = args.authorDescription?.takeIf { it.isNotBlank() }
+        val authorBio = args.authorBio?.takeIf { it.isNotBlank() }
+        val authorSourceUrl = args.authorSourceUrl?.takeIf { it.isNotBlank() }
+
+        bindContent(
+            authorName = authorName,
+            authorDescription = authorDescription,
+            authorBio = authorBio,
+            authorSourceUrl = authorSourceUrl
+        )
+    }
+
+    private fun bindContent(
+        authorName: String,
+        authorDescription: String?,
+        authorBio: String?,
+        authorSourceUrl: String?
+    ) {
         binding.apply {
-            // Vorerst den Slug anzeigen – später durch author.name ersetzen
-            authorName.text = slug
+            this.authorName.text = authorName
 
-            // Platzhalter / leere Werte für weitere Felder, bis die API-Logik steht
-            authorBio.text = ""
-            authorLink.visibility = View.GONE
+            // Kurzbeschreibung unter dem Namen (Fallback keeps the screen "finished")
+            this.authorDescription.text = authorDescription ?: "Autorprofil"
+
+            // Bio / long description (Fallback is a friendly empty-state)
+            this.authorBio.text = authorBio ?: (
+                "Noch keine Biografie verfügbar.\n\n" +
+                    "In der nächsten Ausbaustufe laden wir Beschreibung & Quelle aus der Mock-API."
+                )
+
+            // Source link (only visible if we have a real URL)
+            if (authorSourceUrl.isNullOrBlank()) {
+                authorLinkCard.visibility = View.GONE
+                authorLink.visibility = View.GONE
+                authorLink.setOnClickListener(null)
+            } else {
+                authorLinkCard.visibility = View.VISIBLE
+                authorLink.visibility = View.VISIBLE
+                authorLink.text = authorSourceUrl
+                authorLink.setOnClickListener {
+                    runCatching {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(authorSourceUrl)))
+                    }
+                }
+            }
         }
     }
 

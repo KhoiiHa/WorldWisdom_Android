@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">WorldWisdom</string>
-    <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
-    <string name="content_desc_favorite">Zu Favoriten hinzufügen</string>
+    <!-- Favorite (Toggle/Add/Remove) -->
+    <string name="content_desc_favorite">Favorit umschalten</string>
     <string name="content_desc_favorite_add">Zu Favoriten hinzufügen</string>
     <string name="content_desc_favorite_remove">Aus Favoriten entfernen</string>
 
@@ -20,9 +20,11 @@
     <!-- Backwards-compatible keys used in some layouts -->
     <string name="collection_empty_cta">Entdecken</string>
 
+    <!-- Legacy key: kept for backwards compatibility in older layouts -->
+    <string name="action_retry">Erneut versuchen</string>
+
     <string name="collection_error_title">Etwas ist schiefgelaufen</string>
     <string name="collection_error_subtitle">Bitte versuche es erneut.</string>
-    <string name="action_retry">Erneut versuchen</string>
 
     <!-- Common / Shared -->
     <string name="common_error_subtitle">Bitte versuche es später erneut.</string>
@@ -37,4 +39,7 @@
     <string name="greeting_default">Guten Morgen 👋</string>
     <string name="daily_affirmation_title">Daily Affirmation</string>
     <string name="daily_affirmation_loading">Lade dein Tageszitat…</string>
+
+    <!-- Profile (Placeholder) -->
+    <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
 </resources>

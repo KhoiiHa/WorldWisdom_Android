@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -50,6 +51,9 @@ class CollectionFragment : Fragment() {
 
     private fun setupRecyclerView() {
         quoteAdapter = QuoteAdapter(
+            onQuoteClick = { quote: Quote ->
+                navigateToAuthorDetails(quote)
+            },
             onFavoriteClick = { quote: Quote ->
                 // In Favorites screen: ⭐ toggles add/remove
                 sharedViewModel.toggleFavorite(quote)
@@ -110,6 +114,23 @@ class CollectionFragment : Fragment() {
         sharedViewModel.clearError()
         sharedViewModel.loadQuotes()
         renderFromState()
+    }
+
+    private fun navigateToAuthorDetails(quote: Quote) {
+        // Minimal & consistent with Home: we pass what we already have.
+        // Later, we can switch to a real AuthorDetails fetch if needed.
+        val args = bundleOf(
+            "authorSlug" to quote.author,
+            "authorName" to quote.author,
+            // Short header line
+            "authorDescription" to quote.category.takeIf { it.isNotBlank() },
+            // Long bio/description
+            "authorBio" to quote.description.takeIf { it.isNotBlank() },
+            // Source link
+            "authorSourceUrl" to quote.source.takeIf { it.isNotBlank() }
+        )
+
+        findNavController().navigate(R.id.authorDetailsFragment, args)
     }
 
     private fun navigateToHome() {

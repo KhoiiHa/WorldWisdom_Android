@@ -81,19 +81,35 @@ class QuoteAdapter(
             favoriteOverrides[current.id] = newState
             bindFavoriteState(favoriteButton, newState)
 
+            // Pass an updated model to callbacks (so screens can reflect the latest state immediately)
+            val updated = current.copy(isFavorite = newState)
+
             // NEW: Preferred toggle callback (lets the VM decide add/remove)
             if (onFavoriteToggle != null) {
-                onFavoriteToggle.invoke(current, newState)
+                onFavoriteToggle.invoke(updated, newState)
             } else {
                 // Legacy behavior (existing screens might still call "toggleFavorite(quote)")
-                onFavoriteClick?.invoke(current)
+                onFavoriteClick?.invoke(updated)
             }
         }
 
         // Item-Tap → Details
         holder.itemView.setOnClickListener {
+            // Always use the latest adapter position to avoid stale data
+            val pos = holder.bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+
+            val current = getItem(pos)
+            // Include optimistic favorite override (so Details receives the displayed state)
+            val displayedFavorite = favoriteOverrides[current.id] ?: current.isFavorite
+            val currentForClick = if (displayedFavorite == current.isFavorite) {
+                current
+            } else {
+                current.copy(isFavorite = displayedFavorite)
+            }
+
             // Priorität: neue Lambda-API → fallback: alte Interface-API
-            onQuoteClick?.invoke(quote) ?: legacyListener?.onItemClick(quote)
+            onQuoteClick?.invoke(currentForClick) ?: legacyListener?.onItemClick(currentForClick)
         }
     }
 

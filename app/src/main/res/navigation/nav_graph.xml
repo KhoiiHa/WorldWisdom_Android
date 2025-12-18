@@ -37,6 +37,9 @@
         <action
             android:id="@+id/action_loginFragment_to_homeFragment2"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
 
     <fragment
@@ -57,6 +60,23 @@
             android:name="authorSlug"
             app:argType="string"
             app:nullable="false" />
+        <!-- Optional: pass real detail data when navigating (no extra fetch needed) -->
+        <argument
+            android:name="authorName"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="authorDescription"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="authorBio"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="authorSourceUrl"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 
 </navigation>

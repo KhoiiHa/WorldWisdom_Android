@@ -43,9 +43,7 @@ class HomeFragment : Fragment() {
         // RecyclerView + Adapter
         quotesAdapter = QuoteAdapter(
             onQuoteClick = { quote ->
-                val action = HomeFragmentDirections
-                    .actionHomeFragmentToAuthorDetailsFragment(quote.author)
-                findNavController().navigate(action)
+                navigateToAuthorDetails(quote)
             },
             // ✅ Preferred: Adapter liefert den Zielzustand (true=speichern, false=entfernen)
             // Wir nutzen hier bewusst weiterhin toggleFavorite, weil der Zielzustand bereits
@@ -191,10 +189,25 @@ class HomeFragment : Fragment() {
 
         // Tap auf die Card → Author Details
         binding.dailyAffirmationCard.setOnClickListener {
-            val action = HomeFragmentDirections
-                .actionHomeFragmentToAuthorDetailsFragment(quote.author)
-            findNavController().navigate(action)
+            navigateToAuthorDetails(quote)
         }
+    }
+
+    private fun navigateToAuthorDetails(quote: Quote) {
+        // Minimal, aber "echt": wir geben vorhandene Daten direkt mit.
+        // Später können wir hier optional auf echtes Detail-Fetching umschalten.
+        val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
+            authorSlug = quote.author,
+            authorName = quote.author,
+            // Kurzzeile im Header (nicht over-engineeren): Kategorie ist dafür okay.
+            authorDescription = quote.category.takeIf { it.isNotBlank() },
+            // Langer Text im Bio-Block
+            authorBio = quote.description.takeIf { it.isNotBlank() },
+            // Wikipedia / Quelle
+            authorSourceUrl = quote.source.takeIf { it.isNotBlank() }
+        )
+
+        findNavController().navigate(action)
     }
 
     private fun hideKeyboard(view: View) {

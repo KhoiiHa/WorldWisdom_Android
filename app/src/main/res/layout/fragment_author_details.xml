@@ -9,64 +9,124 @@
              Fragment setzt die Texte per Code über ViewBinding -->
     </data>
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:fillViewport="true"
-        tools:context=".ui.author.AuthorDetailsFragment">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_author_details"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@android:color/transparent"
+            android:minHeight="56dp"
+            app:title=""
+            app:navigationIcon="@android:drawable/ic_media_previous"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <TextView
-                android:id="@+id/author_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="?android:textColorPrimary"
-                android:paddingBottom="8dp"
-                tools:text="Marcus Aurelius" />
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/author_details_scroll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="24dp"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_author_details"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:context=".AuthorDetail.AuthorDetailsFragment">
 
-            <TextView
-                android:id="@+id/author_description"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="?android:textColorSecondary"
-                android:paddingBottom="12dp"
-                tools:text="Römischer Kaiser und stoischer Philosoph, bekannt für seine Meditations." />
+                android:orientation="vertical"
+                android:clipToPadding="false"
+                android:layout_marginBottom="8dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardUseCompatPadding="true"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-                <TextView
-                    android:id="@+id/author_bio"
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textSize="15sp"
-                    android:textColor="?android:textColorPrimary"
-                    tools:text="Kurzbiografie, Hintergrund und relevante Lebensstationen der Autorin oder des Autors." />
-            </com.google.android.material.card.MaterialCardView>
+                    app:cardUseCompatPadding="true"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="?attr/colorOutline"
+                    app:strokeWidth="1dp">
 
-            <TextView
-                android:id="@+id/author_link"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:autoLink="web"
-                android:textSize="14sp"
-                android:textColor="?android:textColorLink"
-                tools:text="https://de.wikipedia.org/wiki/Marcus_Aurelius" />
-        </LinearLayout>
-    </ScrollView>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/author_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                            android:textColor="?attr/colorOnSurface"
+                            tools:text="Marcus Aurelius" />
+
+                        <TextView
+                            android:id="@+id/author_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="2dp"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="Römischer Kaiser und stoischer Philosoph, bekannt für seine Meditationen." />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="?attr/colorOutline"
+                    app:strokeWidth="1dp">
+
+                    <TextView
+                        android:id="@+id/author_bio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:lineSpacingExtra="3dp"
+                        tools:text="Kurzbiografie, Hintergrund und relevante Lebensstationen der Autorin oder des Autors." />
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/author_link_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/colorOutline"
+                    app:strokeWidth="1dp">
+
+                    <TextView
+                        android:id="@+id/author_link"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="14dp"
+                        android:autoLink="web"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorPrimary"
+                        tools:text="https://de.wikipedia.org/wiki/Marcus_Aurelius" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

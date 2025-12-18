@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="14dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnProfileGithub"
@@ -81,7 +81,7 @@
                     style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/profile_action_case_study" />
 
                 <com.google.android.material.button.MaterialButton
@@ -89,17 +89,19 @@
                     style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/profile_action_app_info" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnProfileSettings"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="?attr/materialButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Einstellungen"
-                    tools:ignore="HardcodedText" />
+                    android:layout_marginTop="8dp"
+                    android:text="@string/profile_action_settings"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    app:backgroundTint="?attr/colorSecondaryContainer"
+                    app:strokeWidth="0dp" />
 
             </LinearLayout>
 

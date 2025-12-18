@@ -31,12 +31,14 @@
     <string name="collection_chip_all">Alle</string>
 
     <!-- Common / Shared -->
+    <string name="common_placeholder_dash">-</string>
     <string name="common_error_subtitle">Bitte versuche es später erneut.</string>
     <string name="common_error_title">Etwas ist schiefgelaufen</string>
     <string name="common_retry">Erneut versuchen</string>
     <string name="quote_author_format">— %1$s</string>
     <string name="search_hint">Suche nach Zitaten, Autoren oder Tags</string>
     <string name="error_navigation">Navigation fehlgeschlagen</string>
+    <string name="cd_navigate_up">Zurück</string>
 
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>
@@ -57,15 +59,17 @@
     <string name="profile_action_github">GitHub öffnen</string>
     <string name="profile_action_case_study">Case Study öffnen</string>
     <string name="profile_action_app_info">App-Info</string>
+    <string name="profile_action_settings">Einstellungen</string>
 
     <string name="profile_footer">Diese Seite bleibt bewusst schlank — kein Login, kein Overkill.</string>
 
     <!-- Profile URLs (anpassen) -->
     <string name="profile_github_url">https://github.com/</string>
-    <string name="profile_case_study_url">https://</string>
+    <!-- Leave empty until you add your real Case Study URL (prevents trying to open an invalid link like "https://") -->
+    <string name="profile_case_study_url"></string>
 
     <!-- Settings (MVP) -->
-    <string name="settings_title">Settings</string>
+    <string name="settings_title">Einstellungen</string>
     <string name="settings_subtitle">App-Einstellungen/Infos</string>
 
     <string name="settings_section_about">Über die App</string>
@@ -76,7 +80,7 @@
     <string name="settings_open_github">GitHub öffnen</string>
     <string name="settings_open_case_study">Case Study öffnen</string>
 
-    <string name="settings_section_preferences">Preferences</string>
+    <string name="settings_section_preferences">Optionen</string>
     <string name="settings_dark_mode_title">Dark Mode</string>
     <string name="settings_dark_mode_subtitle">Kommt später (XML-MVP)</string>
 
@@ -86,8 +90,8 @@
 
     <!-- Quote Details -->
     <string name="quote_details_title">Zitat</string>
-    <string name="quote_details_quote_placeholder">Quote Text</string>
-    <string name="quote_details_author_placeholder">— Author</string>
+    <string name="quote_details_quote_placeholder">Zitat</string>
+    <string name="quote_details_author_placeholder">— Autor</string>
     <string name="quote_details_category_placeholder">Kategorie</string>
     <string name="quote_details_favorite_label">Speichern</string>
     <string name="quote_details_favorite_saved">Gespeichert</string>
@@ -100,4 +104,14 @@
     <string name="quote_details_toast_quote_not_found">Zitat nicht gefunden.</string>
     <string name="quote_details_toast_no_source">Keine Quelle vorhanden.</string>
     <string name="quote_details_toast_open_url_failed">Link konnte nicht geöffnet werden.</string>
+
+    <!-- Navigation titles -->
+    <string name="nav_home">Home</string>
+    <string name="nav_collection">Sammlung</string>
+    <string name="nav_profile">Profil</string>
+    <string name="nav_settings">Einstellungen</string>
+    <string name="nav_login">Login</string>
+    <string name="nav_register">Registrieren</string>
+    <string name="nav_quote_details">Zitatdetails</string>
+    <string name="nav_author_details">Autor</string>
 </resources>

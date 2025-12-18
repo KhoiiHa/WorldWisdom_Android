@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.projektworldwisdom.home.HomeFragment"
-        android:label="HomeFragment" >
+        android:label="@string/nav_home" >
         <action
             android:id="@+id/action_homeFragment_to_authorDetailsFragment"
             app:destination="@id/authorDetailsFragment" />
@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/collectionFragment"
         android:name="com.example.projektworldwisdom.collection.CollectionFragment"
-        android:label="CollectionFragment" >
+        android:label="@string/nav_collection" >
         <action
             android:id="@+id/action_collectionFragment_to_quoteDetailsFragment"
             app:destination="@id/quoteDetailsFragment" />
@@ -31,7 +31,7 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.projektworldwisdom.profile.ProfileFragment"
-        android:label="ProfileFragment" >
+        android:label="@string/nav_profile" >
         <action
             android:id="@+id/action_profileFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
@@ -41,13 +41,13 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.projektworldwisdom.settings.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="@string/nav_settings" />
 
     <!-- Login / Register wie gehabt -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.projektworldwisdom.login.LoginFragment"
-        android:label="LoginFragment" >
+        android:label="@string/nav_login" >
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
@@ -59,7 +59,7 @@
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.projektworldwisdom.register.RegisterFragment"
-        android:label="RegisterFragment" >
+        android:label="@string/nav_register" >
         <action
             android:id="@+id/action_registerFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -69,7 +69,7 @@
     <fragment
         android:id="@+id/quoteDetailsFragment"
         android:name="com.example.projektworldwisdom.quote.QuoteDetailsFragment"
-        android:label="QuoteDetailsFragment" >
+        android:label="@string/nav_quote_details" >
 
         <!-- Required: to identify the quote uniquely -->
         <argument
@@ -113,7 +113,7 @@
     <fragment
         android:id="@+id/authorDetailsFragment"
         android:name="com.example.projektworldwisdom.AuthorDetail.AuthorDetailsFragment"
-        android:label="AuthorDetailsFragment" >
+        android:label="@string/nav_author_details" >
         <argument
             android:name="authorSlug"
             app:argType="string"

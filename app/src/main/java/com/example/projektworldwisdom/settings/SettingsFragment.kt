@@ -1,10 +1,12 @@
 package com.example.projektworldwisdom.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -18,6 +20,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val context = requireContext()
+
         val toolbar = view.findViewById<MaterialToolbar>(R.id.settingsToolbar)
         val tvAppName = view.findViewById<TextView>(R.id.tvSettingsAppNameValue)
         val tvVersion = view.findViewById<TextView>(R.id.tvSettingsVersionValue)
@@ -29,8 +33,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             findNavController().navigateUp()
         }
 
-        tvAppName.text = getString(R.string.app_name)
-        tvVersion.text = BuildConfig.VERSION_NAME
+        tvAppName.text = context.getString(R.string.app_name)
+        tvVersion.text = BuildConfig.VERSION_NAME.ifBlank { context.getString(R.string.common_placeholder_dash) }
 
         // Reuse your existing URLs from Profile (keine Dopplung)
         btnGithub.setOnClickListener {
@@ -42,34 +46,34 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
     }
 
+    private fun showToast(@StringRes messageRes: Int) {
+        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_SHORT).show()
+    }
+
     private fun openUrl(url: String) {
         val cleaned = url.trim()
 
         if (cleaned.isBlank()) {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.profile_url_missing),
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(R.string.profile_url_missing)
             return
         }
 
-        val normalized = if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
-            cleaned
-        } else {
-            "https://$cleaned"
+        val normalized = when {
+            cleaned.startsWith("http://", ignoreCase = true) -> cleaned
+            cleaned.startsWith("https://", ignoreCase = true) -> cleaned
+            else -> "https://$cleaned"
         }
 
-        val intent = Intent(Intent.ACTION_VIEW, normalized.toUri())
+        val uri = normalized.toUri()
 
-        if (intent.resolveActivity(requireContext().packageManager) != null) {
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+        }
+
+        try {
             startActivity(intent)
-        } else {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.error_no_browser),
-                Toast.LENGTH_SHORT
-            ).show()
+        } catch (e: ActivityNotFoundException) {
+            showToast(R.string.error_no_browser)
         }
     }
 }

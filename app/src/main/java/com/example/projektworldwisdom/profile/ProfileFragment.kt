@@ -1,8 +1,10 @@
 package com.example.projektworldwisdom.profile
 
 import android.content.Intent
+import android.content.ActivityNotFoundException
 import androidx.core.net.toUri
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.NavOptions
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,42 +41,39 @@ class ProfileFragment : Fragment() {
         }
 
         btnSettings.setOnClickListener {
-            // Navigate to Settings
-            try {
-                val navController = findNavController()
-                val destinationId = R.id.settingsFragment
-
-                // Prevent duplicate navigation taps
-                if (navController.currentDestination?.id == destinationId) return@setOnClickListener
-
-                navController.navigate(destinationId)
-            } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.error_navigation),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            navigateSafe(R.id.action_profileFragment_to_settingsFragment)
         }
 
         btnAppInfo.setOnClickListener {
-            // App Info (MVP placeholder)
-            // Using destination-id navigation avoids crashes when an action-id is missing
-            try {
-                val navController = findNavController()
-                val destinationId = R.id.settingsFragment
+            // App Info lives inside Settings for now (MVP)
+            navigateSafe(R.id.action_profileFragment_to_settingsFragment)
+        }
+    }
 
-                // Prevent duplicate navigation taps
-                if (navController.currentDestination?.id == destinationId) return@setOnClickListener
+    private fun navigateSafe(destinationId: Int) {
+        try {
+            val navController = findNavController()
 
-                navController.navigate(destinationId)
-            } catch (e: Exception) {
+            val navOptions = NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .build()
+
+            val action = navController.currentDestination?.getAction(destinationId)
+            if (action != null) {
+                navController.navigate(destinationId, null, navOptions)
+            } else {
                 Toast.makeText(
                     requireContext(),
                     getString(R.string.error_navigation),
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        } catch (e: Exception) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_navigation),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -101,7 +100,15 @@ class ProfileFragment : Fragment() {
         val intent = Intent(Intent.ACTION_VIEW, uri)
 
         if (intent.resolveActivity(requireContext().packageManager) != null) {
-            startActivity(intent)
+            try {
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.error_no_browser),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         } else {
             Toast.makeText(
                 requireContext(),

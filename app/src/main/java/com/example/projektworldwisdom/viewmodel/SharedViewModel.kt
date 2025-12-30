@@ -134,6 +134,30 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
+    // ------------------------------------------------------------------------
+    // KATEGORIEN (für CategoryOverview)
+    // ------------------------------------------------------------------------
+
+    private val _categories = MediatorLiveData<List<String>>().apply { value = emptyList() }
+    val categories: LiveData<List<String>> = _categories
+
+    /**
+     * UI-Helper: Für Screens wie CategoryOverview/Chips.
+     * → Enthält immer "Alle" als ersten Eintrag (wenn es überhaupt Kategorien gibt).
+     */
+    private val _categoriesWithAll = MediatorLiveData<List<String>>().apply { value = emptyList() }
+    val categoriesWithAll: LiveData<List<String>> = _categoriesWithAll
+
+    // ------------------------------------------------------------------------
+    // GEMEINSAMER AUSWAHL-STATUS (z. B. für Detail-Screens)
+    // ------------------------------------------------------------------------
+
+    private val _selectedAuthor = MutableLiveData<Author?>()
+    val selectedAuthor: LiveData<Author?> = _selectedAuthor
+
+    private val _selectedQuote = MutableLiveData<Quote?>()
+    val selectedQuote: LiveData<Quote?> = _selectedQuote
+
     init {
         // Beobachte Änderungen → UI-Listen immer konsistent halten
         _favoriteQuotes.addSource(_quotes) { recomputeFavoriteQuotes() }
@@ -147,6 +171,18 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         _filteredQuotes.addSource(_quotes) { recomputeFilteredQuotes() }
         _filteredQuotes.addSource(_selectedCategoryFilter) { recomputeFilteredQuotes() }
         _filteredQuotes.addSource(_searchQuery) { recomputeFilteredQuotes() }
+
+        // CategoryOverview: Kategorien immer aktuell halten
+        _categories.addSource(_quotes) { recomputeCategories() }
+
+        // UI-Helper: "Alle" immer vorne (für Chips/Overview)
+        _categoriesWithAll.addSource(_categories) { list ->
+            _categoriesWithAll.value = if (list.isNullOrEmpty()) {
+                emptyList()
+            } else {
+                listOf(ALL_CATEGORY_LABEL) + list
+            }
+        }
 
         // Beim Start direkt Zitate laden
         loadQuotes()
@@ -164,6 +200,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
                 val result = quoteRepository.getAllQuotes()
                 allQuotes = result
                 publishQuotesWithFavorites()
+                // sorgt dafür, dass CategoryOverview sofort Kategorien hat
+                recomputeCategories()
             } catch (e: Exception) {
                 _error.value = e.message ?: "Fehler beim Laden der Zitate."
             } finally {
@@ -233,7 +271,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         if (normalized.isBlank() || normalized.equals("All", ignoreCase = true) || normalized.equals("Alle", ignoreCase = true)) {
             return list
         }
-        return list.filter { it.category == normalized }
+        return list.filter { it.category.trim().equals(normalized, ignoreCase = true) }
     }
 
     // ------------------------------------------------------------------------
@@ -280,6 +318,21 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // ------------------------------------------------------------------------
     // INTERNAL HELPERS
     // ------------------------------------------------------------------------
+
+    private fun recomputeCategories() {
+        val list = _quotes.value.orEmpty()
+
+        val categories = list
+            .asSequence()
+            .map { it.category.trim() }
+            .filter { it.isNotBlank() }
+            .distinctBy { it.lowercase() }
+            .sortedWith(String.CASE_INSENSITIVE_ORDER)
+            .toList()
+
+        _categories.value = categories
+        // _categoriesWithAll wird automatisch über die Source oben aktualisiert.
+    }
 
     private fun recomputeFilteredQuotes() {
         val base = _quotes.value.orEmpty()
@@ -335,12 +388,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     // GEMEINSAMER AUSWAHL-STATUS (z. B. für Detail-Screens)
     // ------------------------------------------------------------------------
 
-    private val _selectedAuthor = MutableLiveData<Author?>()
-    val selectedAuthor: LiveData<Author?> = _selectedAuthor
-
-    private val _selectedQuote = MutableLiveData<Quote?>()
-    val selectedQuote: LiveData<Quote?> = _selectedQuote
-
     fun selectAuthor(author: Author) {
         _selectedAuthor.value = author
     }
@@ -360,5 +407,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     companion object {
         private const val PREFS_NAME = "worldwisdom_prefs"
         private const val KEY_FAVORITES = "favorite_keys"
+
+        private const val ALL_CATEGORY_LABEL = "Alle"
     }
 }

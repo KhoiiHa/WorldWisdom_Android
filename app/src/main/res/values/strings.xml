@@ -32,6 +32,7 @@
 
     <!-- Common / Shared -->
     <string name="common_placeholder_dash">-</string>
+    <string name="common_view_all">Alle anzeigen</string>
     <string name="common_error_subtitle">Bitte versuche es später erneut.</string>
     <string name="common_error_title">Etwas ist schiefgelaufen</string>
     <string name="common_retry">Erneut versuchen</string>
@@ -110,6 +111,7 @@
     <string name="nav_collection">Sammlung</string>
     <string name="nav_profile">Profil</string>
     <string name="nav_settings">Einstellungen</string>
+    <string name="nav_categories">Kategorien</string>
     <string name="nav_login">Login</string>
     <string name="nav_register">Registrieren</string>
     <string name="nav_quote_details">Zitatdetails</string>

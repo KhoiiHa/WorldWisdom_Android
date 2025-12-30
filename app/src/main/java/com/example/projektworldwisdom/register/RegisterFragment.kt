@@ -32,7 +32,9 @@ class RegisterFragment : Fragment() {
 
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
-                findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToHomeFragment())
+                findNavController().navigate(
+                    RegisterFragmentDirections.actionRegisterFragmentToHomeFragment(initialCategory = "Alle")
+                )
             }
         }
 
@@ -59,4 +61,3 @@ class RegisterFragment : Fragment() {
 
 
 }
-

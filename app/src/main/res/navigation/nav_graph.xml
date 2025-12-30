@@ -15,6 +15,18 @@
         <action
             android:id="@+id/action_homeFragment_to_quoteDetailsFragment"
             app:destination="@id/quoteDetailsFragment" />
+        <argument
+            android:name="initialCategory"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryOverviewFragment"
+            app:destination="@id/categoryOverviewFragment">
+            <argument
+                android:name="origin"
+                app:argType="string"
+                android:defaultValue="home" />
+        </action>
     </fragment>
 
     <!-- Collection-Screen für die gespeicherten Zitate -->
@@ -22,9 +34,48 @@
         android:id="@+id/collectionFragment"
         android:name="com.example.projektworldwisdom.collection.CollectionFragment"
         android:label="@string/nav_collection" >
+        <argument
+            android:name="initialCategory"
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_collectionFragment_to_quoteDetailsFragment"
             app:destination="@id/quoteDetailsFragment" />
+        <action
+            android:id="@+id/action_collectionFragment_to_categoryOverviewFragment"
+            app:destination="@id/categoryOverviewFragment">
+            <argument
+                android:name="origin"
+                app:argType="string"
+                android:defaultValue="collection" />
+        </action>
+    </fragment>
+
+    <!-- Category Overview (Kategorien-Übersicht) -->
+    <fragment
+        android:id="@+id/categoryOverviewFragment"
+        android:name="com.example.projektworldwisdom.category.CategoryOverviewFragment"
+        android:label="@string/nav_categories" >
+
+        <!-- Optional: hilft uns später, je nach Einstieg (Home vs. Collection) korrekt zurück zu navigieren -->
+        <argument
+            android:name="origin"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="home" />
+
+        <!-- Rücksprung nach Home (z.B. wenn CategoryOverview von Home geöffnet wurde) -->
+        <action
+            android:id="@+id/action_categoryOverviewFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:launchSingleTop="true" />
+
+        <!-- Rücksprung zur Collection (z.B. wenn CategoryOverview von Collection geöffnet wurde) -->
+        <action
+            android:id="@+id/action_categoryOverviewFragment_to_collectionFragment"
+            app:destination="@id/collectionFragment"
+            app:launchSingleTop="true" />
+
     </fragment>
 
     <!-- Profil-Screen -->

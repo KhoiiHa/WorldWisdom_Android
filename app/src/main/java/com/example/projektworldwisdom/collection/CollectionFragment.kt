@@ -35,6 +35,17 @@ class CollectionFragment : Fragment() {
 
     // Explore by Category (local filter for Favorites list)
     private var selectedCategory: String? = null
+    private var isRebuildingChips: Boolean = false
+
+    private fun readInitialCategoryFromArgs() {
+        // Supports deep-links / future Category-Overview screen.
+        // We accept multiple keys to stay flexible without breaking navigation.
+        val raw = arguments?.getString("category")
+            ?: arguments?.getString("selectedCategory")
+            ?: arguments?.getString("initialCategory")
+
+        selectedCategory = raw?.trim()?.takeIf { it.isNotEmpty() }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,11 +58,32 @@ class CollectionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        readInitialCategoryFromArgs()
+
+        listenForCategoryResult()
 
         setupRecyclerView()
         setupExploreCategoriesUi()
         setupActions()
         setupObservers()
+    }
+
+    private fun listenForCategoryResult() {
+        // CategoryOverview → returns the selected category via SavedStateHandle.
+        // We listen here so Collection updates immediately when user comes back.
+        val navController = findNavController()
+        val handle = navController.currentBackStackEntry?.savedStateHandle ?: return
+
+        handle.getLiveData<String?>(KEY_SELECTED_CATEGORY).observe(viewLifecycleOwner) { value ->
+            // Consume once to avoid re-triggering after rotations / re-attaching observers
+            handle.remove<String?>(KEY_SELECTED_CATEGORY)
+
+            selectedCategory = value?.trim()?.takeIf { it.isNotEmpty() }
+
+            // Re-apply selection + filter immediately
+            renderCategoryChips(latestFavorites)
+            renderFromState()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -77,16 +109,28 @@ class CollectionFragment : Fragment() {
         binding.chipGroupCategories.isSingleSelection = true
         binding.chipGroupCategories.isSelectionRequired = true
 
+        binding.chipGroupCategories.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (isRebuildingChips) return@setOnCheckedStateChangeListener
+
+            val checkedId = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            val chip = group.findViewById<Chip>(checkedId) ?: return@setOnCheckedStateChangeListener
+
+            selectedCategory = chip.tag as? String
+            renderFromState()
+        }
+
         // Start with a stable baseline even before favorites arrive
         renderCategoryChips(emptyList())
     }
 
     private fun renderCategoryChips(quotes: List<Quote>) {
+        isRebuildingChips = true
+
         val categories = quotes
             .map { it.category.trim() }
             .filter { it.isNotBlank() }
-            .distinct()
-            .sorted()
+            .distinctBy { it.lowercase() }
+            .sortedBy { it.lowercase() }
 
         binding.chipGroupCategories.removeAllViews()
 
@@ -110,7 +154,7 @@ class CollectionFragment : Fragment() {
             want == null -> chipAll.isChecked = true
             else -> {
                 // If selected category no longer exists (e.g., favorites changed), fallback to “Alle”
-                val stillExists = categories.contains(want)
+                val stillExists = categories.any { it.equals(want, ignoreCase = true) }
                 if (!stillExists) {
                     selectedCategory = null
                     chipAll.isChecked = true
@@ -118,7 +162,7 @@ class CollectionFragment : Fragment() {
                     // Find and check the matching chip
                     for (i in 0 until binding.chipGroupCategories.childCount) {
                         val v = binding.chipGroupCategories.getChildAt(i)
-                        if (v is Chip && v.tag == want) {
+                        if (v is Chip && (v.tag as? String)?.equals(want, ignoreCase = true) == true) {
                             v.isChecked = true
                             break
                         }
@@ -126,29 +170,25 @@ class CollectionFragment : Fragment() {
                 }
             }
         }
+
+        isRebuildingChips = false
     }
 
     private fun createCategoryChip(label: String, categoryValue: String?): Chip {
         return Chip(requireContext()).apply {
+            id = View.generateViewId()
             text = label
             isCheckable = true
             isCheckedIconVisible = false
             // Tag is used to identify the category later
             tag = categoryValue
-
-            setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    selectedCategory = categoryValue
-                    renderFromState()
-                }
-            }
         }
     }
 
     private fun applyCategoryFilter(quotes: List<Quote>): List<Quote> {
         val cat = selectedCategory
         if (cat.isNullOrBlank()) return quotes
-        return quotes.filter { it.category.equals(cat, ignoreCase = true) }
+        return quotes.filter { it.category.trim().equals(cat, ignoreCase = true) }
     }
 
     private fun setupActions() {
@@ -160,6 +200,18 @@ class CollectionFragment : Fragment() {
 
         // Retry → clear error + reload
         binding.btnRetry.setOnClickListener { retryRender() }
+
+        // Explore by Category → opens the CategoryOverview screen
+        // Whole card is clickable (nice on touch devices)
+        binding.cardExploreCategories.setOnClickListener {
+            navigateToCategoryOverview()
+        }
+
+        // Explore by Category → explicit entry point (top-right “Übersicht” button)
+        // This avoids relying on tapping the card background.
+        binding.btnCategoryOverview.setOnClickListener {
+            navigateToCategoryOverview()
+        }
     }
 
     private fun setupObservers() {
@@ -190,8 +242,9 @@ class CollectionFragment : Fragment() {
         val filtered = applyCategoryFilter(latestFavorites)
         updateHeaderCount(filtered.size)
 
-        // Show category explorer only when there is something to explore
-        binding.cardExploreCategories.isVisible = latestFavorites.isNotEmpty()
+        // Entry point should always be discoverable; the overview can show its own empty-state.
+        binding.cardExploreCategories.isVisible = true
+        binding.btnCategoryOverview.isVisible = true
 
         when {
             // Prefer showing content if we have it (even if a background reload is happening)
@@ -236,6 +289,29 @@ class CollectionFragment : Fragment() {
                 .setLaunchSingleTop(true)
                 .build()
             navController.navigate(R.id.homeFragment, null, options)
+        }
+    }
+
+    private fun navigateToCategoryOverview() {
+        // Navigation to CategoryOverview is always allowed.
+
+        val args = bundleOf(
+            // Useful for future analytics / UI decisions in the overview
+            "origin" to "collection",
+            // Preselect current category (if any) when opening the overview
+            "initialCategory" to selectedCategory
+        )
+
+        val navController = findNavController()
+
+        // Prefer the explicit action if it exists; fallback to direct destination navigation.
+        runCatching {
+            navController.navigate(
+                R.id.action_collectionFragment_to_categoryOverviewFragment,
+                args
+            )
+        }.recoverCatching {
+            navController.navigate(R.id.categoryOverviewFragment, args)
         }
     }
 
@@ -318,5 +394,9 @@ class CollectionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    companion object {
+        // Must match the key used by CategoryOverviewFragment when returning a result.
+        const val KEY_SELECTED_CATEGORY = "selectedCategory"
     }
 }

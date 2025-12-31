@@ -61,9 +61,17 @@ class CategoryAdapter(
         private val onCategoryClick: (String) -> Unit
     ) : RecyclerView.ViewHolder(card) {
 
+        private var boundCategory: String? = null
+
+        init {
+            card.setOnClickListener {
+                boundCategory?.let(onCategoryClick)
+            }
+        }
+
         fun bind(category: String) {
+            boundCategory = category
             title.text = category
-            card.setOnClickListener { onCategoryClick(category) }
         }
     }
 

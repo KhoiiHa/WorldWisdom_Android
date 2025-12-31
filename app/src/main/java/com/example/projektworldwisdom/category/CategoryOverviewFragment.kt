@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.R
 import com.google.android.material.appbar.MaterialToolbar
+import androidx.core.os.bundleOf
 
 class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
 
@@ -45,13 +46,22 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         adapter = CategoryAdapter { category ->
             val navController = findNavController()
 
-            // Send result back to the previous screen (Home or Collection).
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set(RESULT_SELECTED_CATEGORY, category)
+            // If this screen was opened from Collection, keep the existing behavior:
+            // set the selected category as a result so Collection can apply its local filter.
+            if (origin == ORIGIN_COLLECTION) {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set(RESULT_SELECTED_CATEGORY, category)
+            }
 
-            // … and return to the screen we came from.
-            navigateBackToOrigin(origin)
+            // Decision A: open the quote list for this category.
+            navController.navigate(
+                R.id.action_categoryOverviewFragment_to_categoryQuotesFragment,
+                bundleOf(
+                    "category" to category,
+                    "origin" to "overview"
+                )
+            )
         }
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)

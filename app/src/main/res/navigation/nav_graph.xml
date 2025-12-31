@@ -76,6 +76,37 @@
             app:destination="@id/collectionFragment"
             app:launchSingleTop="true" />
 
+        <!-- Kategorie -> Quote-Liste pro Kategorie -->
+        <action
+            android:id="@+id/action_categoryOverviewFragment_to_categoryQuotesFragment"
+            app:destination="@id/categoryQuotesFragment" />
+
+    </fragment>
+
+    <!-- Category Quotes (Quote-Liste pro Kategorie) -->
+    <fragment
+        android:id="@+id/categoryQuotesFragment"
+        android:name="com.example.projektworldwisdom.category.CategoryQuotesFragment"
+        android:label="Category Quotes" >
+
+        <!-- Kategorie, die angezeigt wird -->
+        <argument
+            android:name="category"
+            app:argType="string"
+            app:nullable="false" />
+
+        <!-- Optional: woher wir kommen (Overview vs. Collection) -->
+        <argument
+            android:name="origin"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="overview" />
+
+        <!-- Quote-Klick -> QuoteDetails -->
+        <action
+            android:id="@+id/action_categoryQuotesFragment_to_quoteDetailsFragment"
+            app:destination="@id/quoteDetailsFragment" />
+
     </fragment>
 
     <!-- Profil-Screen -->

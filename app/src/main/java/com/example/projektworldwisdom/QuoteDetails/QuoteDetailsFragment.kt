@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
@@ -18,6 +19,8 @@ import com.example.projektworldwisdom.databinding.FragmentQuoteDetailsBinding
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
 import com.google.android.material.chip.Chip
+import android.content.res.ColorStateList
+import com.google.android.material.color.MaterialColors
 
 class QuoteDetailsFragment : Fragment() {
 
@@ -59,11 +62,8 @@ class QuoteDetailsFragment : Fragment() {
 
         // Favorite toggle
         binding.btnFavorite.setOnClickListener {
-            val quote = findQuoteOrNull()
-            if (quote == null) {
-                showToast(R.string.quote_details_toast_quote_not_found)
-                return@setOnClickListener
-            }
+            val quote = findQuoteOrNull() ?: buildQuoteFromArgs()
+            binding.btnFavorite.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
 
             // UI sofort aktualisieren (fühlt sich “live” an)
             currentIsFavorite = !currentIsFavorite
@@ -75,17 +75,19 @@ class QuoteDetailsFragment : Fragment() {
 
         // Source öffnen
         binding.btnSource.setOnClickListener {
+            binding.btnSource.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             openUrl(args.sourceUrl.orEmpty())
         }
 
         // Autor Details öffnen
         binding.btnAuthorDetails.setOnClickListener {
-            val quote = findQuoteOrNull()
-            if (quote == null) {
-                // Fallback: wir navigieren trotzdem, aber mit den Daten aus Args
-                navigateToAuthorDetailsFallback()
-                return@setOnClickListener
-            }
+            binding.btnAuthorDetails.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+
+            // Wenn kein Autor vorhanden ist, macht AuthorDetails keinen Sinn.
+            // (Button ist in renderFromArgs() ohnehin verborgen.)
+            if (args.author.isNullOrBlank()) return@setOnClickListener
+
+            val quote = findQuoteOrNull() ?: buildQuoteFromArgs()
             navigateToAuthorDetails(quote)
         }
     }
@@ -108,6 +110,8 @@ class QuoteDetailsFragment : Fragment() {
             ""
         }
 
+        binding.btnAuthorDetails.isVisible = author.isNotBlank()
+
         val category = args.category?.trim().orEmpty()
         binding.quoteCategory.isVisible = category.isNotBlank()
         binding.quoteCategory.text = category
@@ -116,7 +120,9 @@ class QuoteDetailsFragment : Fragment() {
         renderTags(args.tags?.toList().orEmpty())
 
         // Source Button nur zeigen wenn URL vorhanden
-        binding.btnSource.isVisible = !args.sourceUrl.isNullOrBlank()
+        val hasSource = !args.sourceUrl.isNullOrBlank()
+        binding.btnSource.isVisible = hasSource
+        binding.btnSource.isEnabled = hasSource
     }
 
     private fun updateFavoriteUi(isFavorite: Boolean) {
@@ -130,7 +136,16 @@ class QuoteDetailsFragment : Fragment() {
 
         binding.btnFavorite.setImageResource(iconRes)
 
-        // Optional: Text-Hinweis
+        // Tint: favorited -> primary, otherwise -> onSurfaceVariant (ruhiger, Material-konform)
+        val tintAttr = if (isFavorite) {
+            com.google.android.material.R.attr.colorPrimary
+        } else {
+            com.google.android.material.R.attr.colorOnSurfaceVariant
+        }
+        val tintColor = MaterialColors.getColor(binding.btnFavorite, tintAttr)
+        binding.btnFavorite.imageTintList = ColorStateList.valueOf(tintColor)
+
+        // Label
         binding.favoriteLabel.text = if (isFavorite) {
             getString(R.string.quote_details_favorite_saved)
         } else {
@@ -165,13 +180,27 @@ class QuoteDetailsFragment : Fragment() {
         }
     }
 
+    private fun buildQuoteFromArgs(): Quote {
+        return Quote(
+            id = args.quoteId,
+            author = args.author?.trim().orEmpty(),
+            quote = args.quoteText?.trim().orEmpty(),
+            category = args.category?.trim().orEmpty(),
+            tags = args.tags?.toList().orEmpty(),
+            isFavorite = currentIsFavorite,
+            description = "",
+            source = args.sourceUrl?.trim().orEmpty(),
+            authorImageURLs = emptyList()
+        )
+    }
+
     private fun findQuoteOrNull(): Quote? {
         return viewModel.quotes.value?.firstOrNull { it.id == args.quoteId }
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
         val action = QuoteDetailsFragmentDirections.actionQuoteDetailsFragmentToAuthorDetailsFragment(
-            authorSlug = quote.author,
+            authorSlug = quote.authorSlug,
             authorName = quote.author,
             authorDescription = null,
             authorBio = quote.description.takeIf { it.isNotBlank() },
@@ -180,17 +209,6 @@ class QuoteDetailsFragment : Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun navigateToAuthorDetailsFallback() {
-        val author = args.author.orEmpty()
-        val action = QuoteDetailsFragmentDirections.actionQuoteDetailsFragmentToAuthorDetailsFragment(
-            authorSlug = author,
-            authorName = author,
-            authorDescription = null,
-            authorBio = null,
-            authorSourceUrl = args.sourceUrl?.takeIf { it.isNotBlank() }
-        )
-        findNavController().navigate(action)
-    }
 
     private fun openUrl(url: String) {
         val normalized = normalizeUrl(url)

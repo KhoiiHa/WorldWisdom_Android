@@ -10,15 +10,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.Gravity
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.view.setPadding
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentCategoryQuotesBinding
+import com.example.projektworldwisdom.databinding.ItemQuoteBinding
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
-import com.google.android.material.card.MaterialCardView
 
 /**
  * CategoryQuotesFragment
@@ -96,6 +92,10 @@ class CategoryQuotesFragment : Fragment() {
             val quotesForCategory = sharedViewModel.getQuotesByCategory(category)
             quotesAdapter.submit(quotesForCategory)
             binding.headerCount.text = "${quotesForCategory.size} Ergebnisse"
+
+            val isEmpty = quotesForCategory.isEmpty()
+            binding.emptyStateContainer.visibility = if (isEmpty) View.VISIBLE else View.GONE
+            binding.recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
         }
 
         // Small debug-friendly subtitle (optional). Remove later if you don’t like it.
@@ -126,58 +126,13 @@ private class CategoryQuotesAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
-        val context = parent.context
-
-        val card = MaterialCardView(context).apply {
-            layoutParams = ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                val m = dp(context, 12)
-                setMargins(m, m, m, 0)
-            }
-            radius = dp(context, 12).toFloat()
-            isClickable = true
-            isFocusable = true
-        }
-
-        val container = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(context, 16))
-        }
-
-        val quoteText = TextView(context).apply {
-            textSize = 16f
-        }
-
-        val metaRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        val authorText = TextView(context).apply {
-            textSize = 13f
-            alpha = 0.75f
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        }
-
-        val fav = TextView(context).apply {
-            textSize = 18f
-            setPadding(dp(context, 8))
-        }
-
-        metaRow.addView(authorText)
-        metaRow.addView(fav)
-
-        container.addView(quoteText)
-        container.addView(metaRow)
-        card.addView(container)
-
+        val binding = ItemQuoteBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return QuoteViewHolder(
-            card = card,
-            quoteText = quoteText,
-            authorText = authorText,
-            fav = fav,
+            binding = binding,
             onQuoteClick = onQuoteClick,
             onFavoriteToggle = onFavoriteToggle
         )
@@ -190,35 +145,32 @@ private class CategoryQuotesAdapter(
     override fun getItemCount(): Int = items.size
 
     class QuoteViewHolder(
-        private val card: MaterialCardView,
-        private val quoteText: TextView,
-        private val authorText: TextView,
-        private val fav: TextView,
+        private val binding: ItemQuoteBinding,
         private val onQuoteClick: (Quote) -> Unit,
         private val onFavoriteToggle: (Quote) -> Unit
-    ) : RecyclerView.ViewHolder(card) {
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         private var bound: Quote? = null
 
         init {
-            card.setOnClickListener {
-                bound?.let(onQuoteClick)
-            }
-            fav.setOnClickListener {
-                bound?.let(onFavoriteToggle)
-            }
+            binding.root.setOnClickListener { bound?.let(onQuoteClick) }
+            binding.btnFavorite.setOnClickListener { bound?.let(onFavoriteToggle) }
         }
 
         fun bind(item: Quote) {
             bound = item
-            quoteText.text = item.quote
-            authorText.text = item.author.takeIf { it.isNotBlank() } ?: ""
-            fav.text = if (item.isFavorite) "★" else "☆"
-        }
-    }
 
-    private fun dp(context: android.content.Context, value: Int): Int {
-        val density = context.resources.displayMetrics.density
-        return (value * density).toInt()
+            binding.quoteText.text = item.quote
+
+            val author = item.author.trim()
+            binding.quoteAuthor.text = if (author.isNotBlank()) "– $author" else ""
+
+            val iconRes = if (item.isFavorite) {
+                R.drawable.ic_star_filled
+            } else {
+                R.drawable.ic_star_outline
+            }
+            binding.btnFavorite.setImageResource(iconRes)
+        }
     }
 }

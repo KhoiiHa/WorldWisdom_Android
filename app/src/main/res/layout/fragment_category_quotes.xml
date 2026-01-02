@@ -62,7 +62,7 @@
             android:layout_height="56dp"
             android:contentDescription="@null"
             android:alpha="0.85"
-            app:srcCompat="@drawable/ic_search_24"
+            app:srcCompat="@drawable/ic_notifications_black_24dp"
             app:tint="?attr/colorOnSurfaceVariant" />
 
         <TextView

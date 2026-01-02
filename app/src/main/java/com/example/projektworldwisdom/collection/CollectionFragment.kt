@@ -89,7 +89,7 @@ class CollectionFragment : Fragment() {
     private fun setupRecyclerView() {
         quoteAdapter = QuoteAdapter(
             onQuoteClick = { quote: Quote ->
-                navigateToAuthorDetails(quote)
+                navigateToQuoteDetails(quote)
             },
             onFavoriteClick = { quote: Quote ->
                 // In Favorites screen: ⭐ toggles add/remove
@@ -262,11 +262,26 @@ class CollectionFragment : Fragment() {
         renderFromState()
     }
 
+    private fun navigateToQuoteDetails(quote: Quote) {
+        // QuoteDetails requires SafeArgs; pass what we already have from the list item.
+        val action = CollectionFragmentDirections
+            .actionCollectionFragmentToQuoteDetailsFragment(
+                quoteId = quote.id,
+                quoteText = quote.quote,
+                author = quote.author,
+                category = quote.category,
+                sourceUrl = quote.source.takeIf { it.isNotBlank() },
+                tags = quote.tags.toTypedArray(),
+                isFavorite = quote.isFavorite
+            )
+        findNavController().navigate(action)
+    }
+
     private fun navigateToAuthorDetails(quote: Quote) {
         // Minimal & consistent with Home: we pass what we already have.
         // Later, we can switch to a real AuthorDetails fetch if needed.
         val args = bundleOf(
-            "authorSlug" to quote.author,
+            "authorSlug" to quote.authorSlug,
             "authorName" to quote.author,
             // Short header line
             "authorDescription" to quote.category.takeIf { it.isNotBlank() },

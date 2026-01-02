@@ -29,7 +29,8 @@
             android:textColor="?attr/colorOnSurface"
             android:alpha="0.7"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         <TextView
             android:id="@+id/user_name"
@@ -40,6 +41,7 @@
             android:textColor="?attr/colorOnSurface"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             tools:text="Benutzer" />
 
     </LinearLayout>
@@ -66,7 +68,7 @@
         app:endIconTint="?attr/colorOnSurfaceVariant"
         app:hintEnabled="true"
         app:hintTextColor="?attr/colorOnSurfaceVariant"
-        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconDrawable="@drawable/ic_search_24"
         app:startIconTint="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -107,6 +109,8 @@
         app:cardBackgroundColor="?attr/colorSurface"
         app:strokeWidth="1dp"
         app:strokeColor="?attr/colorOutline"
+        app:rippleColor="?attr/colorControlHighlight"
+        android:hapticFeedbackEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/search_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -124,7 +128,8 @@
                 android:text="@string/daily_affirmation_title"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
             <TextView
                 android:id="@+id/affirmation_text"
@@ -138,6 +143,7 @@
                 android:lineSpacingExtra="2dp"
                 android:maxLines="4"
                 android:ellipsize="end"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 tools:text="Stay focused and keep learning 💡" />
 
             <TextView
@@ -151,6 +157,7 @@
                 android:textStyle="italic"
                 android:gravity="end"
                 android:layout_gravity="end"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 tools:text="– ChatGPT Mentor" />
 
             <TextView
@@ -161,7 +168,8 @@
                 android:text="@string/daily_affirmation_hint_tap_for_details"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:alpha="0.8"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
         </LinearLayout>
 
@@ -177,6 +185,7 @@
         android:layout_marginEnd="24dp"
         android:overScrollMode="never"
         android:scrollbars="none"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/daily_affirmation_card"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -292,6 +301,50 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
+    <LinearLayout
+        android:id="@+id/empty_state_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filter_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/empty_state_icon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@null"
+            android:alpha="0.85"
+            app:srcCompat="@drawable/ic_notifications_black_24dp"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:id="@+id/empty_state_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Keine Treffer"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/empty_state_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:alpha="0.75"
+            android:gravity="center"
+            android:text="Probiere einen anderen Suchbegriff oder wähle einen Filter."
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+    </LinearLayout>
+
     <!-- RecyclerView for quotes -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/quotes_list"
@@ -299,7 +352,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
         android:clipToPadding="false"
         android:paddingBottom="24dp"
         android:paddingTop="4dp"
@@ -317,6 +370,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:indeterminateTint="?attr/colorPrimary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -19,8 +19,8 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:minHeight="56dp"
-            app:title=""
-            app:navigationIcon="@android:drawable/ic_media_previous"
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -35,6 +35,7 @@
             android:paddingHorizontal="24dp"
             android:paddingTop="20dp"
             android:paddingBottom="24dp"
+            android:overScrollMode="never"
             app:layout_constraintTop_toBottomOf="@id/toolbar_author_details"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,19 +56,21 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="1dp"
                     app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:rippleColor="?attr/colorControlHighlight">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="18dp">
 
                         <TextView
                             android:id="@+id/author_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                             android:textColor="?attr/colorOnSurface"
                             tools:text="Marcus Aurelius" />
 
@@ -77,7 +80,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:lineSpacingExtra="2dp"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             tools:text="Römischer Kaiser und stoischer Philosoph, bekannt für seine Meditationen." />
                     </LinearLayout>
@@ -90,14 +93,16 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="1dp"
                     app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:rippleColor="?attr/colorControlHighlight">
 
                     <TextView
                         android:id="@+id/author_bio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="16dp"
-                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                         android:textColor="?attr/colorOnSurface"
                         android:lineSpacingExtra="3dp"
                         tools:text="Kurzbiografie, Hintergrund und relevante Lebensstationen der Autorin oder des Autors." />
@@ -109,17 +114,22 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:visibility="gone"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:hapticFeedbackEnabled="true"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:rippleColor="?attr/colorControlHighlight">
 
                     <TextView
                         android:id="@+id/author_link"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="14dp"
-                        android:autoLink="web"
                         android:textAppearance="?attr/textAppearanceBodySmall"
                         android:textSize="14sp"
                         android:textColor="?attr/colorPrimary"

@@ -87,12 +87,17 @@ class AuthorDetailsFragment : Fragment() {
 
             if (hasSource) {
                 authorLink.text = authorSourceUrl
-                authorLink.setOnClickListener {
+
+                val click = View.OnClickListener {
                     // Subtle feedback
-                    authorLink.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    authorLinkCard.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                     openUrl(authorSourceUrl!!)
                 }
+
+                authorLinkCard.setOnClickListener(click)
+                authorLink.setOnClickListener(click)
             } else {
+                authorLinkCard.setOnClickListener(null)
                 authorLink.setOnClickListener(null)
             }
         }

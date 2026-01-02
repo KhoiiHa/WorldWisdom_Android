@@ -3,6 +3,7 @@ package com.example.projektworldwisdom.home
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,10 @@ class HomeFragment : Fragment() {
     // Guards to prevent feedback loops when we update UI from LiveData observers
     private var isProgrammaticSearchUpdate = false
     private var isProgrammaticChipUpdate = false
+
+    // Simple UI state to drive Loading / Content / Empty
+    private var latestIsLoading: Boolean = false
+    private var latestFilteredCount: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,7 +70,8 @@ class HomeFragment : Fragment() {
 
         // Ladeanzeige
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            latestIsLoading = isLoading
+            renderHomeState()
         }
 
         // Basis-Quotes (für Daily Affirmation)
@@ -75,7 +81,10 @@ class HomeFragment : Fragment() {
 
         // Gefilterte Quotes (Phase 2) — Home Feed
         viewModel.filteredQuotes.observe(viewLifecycleOwner) { quotes ->
-            quotesAdapter.updateQuotes(quotes.orEmpty())
+            val safe = quotes.orEmpty()
+            latestFilteredCount = safe.size
+            quotesAdapter.updateQuotes(safe)
+            renderHomeState()
         }
 
         // Suchfeld → ViewModel (Phase 2)
@@ -174,6 +183,18 @@ class HomeFragment : Fragment() {
                 viewModel.clearError()
             }
         }
+
+        // Initial state render
+        renderHomeState()
+    }
+
+    private fun renderHomeState() {
+        val showLoading = latestIsLoading
+        val showEmpty = !latestIsLoading && latestFilteredCount == 0
+
+        binding.progressBar.visibility = if (showLoading) View.VISIBLE else View.GONE
+        binding.emptyStateContainer.visibility = if (showEmpty) View.VISIBLE else View.GONE
+        binding.quotesList.visibility = if (showEmpty || showLoading) View.GONE else View.VISIBLE
     }
 
     @SuppressLint("SetTextI18n")
@@ -199,6 +220,7 @@ class HomeFragment : Fragment() {
 
         // Tap auf die Card → Quote Details (von dort optional weiter zu Author Details)
         binding.dailyAffirmationCard.setOnClickListener {
+            binding.dailyAffirmationCard.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             navigateToQuoteDetails(quote)
         }
     }
@@ -221,7 +243,7 @@ class HomeFragment : Fragment() {
         // Minimal, aber "echt": wir geben vorhandene Daten direkt mit.
         // Später können wir hier optional auf echtes Detail-Fetching umschalten.
         val action = HomeFragmentDirections.actionHomeFragmentToAuthorDetailsFragment(
-            authorSlug = quote.author,
+            authorSlug = quote.authorSlug,
             authorName = quote.author,
             // Kurzzeile im Header (nicht over-engineeren): Kategorie ist dafür okay.
             authorDescription = quote.category.takeIf { it.isNotBlank() },

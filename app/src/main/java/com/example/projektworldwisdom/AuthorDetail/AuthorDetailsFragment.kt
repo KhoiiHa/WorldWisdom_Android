@@ -6,9 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.HapticFeedbackConstants
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.fragment.findNavController
+import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentAuthorDetailsBinding
 
 class AuthorDetailsFragment : Fragment() {
@@ -32,8 +36,7 @@ class AuthorDetailsFragment : Fragment() {
 
         // Toolbar: Back navigation
         binding.toolbarAuthorDetails.apply {
-            // Use a safe built-in back icon (no extra drawable needed)
-            setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+            setNavigationIcon(R.drawable.ic_arrow_back_24)
             setNavigationOnClickListener { findNavController().navigateUp() }
         }
 
@@ -78,21 +81,45 @@ class AuthorDetailsFragment : Fragment() {
                 )
 
             // Source link (only visible if we have a real URL)
-            if (authorSourceUrl.isNullOrBlank()) {
-                authorLinkCard.visibility = View.GONE
-                authorLink.visibility = View.GONE
-                authorLink.setOnClickListener(null)
-            } else {
-                authorLinkCard.visibility = View.VISIBLE
-                authorLink.visibility = View.VISIBLE
+            val hasSource = !authorSourceUrl.isNullOrBlank()
+            authorLinkCard.isVisible = hasSource
+            authorLink.isVisible = hasSource
+
+            if (hasSource) {
                 authorLink.text = authorSourceUrl
                 authorLink.setOnClickListener {
-                    runCatching {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(authorSourceUrl)))
-                    }
+                    // Subtle feedback
+                    authorLink.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    openUrl(authorSourceUrl!!)
                 }
+            } else {
+                authorLink.setOnClickListener(null)
             }
         }
+    }
+
+    private fun openUrl(raw: String) {
+        val url = normalizeUrl(raw)
+        if (url.isBlank()) {
+            Toast.makeText(requireContext(), "Keine Quelle verfügbar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Link konnte nicht geöffnet werden", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun normalizeUrl(raw: String): String {
+        val trimmed = raw.trim()
+        if (trimmed.isBlank()) return ""
+
+        val hasScheme = trimmed.startsWith("http://", ignoreCase = true) ||
+            trimmed.startsWith("https://", ignoreCase = true)
+
+        return if (hasScheme) trimmed else "https://$trimmed"
     }
 
     override fun onDestroyView() {

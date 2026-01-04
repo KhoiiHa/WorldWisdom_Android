@@ -343,13 +343,13 @@ class CollectionFragment : Fragment() {
     }
 
     private fun updateHeaderCount(count: Int) {
-        // Show a human-friendly count (e.g., “3 Favoriten”) only when > 0
-        binding.tvCollectionCount.isVisible = count > 0
-        binding.tvCollectionCount.text = if (count > 0) {
-            resources.getQuantityString(R.plurals.collection_favorites_count, count, count)
-        } else {
-            ""
-        }
+        // Always show the count for clarity (even 0), e.g. “0 Favoriten”.
+        binding.tvCollectionCount.isVisible = true
+        binding.tvCollectionCount.text = resources.getQuantityString(
+            R.plurals.collection_favorites_count,
+            count,
+            count
+        )
     }
 
     // --- UI State Rendering ---

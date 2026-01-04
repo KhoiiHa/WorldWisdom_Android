@@ -220,8 +220,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/collection_empty_title"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
             <TextView
                 android:id="@+id/tvEmptySubtitle"
@@ -231,8 +230,8 @@
                 android:gravity="center"
                 android:text="@string/collection_empty_subtitle"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="14sp"
-                android:alpha="0.7" />
+                android:alpha="0.7"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEmptyCta"
@@ -242,7 +241,8 @@
                 android:text="@string/collection_empty_cta"
                 android:textAllCaps="false"
                 app:cornerRadius="12dp"
-                app:iconPadding="8dp" />
+                app:iconPadding="8dp"
+                android:hapticFeedbackEnabled="true" />
 
         </LinearLayout>
 
@@ -282,8 +282,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/common_error_title"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
             <TextView
                 android:id="@+id/tvErrorSubtitle"
@@ -293,8 +292,8 @@
                 android:gravity="center"
                 android:text="@string/common_error_subtitle"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="14sp"
-                android:alpha="0.7" />
+                android:alpha="0.7"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
@@ -304,7 +303,8 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/common_retry"
                 android:textAllCaps="false"
-                app:cornerRadius="12dp" />
+                app:cornerRadius="12dp"
+                android:hapticFeedbackEnabled="true" />
 
         </LinearLayout>
 

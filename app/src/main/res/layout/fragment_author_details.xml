@@ -108,6 +108,15 @@
                         tools:text="Kurzbiografie, Hintergrund und relevante Lebensstationen der Autorin oder des Autors." />
                 </com.google.android.material.card.MaterialCardView>
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuthorQuotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Zitate von diesem Autor anzeigen"
+                    android:hapticFeedbackEnabled="true"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/author_link_card"
                     android:layout_width="match_parent"

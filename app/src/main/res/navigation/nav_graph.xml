@@ -93,7 +93,8 @@
         <argument
             android:name="category"
             app:argType="string"
-            app:nullable="false" />
+            app:nullable="true"
+            android:defaultValue="" />
 
         <!-- Optional: woher wir kommen (Overview vs. Collection) -->
         <argument
@@ -101,6 +102,16 @@
             app:argType="string"
             app:nullable="true"
             android:defaultValue="overview" />
+
+        <!-- Optional: author-based list (used from AuthorDetails) -->
+        <argument
+            android:name="authorSlug"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="authorName"
+            app:argType="string"
+            app:nullable="true" />
 
         <!-- Quote-Klick -> QuoteDetails -->
         <action
@@ -224,6 +235,9 @@
             android:name="authorSourceUrl"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_authorDetailsFragment_to_categoryQuotesFragment"
+            app:destination="@id/categoryQuotesFragment" />
     </fragment>
 
 </navigation>

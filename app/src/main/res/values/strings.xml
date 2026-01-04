@@ -12,9 +12,15 @@
     <string name="collection_explore_title">Entdecken nach Kategorie</string>
     <string name="collection_explore_subtitle">Tippe eine Kategorie an, um passende Zitate zu sehen.</string>
 
+
     <plurals name="collection_favorites_count">
         <item quantity="one">%d Favorit</item>
         <item quantity="other">%d Favoriten</item>
+    </plurals>
+
+    <plurals name="category_quotes_results_count">
+        <item quantity="one">%d Ergebnis</item>
+        <item quantity="other">%d Ergebnisse</item>
     </plurals>
 
     <string name="collection_empty_title">Noch keine Favoriten</string>

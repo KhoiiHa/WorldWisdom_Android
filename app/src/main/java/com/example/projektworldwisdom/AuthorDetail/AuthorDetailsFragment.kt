@@ -14,6 +14,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.navigation.fragment.findNavController
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentAuthorDetailsBinding
+import androidx.core.os.bundleOf
 
 class AuthorDetailsFragment : Fragment() {
 
@@ -60,6 +61,21 @@ class AuthorDetailsFragment : Fragment() {
             authorBio = authorBio,
             authorSourceUrl = authorSourceUrl
         )
+
+        // Block D: CTA → show quotes by this author
+        binding.btnAuthorQuotes.setOnClickListener {
+            binding.btnAuthorQuotes.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+
+            // We reuse the existing quotes list screen and pass author info.
+            // Next step: CategoryQuotesFragment will read these args and filter accordingly.
+            findNavController().navigate(
+                R.id.categoryQuotesFragment,
+                bundleOf(
+                    "authorSlug" to slug,
+                    "authorName" to authorName
+                )
+            )
+        }
     }
 
     private fun bindContent(

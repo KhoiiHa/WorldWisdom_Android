@@ -75,31 +75,58 @@ class CategoryQuotesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Args from nav_graph.xml
-        val category = args.category
-        val origin = args.origin ?: "overview"
+        // Args from nav_graph.xml (Category mode OR Author mode)
+        val category = args.category?.trim().orEmpty()
+        val origin = args.origin?.trim().orEmpty().ifBlank { "overview" }
+        val authorSlug = args.authorSlug?.trim().orEmpty()
+        val authorName = args.authorName?.trim().orEmpty()
+
+        val isAuthorMode = authorSlug.isNotBlank()
 
         // UI
-        binding.toolbar.title = category
-        binding.headerTitle.text = category
+        val screenTitle = if (isAuthorMode) {
+            if (authorName.isNotBlank()) "Zitate von $authorName" else "Zitate vom Autor"
+        } else {
+            category.ifBlank { "Quotes" }
+        }
+
+        binding.toolbar.title = screenTitle
+        binding.headerTitle.text = screenTitle
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = quotesAdapter
 
-        // Single source of truth: observe the central quotes list and derive the category list from it.
-        sharedViewModel.quotes.observe(viewLifecycleOwner) {
-            val quotesForCategory = sharedViewModel.getQuotesByCategory(category)
-            quotesAdapter.submit(quotesForCategory)
-            binding.headerCount.text = "${quotesForCategory.size} Ergebnisse"
+        // Single source of truth: observe the central quotes list and derive a list from it.
+        sharedViewModel.quotes.observe(viewLifecycleOwner) { allQuotes ->
+            val safeAll = allQuotes.orEmpty()
 
-            val isEmpty = quotesForCategory.isEmpty()
+            val filtered = if (isAuthorMode) {
+                // Author mode: filter by stable slug (preferred), fallback to name if needed.
+                safeAll.filter { it.authorSlug == authorSlug || (authorName.isNotBlank() && it.author == authorName) }
+            } else {
+                // Category mode
+                if (category.isNotBlank()) {
+                    sharedViewModel.getQuotesByCategory(category)
+                } else {
+                    emptyList()
+                }
+            }
+
+            quotesAdapter.submit(filtered)
+            binding.headerCount.text = resources.getQuantityString(
+                R.plurals.category_quotes_results_count,
+                filtered.size,
+                filtered.size
+            )
+
+            val isEmpty = filtered.isEmpty()
             binding.emptyStateContainer.visibility = if (isEmpty) View.VISIBLE else View.GONE
             binding.recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
         }
 
-        // Small debug-friendly subtitle (optional). Remove later if you don’t like it.
-        binding.toolbar.subtitle = if (origin.isNotBlank()) "Quelle: $origin" else null
+        // Optional: keep origin for debugging; set to null for a cleaner UI
+        binding.toolbar.subtitle = null
     }
 
     override fun onDestroyView() {

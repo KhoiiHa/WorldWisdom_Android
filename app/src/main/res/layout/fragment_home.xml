@@ -343,6 +343,15 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmptyReset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Filter zurücksetzen"
+            android:hapticFeedbackEnabled="true"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+
     </LinearLayout>
 
     <!-- RecyclerView for quotes -->

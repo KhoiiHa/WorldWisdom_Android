@@ -37,6 +37,8 @@ class HomeFragment : Fragment() {
     // Simple UI state to drive Loading / Content / Empty
     private var latestIsLoading: Boolean = false
     private var latestFilteredCount: Int = 0
+    private var latestQuery: String = ""
+    private var latestCategoryFilter: SharedViewModel.CategoryFilter = SharedViewModel.CategoryFilter.ALL
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,6 +111,7 @@ class HomeFragment : Fragment() {
         // Restore UI state when returning (z.B. nach Navigation)
         viewModel.searchQuery.observe(viewLifecycleOwner) { query ->
             val current = binding.searchBar.text?.toString().orEmpty()
+            latestQuery = query
             if (current != query) {
                 isProgrammaticSearchUpdate = true
                 binding.searchBar.setText(query)
@@ -123,6 +126,7 @@ class HomeFragment : Fragment() {
                     binding.quotesList.scrollToPosition(0)
                 }
             }
+            renderHomeState()
         }
 
         // Kategorie-Filter (Material Chips) → ViewModel (Phase 2)
@@ -174,6 +178,8 @@ class HomeFragment : Fragment() {
                 binding.chipGroupFilters.check(targetChipId)
                 isProgrammaticChipUpdate = false
             }
+            latestCategoryFilter = filter
+            renderHomeState()
         }
 
         // Fehler anzeigen & danach zurücksetzen
@@ -183,6 +189,14 @@ class HomeFragment : Fragment() {
                 viewModel.clearError()
             }
         }
+
+        // Empty-State CTA: reset search + filter
+        binding.btnEmptyReset.setOnClickListener {
+            binding.btnEmptyReset.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            resetHomeInputs()
+        }
+        // Initialize latestQuery at startup
+        latestQuery = binding.searchBar.text?.toString().orEmpty()
 
         // Initial state render
         renderHomeState()
@@ -195,6 +209,44 @@ class HomeFragment : Fragment() {
         binding.progressBar.visibility = if (showLoading) View.VISIBLE else View.GONE
         binding.emptyStateContainer.visibility = if (showEmpty) View.VISIBLE else View.GONE
         binding.quotesList.visibility = if (showEmpty || showLoading) View.GONE else View.VISIBLE
+
+        if (showEmpty) {
+            renderEmptyStateText()
+        }
+    }
+
+    private fun renderEmptyStateText() {
+        val query = latestQuery.trim()
+        val filterLabel = when (latestCategoryFilter) {
+            SharedViewModel.CategoryFilter.SOCIETY -> "Society"
+            SharedViewModel.CategoryFilter.SUCCESS -> "Erfolg"
+            SharedViewModel.CategoryFilter.WORK -> "Arbeit"
+            SharedViewModel.CategoryFilter.WISDOM -> "Weisheit"
+            SharedViewModel.CategoryFilter.GRATITUDE -> "Dankbarkeit"
+            SharedViewModel.CategoryFilter.ALL -> "Alle"
+        }
+
+        // Title
+        binding.emptyStateTitle.text = if (query.isNotBlank()) {
+            "Keine Treffer"
+        } else {
+            "Keine Quotes"
+        }
+
+        // Subtitle
+        binding.emptyStateSubtitle.text = when {
+            query.isNotBlank() && latestCategoryFilter != SharedViewModel.CategoryFilter.ALL ->
+                "Keine Treffer für „$query“ in $filterLabel. Probiere einen anderen Begriff oder setze den Filter zurück."
+
+            query.isNotBlank() ->
+                "Keine Treffer für „$query“. Probiere einen anderen Suchbegriff."
+
+            latestCategoryFilter != SharedViewModel.CategoryFilter.ALL ->
+                "Keine Quotes im Filter $filterLabel. Wähle einen anderen Filter oder setze zurück auf Alle."
+
+            else ->
+                "Aktuell sind keine Quotes verfügbar."
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -259,6 +311,26 @@ class HomeFragment : Fragment() {
     private fun hideKeyboard(view: View) {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    private fun resetHomeInputs() {
+        // Clear search (triggers existing TextWatcher / ViewModel update)
+        binding.searchBar.setText("")
+        binding.searchBar.clearFocus()
+
+        // Reset filter to “Alle”
+        isProgrammaticChipUpdate = true
+        binding.chipGroupFilters.check(R.id.filter_alle)
+        isProgrammaticChipUpdate = false
+        viewModel.setCategoryFilter(SharedViewModel.CategoryFilter.ALL)
+
+        // Keep local state in sync
+        latestQuery = ""
+        latestCategoryFilter = SharedViewModel.CategoryFilter.ALL
+        renderHomeState()
+
+        // Clean reset feel
+        binding.quotesList.scrollToPosition(0)
     }
 
     override fun onDestroyView() {

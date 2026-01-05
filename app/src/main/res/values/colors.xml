@@ -47,4 +47,47 @@
     <color name="error_red">#AC3131</color>
 
     <color name="favorite_star_on">#FFC107</color>
+
+    <!-- ===============================
+         WorldWisdom semantic palette (Material3)
+         Use these for theme + new UI going forward.
+         =============================== -->
+
+    <!-- Brand / Accent (iOS-like calm blue) -->
+    <color name="ww_primary">#2B78B5</color>
+    <color name="ww_on_primary">#FFFFFFFF</color>
+
+    <color name="ww_secondary">#A5DADA</color>
+    <color name="ww_on_secondary">#FF0F1A1C</color>
+
+    <color name="ww_tertiary">#FFC107</color>
+    <color name="ww_on_tertiary">#FF1C1600</color>
+
+    <!-- Light surfaces -->
+    <color name="ww_background">#FFFBEB</color>
+    <color name="ww_on_background">#FF111418</color>
+
+    <color name="ww_surface">#FFFFFFFF</color>
+    <color name="ww_on_surface">#FF111418</color>
+
+    <color name="ww_surface_variant">#F2F2F2</color>
+    <color name="ww_on_surface_variant">#FF41474D</color>
+
+    <color name="ww_outline">#FF7A828A</color>
+
+    <!-- Dark surfaces (used by night theme) -->
+    <color name="ww_background_dark">#FF0F1416</color>
+    <color name="ww_on_background_dark">#FFE6E9EF</color>
+
+    <color name="ww_surface_dark">#FF141B1E</color>
+    <color name="ww_on_surface_dark">#FFE6E9EF</color>
+
+    <color name="ww_surface_variant_dark">#FF1E272B</color>
+    <color name="ww_on_surface_variant_dark">#FFC3C8CF</color>
+
+    <color name="ww_outline_dark">#FF8B949E</color>
+
+    <!-- Feedback -->
+    <color name="ww_error">#AC3131</color>
+    <color name="ww_on_error">#FFFFFFFF</color>
 </resources>

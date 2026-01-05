@@ -1,7 +1,40 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.ProjectWorldWisdom" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Global visual defaults (safe: only references theme attrs) -->
+        <item name="android:windowBackground">@color/ww_background_dark</item>
+
+        <!-- Material3 color scheme (Dark) -->
+        <item name="colorPrimary">@color/ww_primary</item>
+        <item name="colorOnPrimary">@color/ww_on_primary</item>
+        <item name="colorSecondary">@color/ww_secondary</item>
+        <item name="colorOnSecondary">@color/ww_on_secondary</item>
+        <item name="colorTertiary">@color/ww_tertiary</item>
+        <item name="colorOnTertiary">@color/ww_on_tertiary</item>
+
+        <item name="android:colorBackground">@color/ww_background_dark</item>
+        <item name="colorOnBackground">@color/ww_on_background_dark</item>
+        <item name="colorSurface">@color/ww_surface_dark</item>
+        <item name="colorOnSurface">@color/ww_on_surface_dark</item>
+        <item name="colorSurfaceVariant">@color/ww_surface_variant_dark</item>
+        <item name="colorOnSurfaceVariant">@color/ww_on_surface_variant_dark</item>
+        <item name="colorOutline">@color/ww_outline_dark</item>
+
+        <item name="colorError">@color/ww_error</item>
+        <item name="colorOnError">@color/ww_on_error</item>
+
+        <!-- System bars: keep calm + consistent with the app surface -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ww_surface_dark</item>
+
+        <!-- Ripple/press feedback (used across Material components) -->
+        <item name="colorControlHighlight">?attr/colorPrimary</item>
+
+        <!-- Buttons: make Outlined/filled look consistent across screens -->
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.Material3.Button.OutlinedButton</item>
+
+        <!-- Bottom navigation defaults -->
+        <item name="bottomNavigationStyle">@style/Widget.Material3.BottomNavigationView</item>
     </style>
 </resources>

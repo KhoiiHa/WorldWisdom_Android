@@ -87,7 +87,7 @@
     <fragment
         android:id="@+id/categoryQuotesFragment"
         android:name="com.example.projektworldwisdom.category.CategoryQuotesFragment"
-        android:label="Category Quotes" >
+        android:label="@string/nav_category_quotes" >
 
         <!-- Kategorie, die angezeigt wird -->
         <argument

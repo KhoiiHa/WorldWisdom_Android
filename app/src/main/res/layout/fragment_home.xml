@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="?android:attr/colorBackground"
     tools:context=".home.HomeFragment">
 
     <!-- Header: Greeting + Username -->
@@ -26,10 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/greeting_default"
-            android:textColor="?attr/colorOnSurface"
-            android:alpha="0.7"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         <TextView
@@ -38,9 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text=""
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             tools:text="Benutzer" />
 
@@ -79,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:textSize="16sp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:importantForAutofill="no"
             android:imeOptions="actionSearch"
             android:inputType="text"
@@ -127,8 +122,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/daily_affirmation_title"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="18sp"
-                android:textStyle="bold"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
             <TextView
@@ -137,23 +130,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/daily_affirmation_loading"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.85"
-                android:textSize="14sp"
-                android:lineSpacingExtra="2dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:maxLines="4"
                 android:ellipsize="end"
+                android:lineHeight="26sp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                tools:text="Stay focused and keep learning 💡" />
+                tools:text="Stay focused and keep learning 💡"
+                tools:targetApi="28" />
 
             <TextView
                 android:id="@+id/affirmation_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.65"
-                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textStyle="italic"
                 android:gravity="end"
                 android:layout_gravity="end"
@@ -167,8 +157,6 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/daily_affirmation_hint_tap_for_details"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:alpha="0.8"
-                android:textSize="12sp"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
         </LinearLayout>
@@ -207,7 +195,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Gesellschaft"
+                android:text="@string/filter_society"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
                 app:chipCornerRadius="18dp"
@@ -223,7 +211,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Erfolg"
+                android:text="@string/filter_success"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
                 app:chipCornerRadius="18dp"
@@ -239,7 +227,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Arbeit"
+                android:text="@string/filter_work"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
                 app:chipCornerRadius="18dp"
@@ -255,7 +243,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wissen"
+                android:text="@string/filter_wisdom"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
                 app:chipCornerRadius="18dp"
@@ -271,7 +259,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dankbarkeit"
+                android:text="@string/filter_gratitude"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
                 app:chipCornerRadius="18dp"
@@ -287,7 +275,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Alle"
+                android:text="@string/filter_all"
                 android:textAllCaps="false"
                 app:checkedIconVisible="false"
                 app:chipCornerRadius="18dp"
@@ -320,7 +308,7 @@
             android:layout_height="56dp"
             android:contentDescription="@null"
             android:alpha="0.85"
-            app:srcCompat="@drawable/ic_notifications_black_24dp"
+            app:srcCompat="@drawable/ic_search_24"
             app:tint="?attr/colorOnSurfaceVariant" />
 
         <TextView
@@ -328,7 +316,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:text="Keine Treffer"
+            android:text="@string/home_empty_title"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="?attr/colorOnSurface" />
 
@@ -337,9 +325,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:alpha="0.75"
             android:gravity="center"
-            android:text="Probiere einen anderen Suchbegriff oder wähle einen Filter."
+            android:text="@string/home_empty_subtitle"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -348,7 +335,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Filter zurücksetzen"
+            android:text="@string/home_empty_reset"
             android:hapticFeedbackEnabled="true"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 

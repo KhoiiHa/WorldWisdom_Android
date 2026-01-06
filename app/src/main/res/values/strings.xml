@@ -11,6 +11,7 @@
     <!-- Collection (Explore by Category) -->
     <string name="collection_explore_title">Entdecken nach Kategorie</string>
     <string name="collection_explore_subtitle">Tippe eine Kategorie an, um passende Zitate zu sehen.</string>
+    <string name="collection_category_overview">Übersicht</string>
 
 
     <plurals name="collection_favorites_count">
@@ -54,6 +55,17 @@
     <string name="daily_affirmation_title">Daily Affirmation</string>
     <string name="daily_affirmation_hint_tap_for_details">Tippe auf die Karte für Details</string>
     <string name="daily_affirmation_loading">Lade dein Tageszitat…</string>
+    <string name="home_empty_title">Keine Treffer</string>
+    <string name="home_empty_subtitle">Probiere einen anderen Suchbegriff oder wähle einen Filter.</string>
+    <string name="home_empty_reset">Filter zurücksetzen</string>
+
+    <!-- Home (Filters) -->
+    <string name="filter_society">Gesellschaft</string>
+    <string name="filter_success">Erfolg</string>
+    <string name="filter_work">Arbeit</string>
+    <string name="filter_wisdom">Wissen</string>
+    <string name="filter_gratitude">Dankbarkeit</string>
+    <string name="filter_all">Alle</string>
 
     <!-- Profile (Placeholder) -->
     <string name="profile_placeholder">Profil kommt später – aktuell Fokus auf Zitate und Collection</string>
@@ -118,8 +130,19 @@
     <string name="nav_profile">Profil</string>
     <string name="nav_settings">Einstellungen</string>
     <string name="nav_categories">Kategorien</string>
+    <string name="category_overview_subtitle">Wähle eine Kategorie, um passende Zitate zu sehen.</string>
+    <string name="category_overview_empty">Keine Kategorien gefunden.</string>
     <string name="nav_login">Login</string>
     <string name="nav_register">Registrieren</string>
     <string name="nav_quote_details">Zitatdetails</string>
     <string name="nav_author_details">Autor</string>
+    <string name="nav_category_quotes">Kategorie-Zitate</string>
+
+
+    <string name="category_quotes_header_title_placeholder">Kategorie</string>
+    <string name="category_quotes_header_count_placeholder">0 Ergebnisse</string>
+    <string name="category_quotes_empty_title">Keine Zitate gefunden</string>
+    <string name="category_quotes_empty_subtitle">Wähle eine andere Kategorie oder gehe zurück zur Übersicht.</string>
+
+
 </resources>

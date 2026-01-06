@@ -77,7 +77,6 @@ class CategoryQuotesFragment : Fragment() {
 
         // Args from nav_graph.xml (Category mode OR Author mode)
         val category = args.category?.trim().orEmpty()
-        val origin = args.origin?.trim().orEmpty().ifBlank { "overview" }
         val authorSlug = args.authorSlug?.trim().orEmpty()
         val authorName = args.authorName?.trim().orEmpty()
 
@@ -113,7 +112,7 @@ class CategoryQuotesFragment : Fragment() {
                 }
             }
 
-            quotesAdapter.submit(filtered)
+            quotesAdapter.submitList(filtered)
             binding.headerCount.text = resources.getQuantityString(
                 R.plurals.category_quotes_results_count,
                 filtered.size,
@@ -136,21 +135,13 @@ class CategoryQuotesFragment : Fragment() {
 }
 
 // ----------------------------
-// UI models + adapter (small, local, no overengineering)
+// Adapter (small, local, portfolio-friendly)
 // ----------------------------
 
 private class CategoryQuotesAdapter(
     private val onQuoteClick: (Quote) -> Unit,
     private val onFavoriteToggle: (Quote) -> Unit
-) : RecyclerView.Adapter<CategoryQuotesAdapter.QuoteViewHolder>() {
-
-    private val items = mutableListOf<Quote>()
-
-    fun submit(newItems: List<Quote>) {
-        items.clear()
-        items.addAll(newItems)
-        notifyDataSetChanged()
-    }
+) : androidx.recyclerview.widget.ListAdapter<Quote, CategoryQuotesAdapter.QuoteViewHolder>(DIFF) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
         val binding = ItemQuoteBinding.inflate(
@@ -158,18 +149,12 @@ private class CategoryQuotesAdapter(
             parent,
             false
         )
-        return QuoteViewHolder(
-            binding = binding,
-            onQuoteClick = onQuoteClick,
-            onFavoriteToggle = onFavoriteToggle
-        )
+        return QuoteViewHolder(binding, onQuoteClick, onFavoriteToggle)
     }
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(getItem(position))
     }
-
-    override fun getItemCount(): Int = items.size
 
     class QuoteViewHolder(
         private val binding: ItemQuoteBinding,
@@ -198,6 +183,18 @@ private class CategoryQuotesAdapter(
                 R.drawable.ic_star_outline
             }
             binding.btnFavorite.setImageResource(iconRes)
+        }
+    }
+
+    companion object {
+        private val DIFF = object : androidx.recyclerview.widget.DiffUtil.ItemCallback<Quote>() {
+            override fun areItemsTheSame(oldItem: Quote, newItem: Quote): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Quote, newItem: Quote): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }

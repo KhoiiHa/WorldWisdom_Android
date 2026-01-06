@@ -1,8 +1,6 @@
 package com.example.projektworldwisdom.category
 
 import android.os.Bundle
-import android.graphics.Rect
-import kotlin.math.roundToInt
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -66,9 +64,6 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = adapter
-        if (recyclerView.itemDecorationCount == 0) {
-            recyclerView.addItemDecoration(SpacingDecoration(dp(12)))
-        }
 
         // MVP: Kategorien-Liste lokal (damit der Screen sofort funktioniert).
         // Später können wir das wieder dynamisch aus dem SharedViewModel/Quotes ableiten.
@@ -107,22 +102,5 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         recyclerView.visibility = if (showEmpty) View.GONE else View.VISIBLE
 
         adapter.submitList(categories)
-    }
-
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).roundToInt()
-
-    private class SpacingDecoration(private val spacePx: Int) : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
-            outRect.left = spacePx
-            outRect.right = spacePx
-            outRect.top = spacePx
-            outRect.bottom = spacePx
-        }
     }
 }

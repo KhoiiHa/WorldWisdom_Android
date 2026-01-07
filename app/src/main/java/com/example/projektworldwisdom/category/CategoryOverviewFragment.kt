@@ -1,5 +1,6 @@
 package com.example.projektworldwisdom.category
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.R
 import com.google.android.material.appbar.MaterialToolbar
 import androidx.core.os.bundleOf
+import kotlin.math.roundToInt
 
 class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
 
@@ -65,17 +67,14 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = adapter
 
-        // MVP: Kategorien-Liste lokal (damit der Screen sofort funktioniert).
-        // Später können wir das wieder dynamisch aus dem SharedViewModel/Quotes ableiten.
-        val categories = listOf(
-            "Gesellschaft",
-            "Erfolg",
-            "Arbeit",
-            "Wissen",
-            "Freiheit",
-            "Liebe",
-            "Philosophie"
-        )
+        // Spacing for the 2-column grid (keeps tiles visually separated).
+        if (recyclerView.itemDecorationCount == 0) {
+            recyclerView.addItemDecoration(GridSpacingDecoration(spanCount = 2, spacingPx = dp(12), includeEdge = false))
+        }
+
+        // MVP: Kategorien-Liste aus Resources (Deutsch).
+        // Später können wir das dynamisch aus Daten ableiten.
+        val categories = resources.getStringArray(R.array.categories_default).toList()
         render(categories)
     }
     private fun navigateBackToOrigin(origin: String) {
@@ -102,5 +101,44 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         recyclerView.visibility = if (showEmpty) View.GONE else View.VISIBLE
 
         adapter.submitList(categories)
+    }
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).roundToInt()
+
+    private class GridSpacingDecoration(
+        private val spanCount: Int,
+        private val spacingPx: Int,
+        private val includeEdge: Boolean
+    ) : RecyclerView.ItemDecoration() {
+
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            val position = parent.getChildAdapterPosition(view)
+            if (position == RecyclerView.NO_POSITION) return
+
+            val column = position % spanCount
+
+            if (includeEdge) {
+                outRect.left = spacingPx - column * spacingPx / spanCount
+                outRect.right = (column + 1) * spacingPx / spanCount
+
+                if (position < spanCount) {
+                    outRect.top = spacingPx
+                }
+                outRect.bottom = spacingPx
+            } else {
+                outRect.left = column * spacingPx / spanCount
+                outRect.right = spacingPx - (column + 1) * spacingPx / spanCount
+
+                if (position >= spanCount) {
+                    outRect.top = spacingPx
+                }
+            }
+        }
     }
 }

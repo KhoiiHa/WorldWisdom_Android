@@ -22,9 +22,8 @@ import com.example.projektworldwisdom.viewmodel.SharedViewModel
  * Decision A:
  * CategoryOverview -> (tap category) -> CategoryQuotes -> QuoteDetails
  *
- * NOTE: This Fragment currently builds its UI programmatically so the navigation flow works immediately,
- * even before we add the XML layout. In the next step we can swap this to fragment_category_quotes.xml
- * without changing the logic.
+ * NOTE: This Fragment uses `fragment_category_quotes.xml` via ViewBinding.
+ * The adapter is kept local and lightweight (no extra ViewModel) to keep MVVM clean.
  */
 class CategoryQuotesFragment : Fragment() {
 
@@ -83,15 +82,37 @@ class CategoryQuotesFragment : Fragment() {
         val isAuthorMode = authorSlug.isNotBlank()
 
         // UI
-        val screenTitle = if (isAuthorMode) {
-            if (authorName.isNotBlank()) "Zitate von $authorName" else "Zitate vom Autor"
-        } else {
-            category.ifBlank { "Quotes" }
+        val screenTitle = when {
+            isAuthorMode && authorName.isNotBlank() ->
+                getString(R.string.category_quotes_title_author, authorName)
+
+            isAuthorMode ->
+                getString(R.string.category_quotes_title_fallback)
+
+            category.isNotBlank() ->
+                getString(R.string.category_quotes_title_category, category)
+
+            else ->
+                getString(R.string.category_quotes_title_fallback)
         }
 
         binding.toolbar.title = screenTitle
         binding.headerTitle.text = screenTitle
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+
+        // Empty-state copy (mode-specific)
+        if (isAuthorMode) {
+            binding.emptyStateTitle.setText(R.string.category_quotes_empty_title_author)
+            binding.emptyStateSubtitle.setText(R.string.category_quotes_empty_subtitle_author)
+        } else {
+            binding.emptyStateTitle.setText(R.string.category_quotes_empty_title_category)
+            binding.emptyStateSubtitle.setText(R.string.category_quotes_empty_subtitle_category)
+        }
+
+        // Empty-state CTA
+        binding.btnEmptyAction.setOnClickListener {
+            findNavController().navigateUp()
+        }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = quotesAdapter
@@ -104,9 +125,9 @@ class CategoryQuotesFragment : Fragment() {
                 // Author mode: filter by stable slug (preferred), fallback to name if needed.
                 safeAll.filter { it.authorSlug == authorSlug || (authorName.isNotBlank() && it.author == authorName) }
             } else {
-                // Category mode
+                // Category mode (derived from the observed list)
                 if (category.isNotBlank()) {
-                    sharedViewModel.getQuotesByCategory(category)
+                    safeAll.filter { it.category == category }
                 } else {
                     emptyList()
                 }

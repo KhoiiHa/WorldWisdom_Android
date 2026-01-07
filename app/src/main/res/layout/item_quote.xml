@@ -6,26 +6,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="24dp"
-    android:layout_marginBottom="14dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="12dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     android:hapticFeedbackEnabled="true"
-    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="16dp"
     app:cardElevation="1dp"
     app:rippleColor="?attr/colorControlHighlight"
-    app:strokeColor="?attr/colorOutline"
+    app:strokeColor="?attr/colorOutlineVariant"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingTop="20dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="18dp">
+        android:padding="16dp">
 
         <!-- Favorite (star) button: fixed to top-right with safe touch target -->
         <androidx.appcompat.widget.AppCompatImageButton
@@ -48,13 +45,14 @@
 
         <!-- Quote text -->
         <TextView
-            android:id="@+id/quote_text"
+            android:id="@+id/quoteText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:ellipsize="end"
             android:includeFontPadding="false"
             android:lineHeight="26sp"
+            tools:targetApi="28"
             android:maxLines="4"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
@@ -65,7 +63,7 @@
 
         <!-- Author -->
         <TextView
-            android:id="@+id/quote_author"
+            android:id="@+id/quoteAuthor"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -76,7 +74,7 @@
             android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/quote_text"
+            app:layout_constraintTop_toBottomOf="@id/quoteText"
             tools:text="– Albert Einstein" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

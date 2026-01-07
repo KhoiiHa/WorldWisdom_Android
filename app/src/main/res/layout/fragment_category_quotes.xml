@@ -51,7 +51,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="24dp"
+        android:padding="16dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/headerContainer"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -84,6 +84,15 @@
             android:text="@string/category_quotes_empty_subtitle"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmptyAction"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/category_quotes_empty_action_back"
+            android:hapticFeedbackEnabled="true" />
 
     </LinearLayout>
 

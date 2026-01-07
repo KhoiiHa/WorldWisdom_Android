@@ -58,6 +58,9 @@ class QuoteDetailsFragment : Fragment() {
             val updated = quotes.orEmpty().firstOrNull { it.id == args.quoteId } ?: return@observe
             currentIsFavorite = updated.isFavorite
             updateFavoriteUi(currentIsFavorite)
+
+            // Keep Source button in sync if the quote data changes
+            updateSourceUi(updated.source)
         }
 
         // Favorite toggle
@@ -76,7 +79,8 @@ class QuoteDetailsFragment : Fragment() {
         // Source öffnen
         binding.btnSource.setOnClickListener {
             binding.btnSource.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            openUrl(args.sourceUrl.orEmpty())
+            val latestSource = findQuoteOrNull()?.source ?: args.sourceUrl.orEmpty()
+            openUrl(latestSource)
         }
 
         // Autor Details öffnen
@@ -120,9 +124,7 @@ class QuoteDetailsFragment : Fragment() {
         renderTags(args.tags?.toList().orEmpty())
 
         // Source Button nur zeigen wenn URL vorhanden
-        val hasSource = !args.sourceUrl.isNullOrBlank()
-        binding.btnSource.isVisible = hasSource
-        binding.btnSource.isEnabled = hasSource
+        updateSourceUi(args.sourceUrl)
     }
 
     private fun updateFavoriteUi(isFavorite: Boolean) {
@@ -145,12 +147,20 @@ class QuoteDetailsFragment : Fragment() {
         val tintColor = MaterialColors.getColor(binding.btnFavorite, tintAttr)
         binding.btnFavorite.imageTintList = ColorStateList.valueOf(tintColor)
 
-        // Label
-        binding.favoriteLabel.text = if (isFavorite) {
+        // Label + accessibility
+        val labelText = if (isFavorite) {
             getString(R.string.quote_details_favorite_saved)
         } else {
             getString(R.string.quote_details_favorite_label)
         }
+        binding.favoriteLabel.text = labelText
+        binding.btnFavorite.contentDescription = labelText
+    }
+
+    private fun updateSourceUi(sourceUrl: String?) {
+        val hasSource = !sourceUrl.isNullOrBlank()
+        binding.btnSource.isVisible = hasSource
+        binding.btnSource.isEnabled = hasSource
     }
 
     private fun renderTags(tags: List<String>) {

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/categoryCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="true"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="1.5dp"
+    app:strokeWidth="1dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    app:strokeColor="?attr/colorOutlineVariant">
+
+    <TextView
+        android:id="@+id/tvCategoryTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="14dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="16dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textColor="?attr/colorOnSurface" />
+
+</com.google.android.material.card.MaterialCardView>

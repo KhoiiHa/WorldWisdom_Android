@@ -136,13 +136,45 @@
     <string name="nav_register">Registrieren</string>
     <string name="nav_quote_details">Zitatdetails</string>
     <string name="nav_author_details">Autor</string>
+    <string name="author_details_show_quotes">Zitate von diesem Autor anzeigen</string>
+
+    <!-- Author Details (Fallbacks / Errors) -->
+    <string name="author_details_fallback_description">Autorprofil</string>
+    <string name="author_details_fallback_bio">Noch keine Biografie verfügbar.\n\nIn der nächsten Ausbaustufe laden wir Beschreibung &amp; Quelle aus der Mock-API.</string>
+    <string name="error_no_source_available">Keine Quelle verfügbar</string>
+    <string name="error_could_not_open_link">Link konnte nicht geöffnet werden</string>
+
     <string name="nav_category_quotes">Kategorie-Zitate</string>
 
 
+    <!-- Categories (German default) -->
+    <string-array name="categories_default">
+        <item>Gesellschaft</item>
+        <item>Erfolg</item>
+        <item>Arbeit</item>
+        <item>Wissen</item>
+        <item>Freiheit</item>
+        <item>Liebe</item>
+        <item>Philosophie</item>
+    </string-array>
+
+
+    <!-- Category Quotes (Titles) -->
+    <string name="category_quotes_title_category">%1$s</string>
+    <string name="category_quotes_title_author">Zitate von %1$s</string>
+    <string name="category_quotes_title_fallback">Zitate</string>
     <string name="category_quotes_header_title_placeholder">Kategorie</string>
     <string name="category_quotes_header_count_placeholder">0 Ergebnisse</string>
     <string name="category_quotes_empty_title">Keine Zitate gefunden</string>
     <string name="category_quotes_empty_subtitle">Wähle eine andere Kategorie oder gehe zurück zur Übersicht.</string>
+
+    <string name="category_quotes_empty_title_category">Keine Zitate in dieser Kategorie</string>
+    <string name="category_quotes_empty_subtitle_category">Versuche eine andere Kategorie oder gehe zurück zur Übersicht.</string>
+
+    <string name="category_quotes_empty_title_author">Keine Zitate für diesen Autor</string>
+    <string name="category_quotes_empty_subtitle_author">Dieser Autor hat aktuell keine zugeordneten Zitate.</string>
+
+    <string name="category_quotes_empty_action_back">Zurück</string>
 
 
 </resources>

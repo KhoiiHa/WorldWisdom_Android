@@ -3,18 +3,18 @@ package com.example.projektworldwisdom.AuthorDetail
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.HapticFeedbackConstants
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.navArgs
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.projektworldwisdom.R
 import com.example.projektworldwisdom.databinding.FragmentAuthorDetailsBinding
-import androidx.core.os.bundleOf
 
 class AuthorDetailsFragment : Fragment() {
 
@@ -68,7 +68,8 @@ class AuthorDetailsFragment : Fragment() {
 
             // We reuse the existing quotes list screen and pass author info.
             // Next step: CategoryQuotesFragment will read these args and filter accordingly.
-            findNavController().navigate(
+            val navController = findNavController()
+            navController.navigate(
                 R.id.categoryQuotesFragment,
                 bundleOf(
                     "authorSlug" to slug,
@@ -88,13 +89,11 @@ class AuthorDetailsFragment : Fragment() {
             this.authorName.text = authorName
 
             // Kurzbeschreibung unter dem Namen (Fallback keeps the screen "finished")
-            this.authorDescription.text = authorDescription ?: "Autorprofil"
+            this.authorDescription.text =
+                authorDescription ?: getString(R.string.author_details_fallback_description)
 
             // Bio / long description (Fallback is a friendly empty-state)
-            this.authorBio.text = authorBio ?: (
-                "Noch keine Biografie verfügbar.\n\n" +
-                    "In der nächsten Ausbaustufe laden wir Beschreibung & Quelle aus der Mock-API."
-                )
+            this.authorBio.text = authorBio ?: getString(R.string.author_details_fallback_bio)
 
             // Source link (only visible if we have a real URL)
             val hasSource = !authorSourceUrl.isNullOrBlank()
@@ -103,6 +102,7 @@ class AuthorDetailsFragment : Fragment() {
 
             if (hasSource) {
                 authorLink.text = authorSourceUrl
+                authorLink.setTextIsSelectable(true)
 
                 val click = View.OnClickListener {
                     // Subtle feedback
@@ -122,14 +122,22 @@ class AuthorDetailsFragment : Fragment() {
     private fun openUrl(raw: String) {
         val url = normalizeUrl(raw)
         if (url.isBlank()) {
-            Toast.makeText(requireContext(), "Keine Quelle verfügbar", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_no_source_available),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Link konnte nicht geöffnet werden", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_could_not_open_link),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

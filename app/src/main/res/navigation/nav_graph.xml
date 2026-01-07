@@ -107,11 +107,13 @@
         <argument
             android:name="authorSlug"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="" />
         <argument
             android:name="authorName"
             app:argType="string"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="" />
 
         <!-- Quote-Klick -> QuoteDetails -->
         <action

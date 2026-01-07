@@ -45,6 +45,7 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
 
         adapter = CategoryAdapter { category ->
             val navController = findNavController()
+            if (category.isBlank()) return@CategoryAdapter
 
             // If this screen was opened from Collection, keep the existing behavior:
             // set the selected category as a result so Collection can apply its local filter.
@@ -54,9 +55,10 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
                     ?.set(RESULT_SELECTED_CATEGORY, category)
             }
 
-            // Decision A: open the quote list for this category.
+            // Navigate to quote list for this category.
+            // Use destination id instead of action id to avoid crashes if the action is missing.
             navController.navigate(
-                R.id.action_categoryOverviewFragment_to_categoryQuotesFragment,
+                R.id.categoryQuotesFragment,
                 bundleOf(
                     "category" to category,
                     "origin" to "overview"

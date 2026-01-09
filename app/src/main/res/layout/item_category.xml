@@ -15,20 +15,19 @@
     app:cardElevation="1.5dp"
     app:strokeWidth="1dp"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
-    app:strokeColor="?attr/colorOutlineVariant">
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:rippleColor="?attr/colorPrimary">
 
     <TextView
         android:id="@+id/tvCategoryTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="14dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="14dp"
-        android:paddingBottom="16dp"
+        android:padding="16dp"
         android:gravity="center"
         android:maxLines="2"
         android:ellipsize="end"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-        android:textColor="?attr/colorOnSurface" />
+        android:textColor="?attr/colorOnSurface"
+        android:importantForAccessibility="yes" />
 
 </com.google.android.material.card.MaterialCardView>

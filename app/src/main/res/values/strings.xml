@@ -59,6 +59,25 @@
     <string name="home_empty_subtitle">Probiere einen anderen Suchbegriff oder wähle einen Filter.</string>
     <string name="home_empty_reset">Filter zurücksetzen</string>
 
+    <!-- Home: Filter labels (used by new empty-state copy) -->
+    <string name="home_filter_society">Gesellschaft</string>
+    <string name="home_filter_success">Erfolg</string>
+    <string name="home_filter_work">Arbeit</string>
+    <string name="home_filter_wisdom">Wissen</string>
+    <string name="home_filter_gratitude">Dankbarkeit</string>
+    <string name="home_filter_all">Alle</string>
+
+    <!-- Home: Empty state (rich copy) -->
+    <string name="home_empty_title_no_results">Keine Treffer</string>
+    <string name="home_empty_title_no_quotes">Keine Quotes</string>
+    <string name="home_empty_subtitle_query_and_filter">Keine Treffer für „%1$s“ in %2$s. Probiere einen anderen Begriff oder setze den Filter zurück.</string>
+    <string name="home_empty_subtitle_query">Keine Treffer für „%1$s“. Probiere einen anderen Suchbegriff.</string>
+    <string name="home_empty_subtitle_filter">Keine Quotes im Filter %1$s. Wähle einen anderen Filter oder setze zurück auf Alle.</string>
+    <string name="home_empty_subtitle_default">Aktuell sind keine Quotes verfügbar.</string>
+
+    <!-- Daily affirmation -->
+    <string name="daily_affirmation_author_format">– %1$s</string>
+
     <!-- Home (Filters) -->
     <string name="filter_society">Gesellschaft</string>
     <string name="filter_success">Erfolg</string>

@@ -38,13 +38,20 @@ class CategoryAdapter(
 
         init {
             itemView.setOnClickListener {
-                boundCategory?.let(onCategoryClick)
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+
+                val category = boundCategory?.trim().orEmpty()
+                if (category.isBlank()) return@setOnClickListener
+
+                onCategoryClick(category)
             }
         }
 
         fun bind(category: String) {
-            boundCategory = category
-            title.text = category.trim()
+            val trimmed = category.trim()
+            boundCategory = trimmed
+            title.text = trimmed
         }
     }
 

@@ -15,7 +15,7 @@
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="16dp"
     app:cardElevation="1dp"
-    app:rippleColor="?attr/colorControlHighlight"
+    app:rippleColor="?attr/colorPrimary"
     app:strokeColor="?attr/colorOutlineVariant"
     app:strokeWidth="1dp">
 

@@ -217,39 +217,40 @@ class HomeFragment : Fragment() {
 
     private fun renderEmptyStateText() {
         val query = latestQuery.trim()
-        val filterLabel = when (latestCategoryFilter) {
-            SharedViewModel.CategoryFilter.SOCIETY -> "Society"
-            SharedViewModel.CategoryFilter.SUCCESS -> "Erfolg"
-            SharedViewModel.CategoryFilter.WORK -> "Arbeit"
-            SharedViewModel.CategoryFilter.WISDOM -> "Weisheit"
-            SharedViewModel.CategoryFilter.GRATITUDE -> "Dankbarkeit"
-            SharedViewModel.CategoryFilter.ALL -> "Alle"
+
+        val filterLabelRes = when (latestCategoryFilter) {
+            SharedViewModel.CategoryFilter.SOCIETY -> R.string.home_filter_society
+            SharedViewModel.CategoryFilter.SUCCESS -> R.string.home_filter_success
+            SharedViewModel.CategoryFilter.WORK -> R.string.home_filter_work
+            SharedViewModel.CategoryFilter.WISDOM -> R.string.home_filter_wisdom
+            SharedViewModel.CategoryFilter.GRATITUDE -> R.string.home_filter_gratitude
+            SharedViewModel.CategoryFilter.ALL -> R.string.home_filter_all
         }
+        val filterLabel = getString(filterLabelRes)
 
         // Title
         binding.emptyStateTitle.text = if (query.isNotBlank()) {
-            "Keine Treffer"
+            getString(R.string.home_empty_title_no_results)
         } else {
-            "Keine Quotes"
+            getString(R.string.home_empty_title_no_quotes)
         }
 
         // Subtitle
         binding.emptyStateSubtitle.text = when {
             query.isNotBlank() && latestCategoryFilter != SharedViewModel.CategoryFilter.ALL ->
-                "Keine Treffer für „$query“ in $filterLabel. Probiere einen anderen Begriff oder setze den Filter zurück."
+                getString(R.string.home_empty_subtitle_query_and_filter, query, filterLabel)
 
             query.isNotBlank() ->
-                "Keine Treffer für „$query“. Probiere einen anderen Suchbegriff."
+                getString(R.string.home_empty_subtitle_query, query)
 
             latestCategoryFilter != SharedViewModel.CategoryFilter.ALL ->
-                "Keine Quotes im Filter $filterLabel. Wähle einen anderen Filter oder setze zurück auf Alle."
+                getString(R.string.home_empty_subtitle_filter, filterLabel)
 
             else ->
-                "Aktuell sind keine Quotes verfügbar."
+                getString(R.string.home_empty_subtitle_default)
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun renderDailyAffirmation(quotes: List<Quote>) {
         // Minimal & deterministisch: „Quote of the Day“ aus der vorhandenen Liste
         // Kein Over-Engineering, keine extra API.
@@ -267,7 +268,7 @@ class HomeFragment : Fragment() {
 
         // Card Content
         binding.affirmationText.text = quote.quote
-        binding.affirmationAuthor.text = "– ${quote.author}"
+        binding.affirmationAuthor.text = getString(R.string.daily_affirmation_author_format, quote.author)
         binding.affirmationHint.visibility = View.VISIBLE
 
         // Tap auf die Card → Quote Details (von dort optional weiter zu Author Details)

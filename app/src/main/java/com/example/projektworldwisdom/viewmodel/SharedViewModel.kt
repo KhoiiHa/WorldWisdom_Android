@@ -268,7 +268,11 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     fun getQuotesByCategory(category: String?): List<Quote> {
         val list = _quotes.value.orEmpty()
         val normalized = category?.trim().orEmpty()
-        if (normalized.isBlank() || normalized.equals("All", ignoreCase = true) || normalized.equals("Alle", ignoreCase = true)) {
+        if (
+            normalized.isBlank() ||
+            normalized.equals("All", ignoreCase = true) ||
+            normalized.equals(ALL_CATEGORY_LABEL, ignoreCase = true)
+        ) {
             return list
         }
         return list.filter { it.category.trim().equals(normalized, ignoreCase = true) }
@@ -345,7 +349,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             .asSequence()
             .filter { quote ->
                 if (categoriesForFilter.isEmpty()) true
-                else categoriesForFilter.any { mapped -> mapped.equals(quote.category, ignoreCase = true) }
+                else categoriesForFilter.any { mapped -> mapped.equals(quote.category.trim(), ignoreCase = true) }
             }
             .filter { quote ->
                 if (search.isBlank()) true

@@ -1,6 +1,4 @@
 package com.example.projektworldwisdom.register
-
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,16 +13,24 @@ import com.example.projektworldwisdom.viewmodel.AuthenticationViewModel
 
 
 class RegisterFragment : Fragment() {
-    private lateinit var binding: FragmentRegisterBinding
+
+    private var _binding: FragmentRegisterBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: AuthenticationViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentRegisterBinding.inflate(inflater, container, false)
+    ): View {
+        _binding = FragmentRegisterBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,7 +39,7 @@ class RegisterFragment : Fragment() {
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
                 findNavController().navigate(
-                    RegisterFragmentDirections.actionRegisterFragmentToHomeFragment(initialCategory = "Alle")
+                    RegisterFragmentDirections.actionRegisterFragmentToHomeFragment()
                 )
             }
         }
@@ -51,7 +57,7 @@ class RegisterFragment : Fragment() {
             if (password == confirmPassword) {
                 viewModel.register(email, password, firstname, lastname)
             } else {
-                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), getString(R.string.error_passwords_do_not_match), Toast.LENGTH_SHORT)
                     .show()
             }
         }

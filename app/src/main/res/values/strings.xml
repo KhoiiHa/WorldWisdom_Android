@@ -47,6 +47,7 @@
     <string name="search_hint">Suche nach Zitaten, Autoren oder Tags</string>
     <string name="error_navigation">Navigation fehlgeschlagen</string>
     <string name="cd_navigate_up">Zurück</string>
+    <string name="error_passwords_do_not_match">Passwörter stimmen nicht überein</string>
 
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>

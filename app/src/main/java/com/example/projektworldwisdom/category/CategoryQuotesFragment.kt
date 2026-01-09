@@ -45,7 +45,7 @@ class CategoryQuotesFragment : Fragment() {
 
                 val action = CategoryQuotesFragmentDirections
                     .actionCategoryQuotesFragmentToQuoteDetailsFragment(
-                        quoteId = quote.id,
+                        quoteId = quote.favoriteKey,
                         quoteText = quote.quote,
                         author = quote.author,
                         category = quote.category,
@@ -123,11 +123,14 @@ class CategoryQuotesFragment : Fragment() {
 
             val filtered = if (isAuthorMode) {
                 // Author mode: filter by stable slug (preferred), fallback to name if needed.
-                safeAll.filter { it.authorSlug == authorSlug || (authorName.isNotBlank() && it.author == authorName) }
+                safeAll.filter {
+                    it.authorSlug.trim().equals(authorSlug, ignoreCase = true) ||
+                        (authorName.isNotBlank() && it.author.trim().equals(authorName, ignoreCase = true))
+                }
             } else {
                 // Category mode (derived from the observed list)
                 if (category.isNotBlank()) {
-                    safeAll.filter { it.category == category }
+                    safeAll.filter { it.category.trim().equals(category, ignoreCase = true) }
                 } else {
                     emptyList()
                 }
@@ -170,7 +173,12 @@ private class CategoryQuotesAdapter(
             parent,
             false
         )
-        return QuoteViewHolder(binding, onQuoteClick, onFavoriteToggle)
+        return QuoteViewHolder(
+            binding = binding,
+            getItemAt = { pos -> currentList.getOrNull(pos) },
+            onQuoteClick = onQuoteClick,
+            onFavoriteToggle = onFavoriteToggle
+        )
     }
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
@@ -179,24 +187,34 @@ private class CategoryQuotesAdapter(
 
     class QuoteViewHolder(
         private val binding: ItemQuoteBinding,
+        private val getItemAt: (Int) -> Quote?,
         private val onQuoteClick: (Quote) -> Unit,
         private val onFavoriteToggle: (Quote) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private var bound: Quote? = null
-
         init {
-            binding.root.setOnClickListener { bound?.let(onQuoteClick) }
-            binding.btnFavorite.setOnClickListener { bound?.let(onFavoriteToggle) }
+            binding.root.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                getItemAt(pos)?.let(onQuoteClick)
+            }
+
+            binding.btnFavorite.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                getItemAt(pos)?.let(onFavoriteToggle)
+            }
         }
 
         fun bind(item: Quote) {
-            bound = item
-
             binding.quoteText.text = item.quote
 
             val author = item.author.trim()
-            binding.quoteAuthor.text = if (author.isNotBlank()) "– $author" else ""
+            binding.quoteAuthor.text = if (author.isNotBlank()) {
+                binding.root.context.getString(R.string.quote_details_author_prefix, author)
+            } else {
+                ""
+            }
 
             val iconRes = if (item.isFavorite) {
                 R.drawable.ic_star_filled
@@ -210,7 +228,7 @@ private class CategoryQuotesAdapter(
     companion object {
         private val DIFF = object : androidx.recyclerview.widget.DiffUtil.ItemCallback<Quote>() {
             override fun areItemsTheSame(oldItem: Quote, newItem: Quote): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.favoriteKey == newItem.favoriteKey
             }
 
             override fun areContentsTheSame(oldItem: Quote, newItem: Quote): Boolean {

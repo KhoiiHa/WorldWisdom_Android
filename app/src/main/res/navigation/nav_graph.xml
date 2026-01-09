@@ -15,10 +15,6 @@
         <action
             android:id="@+id/action_homeFragment_to_quoteDetailsFragment"
             app:destination="@id/quoteDetailsFragment" />
-        <argument
-            android:name="initialCategory"
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_homeFragment_to_categoryOverviewFragment"
             app:destination="@id/categoryOverviewFragment">
@@ -34,10 +30,6 @@
         android:id="@+id/collectionFragment"
         android:name="com.example.projektworldwisdom.collection.CollectionFragment"
         android:label="@string/nav_collection" >
-        <argument
-            android:name="initialCategory"
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_collectionFragment_to_quoteDetailsFragment"
             app:destination="@id/quoteDetailsFragment" />
@@ -49,6 +41,9 @@
                 app:argType="string"
                 android:defaultValue="collection" />
         </action>
+        <action
+            android:id="@+id/action_collectionFragment_to_authorDetailsFragment"
+            app:destination="@id/authorDetailsFragment" />
     </fragment>
 
     <!-- Category Overview (Kategorien-Übersicht) -->
@@ -63,6 +58,13 @@
             app:argType="string"
             app:nullable="true"
             android:defaultValue="home" />
+
+        <!-- Optional: preselect a category when entering the overview -->
+        <argument
+            android:name="initialCategory"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="" />
 
         <!-- Rücksprung nach Home (z.B. wenn CategoryOverview von Home geöffnet wurde) -->
         <action

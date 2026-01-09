@@ -28,7 +28,7 @@ class QuoteAdapter(
 ) : ListAdapter<Quote, QuoteAdapter.QuoteViewHolder>(DIFF_CALLBACK) {
 
     // Keeps the UI responsive while the ViewModel updates the source-of-truth list.
-    // Key = quote.id, Value = desired favorite state.
+    // Key = quote.favoriteKey (stable identity), Value = desired favorite state.
     private val favoriteOverrides = mutableMapOf<String, Boolean>()
 
     class QuoteViewHolder(val binding: ItemQuoteBinding) : RecyclerView.ViewHolder(binding.root)
@@ -64,7 +64,8 @@ class QuoteAdapter(
 
         // ⭐ Favoriten-Status anzeigen (Drawables + klare Tint-Logik)
         val favoriteButton = holder.binding.btnFavorite
-        val displayFavorite = favoriteOverrides[quote.id] ?: quote.isFavorite
+        val quoteKey = quote.favoriteKey
+        val displayFavorite = favoriteOverrides[quoteKey] ?: quote.isFavorite
         bindFavoriteState(favoriteButton, displayFavorite)
 
         // ⭐ Toggle (optimistic UI + Source of Truth = ViewModel/submitList)
@@ -74,11 +75,12 @@ class QuoteAdapter(
             if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
 
             val current = getItem(pos)
-            val currentDisplayedState = favoriteOverrides[current.id] ?: current.isFavorite
+            val currentKey = current.favoriteKey
+            val currentDisplayedState = favoriteOverrides[currentKey] ?: current.isFavorite
             val newState = !currentDisplayedState
 
             // Optimistic UI: update immediately.
-            favoriteOverrides[current.id] = newState
+            favoriteOverrides[currentKey] = newState
             bindFavoriteState(favoriteButton, newState)
 
             // Pass an updated model to callbacks (so screens can reflect the latest state immediately)
@@ -100,8 +102,9 @@ class QuoteAdapter(
             if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
 
             val current = getItem(pos)
+            val currentKey = current.favoriteKey
             // Include optimistic favorite override (so Details receives the displayed state)
-            val displayedFavorite = favoriteOverrides[current.id] ?: current.isFavorite
+            val displayedFavorite = favoriteOverrides[currentKey] ?: current.isFavorite
             val currentForClick = if (displayedFavorite == current.isFavorite) {
                 current
             } else {
@@ -160,15 +163,16 @@ class QuoteAdapter(
 
         // Remove overrides that have been confirmed by the source-of-truth list.
         for (q in list) {
-            val override = favoriteOverrides[q.id]
+            val key = q.favoriteKey
+            val override = favoriteOverrides[key]
             if (override != null && override == q.isFavorite) {
-                favoriteOverrides.remove(q.id)
+                favoriteOverrides.remove(key)
             }
         }
 
         // Also remove overrides for items that are no longer present.
-        val ids = list.asSequence().map { it.id }.toSet()
-        val toRemove = favoriteOverrides.keys.filter { it !in ids }
+        val keys = list.asSequence().map { it.favoriteKey }.toSet()
+        val toRemove = favoriteOverrides.keys.filter { it !in keys }
         toRemove.forEach { favoriteOverrides.remove(it) }
 
         super.submitList(list)
@@ -178,7 +182,7 @@ class QuoteAdapter(
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Quote>() {
             override fun areItemsTheSame(oldItem: Quote, newItem: Quote): Boolean {
                 // Falls du später eine stabile ID im Model hast (z.B. quoteId), kannst du hier darauf wechseln.
-                return oldItem.id == newItem.id
+                return oldItem.favoriteKey == newItem.favoriteKey
             }
 
             override fun areContentsTheSame(oldItem: Quote, newItem: Quote): Boolean {

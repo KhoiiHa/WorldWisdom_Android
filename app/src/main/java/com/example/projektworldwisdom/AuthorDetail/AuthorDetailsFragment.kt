@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -69,13 +68,12 @@ class AuthorDetailsFragment : Fragment() {
             // We reuse the existing quotes list screen and pass author info.
             // Next step: CategoryQuotesFragment will read these args and filter accordingly.
             val navController = findNavController()
-            navController.navigate(
-                R.id.categoryQuotesFragment,
-                bundleOf(
-                    "authorSlug" to slug,
-                    "authorName" to authorName
+            val action = AuthorDetailsFragmentDirections
+                .actionAuthorDetailsFragmentToCategoryQuotesFragment(
+                    authorSlug = slug,
+                    authorName = authorName
                 )
-            )
+            navController.navigate(action)
         }
     }
 

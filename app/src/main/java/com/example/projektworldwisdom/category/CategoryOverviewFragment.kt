@@ -23,11 +23,16 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         const val ARG_ORIGIN = "origin"
         const val ORIGIN_HOME = "home"
         const val ORIGIN_COLLECTION = "collection"
+
+        // Optional argument (from nav_graph) to preselect/scroll to a category.
+        const val ARG_INITIAL_CATEGORY = "initialCategory"
     }
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
     private lateinit var adapter: CategoryAdapter
+
+    private var initialCategory: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,6 +41,7 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         emptyText = view.findViewById(R.id.textEmptyCategories)
 
         val origin = arguments?.getString(ARG_ORIGIN) ?: ORIGIN_HOME
+        initialCategory = arguments?.getString(ARG_INITIAL_CATEGORY).orEmpty().trim()
 
         // Toolbar: Back like other screens
         view.findViewById<MaterialToolbar>(R.id.toolbarCategoryOverview)
@@ -103,6 +109,14 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         recyclerView.visibility = if (showEmpty) View.GONE else View.VISIBLE
 
         adapter.submitList(categories)
+
+        // If we got an initial category (e.g., from Collection), scroll to it so users see context.
+        if (initialCategory.isNotBlank()) {
+            val index = categories.indexOfFirst { it.equals(initialCategory, ignoreCase = true) }
+            if (index >= 0) {
+                recyclerView.post { recyclerView.scrollToPosition(index) }
+            }
+        }
     }
 
     private fun dp(value: Int): Int =

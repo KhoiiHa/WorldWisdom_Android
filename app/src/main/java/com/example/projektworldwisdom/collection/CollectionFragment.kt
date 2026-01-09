@@ -278,20 +278,35 @@ class CollectionFragment : Fragment() {
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
-        // Minimal & consistent with Home: we pass what we already have.
-        // Later, we can switch to a real AuthorDetails fetch if needed.
-        val args = bundleOf(
-            "authorSlug" to quote.authorSlug,
-            "authorName" to quote.author,
-            // Short header line
-            "authorDescription" to quote.category.takeIf { it.isNotBlank() },
-            // Long bio/description
-            "authorBio" to quote.description.takeIf { it.isNotBlank() },
-            // Source link
-            "authorSourceUrl" to quote.source.takeIf { it.isNotBlank() }
-        )
+        val navController = findNavController()
 
-        findNavController().navigate(R.id.authorDetailsFragment, args)
+        val slug = quote.authorSlug
+        val name = quote.author
+        val description = quote.category.takeIf { it.isNotBlank() }
+        val bio = quote.description.takeIf { it.isNotBlank() }
+        val sourceUrl = quote.source.takeIf { it.isNotBlank() }
+
+        // Prefer SafeArgs (compile-time checked). Keep a legacy fallback for safety.
+        runCatching {
+            val action = CollectionFragmentDirections
+                .actionCollectionFragmentToAuthorDetailsFragment(
+                    authorSlug = slug,
+                    authorName = name,
+                    authorDescription = description,
+                    authorBio = bio,
+                    authorSourceUrl = sourceUrl
+                )
+            navController.navigate(action)
+        }.recoverCatching {
+            val args = bundleOf(
+                "authorSlug" to slug,
+                "authorName" to name,
+                "authorDescription" to description,
+                "authorBio" to bio,
+                "authorSourceUrl" to sourceUrl
+            )
+            navController.navigate(R.id.authorDetailsFragment, args)
+        }
     }
 
     private fun navigateToHome() {
@@ -308,25 +323,31 @@ class CollectionFragment : Fragment() {
     }
 
     private fun navigateToCategoryOverview() {
-        // Navigation to CategoryOverview is always allowed.
-
-        val args = bundleOf(
-            // Useful for future analytics / UI decisions in the overview
-            "origin" to "collection",
-            // Preselect current category (if any) when opening the overview
-            "initialCategory" to selectedCategory
-        )
-
         val navController = findNavController()
 
-        // Prefer the explicit action if it exists; fallback to direct destination navigation.
+        // Prefer SafeArgs if the action exists in the graph (compile-time checked).
         runCatching {
-            navController.navigate(
-                R.id.action_collectionFragment_to_categoryOverviewFragment,
-                args
-            )
+            val action = CollectionFragmentDirections
+                .actionCollectionFragmentToCategoryOverviewFragment(
+                    origin = "collection",
+                    initialCategory = selectedCategory
+                )
+            navController.navigate(action)
         }.recoverCatching {
-            navController.navigate(R.id.categoryOverviewFragment, args)
+            // Fallback: keep legacy bundle navigation for safety.
+            val args = bundleOf(
+                "origin" to "collection",
+                "initialCategory" to selectedCategory
+            )
+
+            runCatching {
+                navController.navigate(
+                    R.id.action_collectionFragment_to_categoryOverviewFragment,
+                    args
+                )
+            }.recoverCatching {
+                navController.navigate(R.id.categoryOverviewFragment, args)
+            }
         }
     }
 

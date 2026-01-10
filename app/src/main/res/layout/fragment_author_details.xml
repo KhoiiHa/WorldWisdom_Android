@@ -71,8 +71,7 @@
                             android:id="@+id/author_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                            android:textColor="?attr/colorOnSurface"
+                            style="@style/WW.Text.Title"
                             tools:text="Marcus Aurelius" />
 
                         <TextView
@@ -80,9 +79,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:lineHeight="22sp"
-                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            style="@style/WW.Text.Meta"
                             tools:text="Römischer Kaiser und stoischer Philosoph, bekannt für seine Meditationen."
                             tools:targetApi="28" />
                     </LinearLayout>
@@ -104,9 +101,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="16dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:textColor="?attr/colorOnSurface"
-                        android:lineHeight="28sp"
+                        style="@style/WW.Text.Body"
                         tools:text="Kurzbiografie, Hintergrund und relevante Lebensstationen der Autorin oder des Autors."
                         tools:targetApi="28" />
                 </com.google.android.material.card.MaterialCardView>
@@ -118,7 +113,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/author_details_show_quotes"
                     android:hapticFeedbackEnabled="true"
-                    style="@style/Widget.Material3.Button.OutlinedButton" />
+                    style="@style/WW.Button.Secondary" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/author_link_card"
@@ -142,8 +137,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="16dp"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        style="@style/WW.Text.Meta"
                         android:autoLink="web"
                         android:linksClickable="true"
                         android:maxLines="1"

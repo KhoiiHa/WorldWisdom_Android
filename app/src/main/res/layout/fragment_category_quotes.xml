@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+        app:titleTextAppearance="@style/WW.Text.Title" />
 
     <LinearLayout
         android:id="@+id/headerContainer"
@@ -32,16 +32,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/category_quotes_header_title_placeholder"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-            android:textColor="?attr/colorOnSurface" />
+            style="@style/WW.Text.Title" />
 
         <TextView
             android:id="@+id/headerCount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/category_quotes_header_count_placeholder"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            style="@style/WW.Text.Meta" />
 
     </LinearLayout>
 
@@ -72,8 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="@string/category_quotes_empty_title"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            android:textColor="?attr/colorOnSurface" />
+            style="@style/WW.Text.Title" />
 
         <TextView
             android:id="@+id/emptyStateSubtitle"
@@ -82,12 +79,11 @@
             android:layout_marginTop="6dp"
             android:gravity="center"
             android:text="@string/category_quotes_empty_subtitle"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            style="@style/WW.Text.Body" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEmptyAction"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/WW.Button.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"

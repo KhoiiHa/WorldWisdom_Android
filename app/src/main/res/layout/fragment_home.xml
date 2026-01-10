@@ -26,8 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/greeting_default"
-            android:textColor="?attr/colorOnSurface"
-            android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+            style="@style/WW.Text.Meta" />
 
         <TextView
             android:id="@+id/user_name"
@@ -35,8 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text=""
-            android:textColor="?attr/colorOnSurface"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            style="@style/WW.Text.Title"
             tools:text="Benutzer" />
 
     </LinearLayout>
@@ -74,7 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            style="@style/WW.Text.Body"
             android:importantForAutofill="no"
             android:imeOptions="actionSearch"
             android:inputType="text"
@@ -121,8 +119,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/daily_affirmation_title"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+                style="@style/WW.Text.Meta" />
 
             <TextView
                 android:id="@+id/affirmation_text"
@@ -130,11 +127,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/daily_affirmation_loading"
-                android:textColor="?attr/colorOnSurface"
                 android:maxLines="4"
                 android:ellipsize="end"
-                android:lineHeight="26sp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                style="@style/WW.Text.Quote"
                 tools:text="Stay focused and keep learning 💡"
                 tools:targetApi="28" />
 
@@ -143,11 +138,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                style="@style/WW.Text.Meta"
                 android:textStyle="italic"
                 android:gravity="end"
                 android:layout_gravity="end"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 tools:text="– ChatGPT Mentor" />
 
             <TextView
@@ -156,8 +150,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="@string/daily_affirmation_hint_tap_for_details"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
+                style="@style/WW.Text.Meta" />
 
         </LinearLayout>
 
@@ -317,8 +310,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="@string/home_empty_title_no_results"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            android:textColor="?attr/colorOnSurface" />
+            style="@style/WW.Text.Title" />
 
         <TextView
             android:id="@+id/empty_state_subtitle"
@@ -327,8 +319,7 @@
             android:layout_marginTop="6dp"
             android:gravity="center"
             android:text="@string/home_empty_subtitle_default"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            style="@style/WW.Text.Body" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEmptyReset"
@@ -337,7 +328,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/home_empty_reset"
             android:hapticFeedbackEnabled="true"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            style="@style/WW.Button.Secondary" />
 
     </LinearLayout>
 

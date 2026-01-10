@@ -20,6 +20,8 @@
         <item name="colorSurfaceVariant">@color/ww_surface_variant</item>
         <item name="colorOnSurfaceVariant">@color/ww_on_surface_variant</item>
         <item name="colorOutline">@color/ww_outline</item>
+        <item name="colorOutlineVariant">@color/ww_outline</item>
+        <item name="colorSurfaceContainer">@color/ww_surface_variant</item>
 
         <item name="colorError">@color/ww_error</item>
         <item name="colorOnError">@color/ww_on_error</item>

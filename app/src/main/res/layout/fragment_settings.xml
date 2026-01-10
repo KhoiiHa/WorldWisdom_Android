@@ -31,7 +31,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:titleTextAppearance="?attr/textAppearanceTitleLarge"
+            app:titleTextAppearance="@style/WW.Text.Title"
             app:navigationIconTint="?attr/colorOnSurface" />
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_marginTop="6dp"
             android:alpha="0.8"
             android:text="@string/settings_subtitle"
-            android:textAppearance="?attr/textAppearanceBodySmall"
+            style="@style/WW.Text.Meta"
             app:layout_constraintTop_toBottomOf="@id/settingsToolbar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -71,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_section_about"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    style="@style/WW.Text.Title" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -86,7 +86,7 @@
                         android:layout_weight="1"
                         android:alpha="0.8"
                         android:text="@string/settings_app_name_label"
-                        android:textAppearance="?attr/textAppearanceBodySmall" />
+                        style="@style/WW.Text.Meta" />
 
                     <TextView
                         android:id="@+id/tvSettingsAppNameValue"
@@ -94,7 +94,8 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="@string/common_placeholder_dash" />
+                        android:text="@string/common_placeholder_dash"
+                        style="@style/WW.Text.Body" />
                 </LinearLayout>
 
                 <com.google.android.material.divider.MaterialDivider
@@ -117,13 +118,14 @@
                         android:layout_weight="1"
                         android:alpha="0.8"
                         android:text="@string/settings_version_label"
-                        android:textAppearance="?attr/textAppearanceBodySmall" />
+                        style="@style/WW.Text.Meta" />
 
                     <TextView
                         android:id="@+id/tvSettingsVersionValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/common_placeholder_dash" />
+                        android:text="@string/common_placeholder_dash"
+                        style="@style/WW.Text.Body" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -154,11 +156,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_section_links"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    style="@style/WW.Text.Title" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSettingsGithub"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/WW.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -166,7 +168,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSettingsCaseStudy"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/WW.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -202,7 +204,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_section_preferences"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    style="@style/WW.Text.Title" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -216,8 +218,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/settings_dark_mode_title"
-                        android:textAppearance="?attr/textAppearanceBodyLarge" />
+                        style="@style/WW.Text.Body"
+                        android:text="@string/settings_dark_mode_title" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchSettingsDarkMode"
@@ -233,8 +235,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:alpha="0.8"
-                    android:text="@string/settings_dark_mode_subtitle"
-                    android:textAppearance="?attr/textAppearanceBodySmall" />
+                    style="@style/WW.Text.Meta"
+                    android:text="@string/settings_dark_mode_subtitle" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

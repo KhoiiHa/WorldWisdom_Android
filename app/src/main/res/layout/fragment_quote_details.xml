@@ -21,7 +21,7 @@
             app:navigationIcon="@drawable/ic_arrow_back_24"
             app:title="@string/quote_details_title"
             app:titleCentered="false"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            app:titleTextAppearance="@style/WW.Text.Title" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -61,10 +61,8 @@
                         android:id="@+id/quoteText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:lineHeight="28sp"
+                        style="@style/WW.Text.Quote"
                         android:text="@string/quote_details_quote_placeholder"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:textColor="?attr/colorOnSurface"
                         tools:text="Phantasie ist wichtiger als Wissen …"
                         tools:targetApi="28" />
 
@@ -74,8 +72,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="@string/quote_details_author_placeholder"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        style="@style/WW.Text.Meta"
                         tools:text="— Albert Einstein" />
 
                     <TextView
@@ -84,8 +81,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/quote_details_category_placeholder"
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        style="@style/WW.Text.Meta"
                         tools:text="Wissen" />
 
                     <!-- Favorite row -->
@@ -106,7 +102,7 @@
                             android:minWidth="48dp"
                             android:minHeight="48dp"
                             android:padding="12dp"
-                            android:tint="?attr/colorOnSurfaceVariant"
+                            app:tint="?attr/colorOnSurfaceVariant"
                             android:hapticFeedbackEnabled="true"
                             app:srcCompat="@drawable/ic_star_outline" />
 
@@ -116,8 +112,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="@string/quote_details_favorite_label"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
+                            style="@style/WW.Text.Meta" />
 
                     </LinearLayout>
 
@@ -131,8 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="@string/quote_details_tags_label"
-                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                android:textColor="?attr/colorOnSurface" />
+                style="@style/WW.Text.Title" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupTags"
@@ -152,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="@string/quote_details_author_details"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/WW.Button.Secondary"
                 app:icon="@drawable/ic_person_24"
                 app:iconGravity="textStart" />
 
@@ -163,7 +157,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
                 android:text="@string/quote_details_open_source"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/WW.Button.Secondary"
                 app:icon="@drawable/ic_link_24"
                 app:iconGravity="textStart" />
 

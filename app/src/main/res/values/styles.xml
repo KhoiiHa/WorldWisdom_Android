@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- =========================================
+         WorldWisdom Mini Design System (Block B)
+         Goal: consistent typography & UI building blocks without overengineering.
+         Naming: WW.*
+         ========================================= -->
+
+    <!-- Text styles -->
+    <style name="WW.Text.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="WW.Text.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="WW.Text.Meta" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="WW.Text.Quote" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <!-- Components -->
+    <style name="WW.Chip.Filter" parent="Widget.Material3.Chip.Assist">
+        <!-- Keep existing chip look, only standardize typography -->
+        <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+    </style>
+
+    <style name="WW.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+    </style>
+
+</resources>

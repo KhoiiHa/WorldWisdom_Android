@@ -39,6 +39,9 @@ class HomeFragment : Fragment() {
     private var latestQuery: String = ""
     private var latestCategoryFilter: SharedViewModel.CategoryFilter = SharedViewModel.CategoryFilter.ALL
 
+    // Avoid showing Empty-State before the first filtered list arrives
+    private var hasReceivedFilteredQuotes: Boolean = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -83,6 +86,7 @@ class HomeFragment : Fragment() {
         // Gefilterte Quotes (Phase 2) — Home Feed
         viewModel.filteredQuotes.observe(viewLifecycleOwner) { quotes ->
             val safe = quotes.orEmpty()
+            hasReceivedFilteredQuotes = true
             latestFilteredCount = safe.size
             quotesAdapter.updateQuotes(safe)
             renderHomeState()
@@ -203,7 +207,7 @@ class HomeFragment : Fragment() {
 
     private fun renderHomeState() {
         val showLoading = latestIsLoading
-        val showEmpty = !latestIsLoading && latestFilteredCount == 0
+        val showEmpty = hasReceivedFilteredQuotes && !latestIsLoading && latestFilteredCount == 0
 
         binding.progressBar.visibility = if (showLoading) View.VISIBLE else View.GONE
         binding.emptyStateContainer.visibility = if (showEmpty) View.VISIBLE else View.GONE

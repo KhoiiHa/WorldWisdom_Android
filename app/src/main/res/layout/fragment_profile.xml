@@ -19,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/profile_title"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            style="@style/WW.Text.Title"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -31,8 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="@string/profile_subtitle"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            style="@style/WW.Text.Meta"
             app:layout_constraintTop_toBottomOf="@id/tvProfileTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/profile_description"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
+            style="@style/WW.Text.Body"
             app:layout_constraintTop_toBottomOf="@id/tvProfileSubtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -71,14 +70,14 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnProfileGithub"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/WW.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/profile_action_github" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnProfileCaseStudy"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/WW.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -86,7 +85,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnProfileAppInfo"
-                    style="?attr/materialButtonOutlinedStyle"
+                    style="@style/WW.Button.Secondary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -101,7 +100,8 @@
                     android:text="@string/profile_action_settings"
                     android:textColor="?attr/colorOnSecondaryContainer"
                     app:backgroundTint="?attr/colorSecondaryContainer"
-                    app:strokeWidth="0dp" />
+                    app:strokeWidth="0dp"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
 
             </LinearLayout>
 
@@ -113,8 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/profile_footer"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            style="@style/WW.Text.Meta"
             app:layout_constraintTop_toBottomOf="@id/cardProfileActions"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

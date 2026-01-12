@@ -69,6 +69,17 @@
     <color name="ww_tertiary">#FFC107</color>
     <color name="ww_on_tertiary">#FF1C1600</color>
 
+    <!-- Soft accent surfaces (lavender pill background like current UI) -->
+    <color name="ww_accent_soft">#D5D5EF</color>
+    <color name="ww_on_accent_soft">#FF1A1A22</color>
+
+    <!-- Selection / highlight (used for selected chip / selected bottom-nav item background) -->
+    <color name="ww_selection_bg">#E6E0F8</color>
+    <color name="ww_on_selection_bg">#FF1A1A22</color>
+
+    <!-- Favorite (explicit semantic alias so we can reference it consistently) -->
+    <color name="ww_favorite_active">#FFC107</color>
+
     <!-- Light surfaces -->
     <color name="ww_background">#FFFBEB</color>
     <color name="ww_on_background">#FF111418</color>
@@ -80,6 +91,7 @@
     <color name="ww_on_surface_variant">#FF41474D</color>
 
     <color name="ww_outline">#FF7A828A</color>
+    <color name="ww_outline_soft">#FF9AA2AA</color>
 
     <!-- Dark surfaces (used by night theme) -->
     <color name="ww_background_dark">#FF0F1416</color>
@@ -92,6 +104,7 @@
     <color name="ww_on_surface_variant_dark">#FFC3C8CF</color>
 
     <color name="ww_outline_dark">#FF8B949E</color>
+    <color name="ww_outline_soft_dark">#FF6F7882</color>
 
     <!-- Feedback -->
     <color name="ww_error">#AC3131</color>

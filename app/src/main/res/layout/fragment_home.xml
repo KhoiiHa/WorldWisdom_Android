@@ -102,7 +102,7 @@
         app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:strokeWidth="1dp"
         app:strokeColor="?attr/colorOutlineVariant"
-        app:rippleColor="?attr/colorPrimary"
+        app:rippleColor="@color/ww_selection_bg"
         android:hapticFeedbackEnabled="true"
         app:layout_constraintTop_toBottomOf="@id/search_container"
         app:layout_constraintStart_toStartOf="parent"
@@ -185,7 +185,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_society"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/WW.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_society"
@@ -201,7 +201,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_success"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/WW.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_success"
@@ -217,7 +217,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_work"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/WW.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_work"
@@ -233,7 +233,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_wisdom"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/WW.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_wisdom"
@@ -249,7 +249,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_gratitude"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/WW.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_gratitude"
@@ -265,7 +265,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/filter_alle"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/WW.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/filter_all"

@@ -73,7 +73,7 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorOutline"
+            app:strokeColor="?attr/colorOutlineVariant"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -141,8 +141,7 @@
                         app:chipSpacingHorizontal="8dp"
                         app:chipSpacingVertical="8dp"
                         app:singleSelection="true"
-                        app:selectionRequired="true"
-                        app:chipStyle="@style/WW.Chip.Filter">
+                        app:selectionRequired="true">
 
                         <!-- Chips werden im Fragment dynamisch befüllt -->
 

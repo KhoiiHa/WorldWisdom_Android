@@ -71,6 +71,7 @@ class QuoteDetailsFragment : Fragment() {
             // UI sofort aktualisieren (fühlt sich “live” an)
             currentIsFavorite = !currentIsFavorite
             updateFavoriteUi(currentIsFavorite)
+            playFavoriteTapAnimation()
 
             // State im ViewModel togglen (Single Source of Truth)
             viewModel.toggleFavorite(quote)
@@ -94,6 +95,21 @@ class QuoteDetailsFragment : Fragment() {
             val quote = findQuoteOrNull() ?: buildQuoteFromArgs()
             navigateToAuthorDetails(quote)
         }
+    }
+
+    private fun playFavoriteTapAnimation() {
+        binding.btnFavorite.animate()
+            .scaleX(1.12f)
+            .scaleY(1.12f)
+            .setDuration(90)
+            .withEndAction {
+                binding.btnFavorite.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(90)
+                    .start()
+            }
+            .start()
     }
 
     private fun renderFromArgs() {
@@ -138,9 +154,10 @@ class QuoteDetailsFragment : Fragment() {
 
         binding.btnFavorite.setImageResource(iconRes)
 
-        // Tint: favorited -> primary, otherwise -> onSurfaceVariant (ruhiger, Material-konform)
+        // Tint: favorited -> tertiary, otherwise -> onSurfaceVariant (ruhiger, Material-konform)
         val tintAttr = if (isFavorite) {
-            com.google.android.material.R.attr.colorPrimary
+            // Theme-driven highlight (Material3 tertiary → matches `ww_tertiary`)
+            com.google.android.material.R.attr.colorTertiary
         } else {
             com.google.android.material.R.attr.colorOnSurfaceVariant
         }

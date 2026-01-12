@@ -1,6 +1,7 @@
 package com.example.projektworldwisdom.collection
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -175,11 +176,17 @@ class CollectionFragment : Fragment() {
     }
 
     private fun createCategoryChip(label: String, categoryValue: String?): Chip {
-        return Chip(requireContext()).apply {
+        // Important: Chips are created dynamically, so they won't inherit styling from the ChipGroup.
+        // Use a themed context so `@style/WW.Chip.Filter` is actually applied.
+        val themedContext = ContextThemeWrapper(requireContext(), R.style.WW_Chip_Filter)
+
+        return Chip(themedContext).apply {
             id = View.generateViewId()
             text = label
+
             isCheckable = true
             isCheckedIconVisible = false
+
             // Tag is used to identify the category later
             tag = categoryValue
         }

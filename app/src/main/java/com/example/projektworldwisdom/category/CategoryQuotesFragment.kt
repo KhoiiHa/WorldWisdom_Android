@@ -1,5 +1,6 @@
 package com.example.projektworldwisdom.category
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import com.example.projektworldwisdom.databinding.FragmentCategoryQuotesBinding
 import com.example.projektworldwisdom.databinding.ItemQuoteBinding
 import com.example.projektworldwisdom.model.Quote
 import com.example.projektworldwisdom.viewmodel.SharedViewModel
+import com.google.android.material.color.MaterialColors
 
 /**
  * CategoryQuotesFragment
@@ -34,6 +36,23 @@ class CategoryQuotesFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var quotesAdapter: CategoryQuotesAdapter
+
+    private fun playEmptyCtaTapAnimation(onEnd: () -> Unit) {
+        // Short, subtle bounce before navigating (feels premium, no new dependencies)
+        binding.btnEmptyAction.animate()
+            .scaleX(1.02f)
+            .scaleY(1.02f)
+            .setDuration(80)
+            .withEndAction {
+                binding.btnEmptyAction.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(80)
+                    .withEndAction(onEnd)
+                    .start()
+            }
+            .start()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,7 +130,9 @@ class CategoryQuotesFragment : Fragment() {
 
         // Empty-state CTA
         binding.btnEmptyAction.setOnClickListener {
-            findNavController().navigateUp()
+            playEmptyCtaTapAnimation {
+                findNavController().navigateUp()
+            }
         }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -202,8 +223,34 @@ private class CategoryQuotesAdapter(
             binding.btnFavorite.setOnClickListener {
                 val pos = bindingAdapterPosition
                 if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                playFavoriteTapAnimation()
                 getItemAt(pos)?.let(onFavoriteToggle)
             }
+        }
+
+        private fun playFavoriteTapAnimation() {
+            binding.btnFavorite.animate()
+                .scaleX(1.12f)
+                .scaleY(1.12f)
+                .setDuration(90)
+                .withEndAction {
+                    binding.btnFavorite.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(90)
+                        .start()
+                }
+                .start()
+        }
+
+        private fun applyFavoriteTint(isFavorite: Boolean) {
+            val tintAttr = if (isFavorite) {
+                com.google.android.material.R.attr.colorTertiary
+            } else {
+                com.google.android.material.R.attr.colorOnSurfaceVariant
+            }
+            val tintColor = MaterialColors.getColor(binding.btnFavorite, tintAttr)
+            binding.btnFavorite.imageTintList = ColorStateList.valueOf(tintColor)
         }
 
         fun bind(item: Quote) {
@@ -222,6 +269,7 @@ private class CategoryQuotesAdapter(
                 R.drawable.ic_star_outline
             }
             binding.btnFavorite.setImageResource(iconRes)
+            applyFavoriteTint(item.isFavorite)
         }
     }
 

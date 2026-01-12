@@ -49,7 +49,7 @@
                 app:cardElevation="1dp"
                 app:strokeColor="?attr/colorOutlineVariant"
                 app:strokeWidth="1dp"
-                app:rippleColor="?attr/colorControlHighlight">
+                app:rippleColor="@color/ww_selection_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -97,11 +97,12 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
+                            android:foreground="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/content_desc_favorite"
                             android:tooltipText="@string/content_desc_favorite"
                             android:minWidth="48dp"
                             android:minHeight="48dp"
-                            android:padding="12dp"
+                            android:padding="10dp"
                             app:tint="?attr/colorOnSurfaceVariant"
                             android:hapticFeedbackEnabled="true"
                             app:srcCompat="@drawable/ic_star_outline" />
@@ -148,7 +149,10 @@
                 android:text="@string/quote_details_author_details"
                 style="@style/WW.Button.Secondary"
                 app:icon="@drawable/ic_person_24"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="?attr/colorPrimary"
+                app:rippleColor="@color/ww_selection_bg" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSource"
@@ -159,7 +163,10 @@
                 android:text="@string/quote_details_open_source"
                 style="@style/WW.Button.Secondary"
                 app:icon="@drawable/ic_link_24"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="?attr/colorPrimary"
+                app:rippleColor="@color/ww_selection_bg" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

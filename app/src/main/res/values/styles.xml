@@ -26,9 +26,10 @@
     </style>
 
     <!-- Components -->
-    <style name="WW.Chip.Filter" parent="Widget.Material3.Chip.Assist">
-        <!-- Keep existing chip look, only standardize typography -->
+    <style name="WW.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <!-- Filter chips have a built-in selected state (uses theme container colors) -->
         <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="checkedIconVisible">false</item>
     </style>
 
     <style name="WW.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">

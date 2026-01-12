@@ -1,10 +1,8 @@
 package com.example.projektworldwisdom.adapter
 
-import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageButton
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -82,6 +80,7 @@ class QuoteAdapter(
             // Optimistic UI: update immediately.
             favoriteOverrides[currentKey] = newState
             bindFavoriteState(favoriteButton, newState)
+            playFavoriteTapAnimation(favoriteButton)
 
             // Pass an updated model to callbacks (so screens can reflect the latest state immediately)
             val updated = current.copy(isFavorite = newState)
@@ -116,6 +115,21 @@ class QuoteAdapter(
         }
     }
 
+    private fun playFavoriteTapAnimation(button: AppCompatImageButton) {
+        button.animate()
+            .scaleX(1.12f)
+            .scaleY(1.12f)
+            .setDuration(90)
+            .withEndAction {
+                button.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(90)
+                    .start()
+            }
+            .start()
+    }
+
     /**
      * Kompatibel mit deinem bisherigen Code (Home/Collection rufen updateQuotes()).
      * Intern nutzen wir ListAdapter + DiffUtil für saubere Updates.
@@ -137,14 +151,14 @@ class QuoteAdapter(
         button.contentDescription = button.context.getString(contentDescRes)
 
         val tintColor = if (isFavorite) {
-            // Highlight color for saved quotes
-            ContextCompat.getColor(button.context, R.color.favorite_star_on)
+            // Theme-driven highlight (Material3 tertiary → matches `ww_tertiary`)
+            MaterialColors.getColor(button, com.google.android.material.R.attr.colorTertiary)
         } else {
             // Neutral, theme-safe color for the outline state
             MaterialColors.getColor(button, com.google.android.material.R.attr.colorOnSurfaceVariant)
         }
 
-        button.imageTintList = ColorStateList.valueOf(tintColor)
+        button.imageTintList = android.content.res.ColorStateList.valueOf(tintColor)
         button.alpha = 1f
     }
 

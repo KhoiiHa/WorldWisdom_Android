@@ -88,6 +88,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/category_quotes_empty_action_back"
+            app:icon="@drawable/ic_arrow_back_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="?attr/colorPrimary"
+            app:rippleColor="@color/ww_selection_bg"
             android:hapticFeedbackEnabled="true" />
 
     </LinearLayout>

@@ -21,6 +21,22 @@ class AuthorDetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val args: AuthorDetailsFragmentArgs by navArgs()
+    private fun playCtaTapAnimation(onEnd: () -> Unit) {
+        // Short, subtle bounce before navigating (feels premium, no new dependencies)
+        binding.btnAuthorQuotes.animate()
+            .scaleX(1.02f)
+            .scaleY(1.02f)
+            .setDuration(80)
+            .withEndAction {
+                binding.btnAuthorQuotes.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(80)
+                    .withEndAction(onEnd)
+                    .start()
+            }
+            .start()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,15 +81,17 @@ class AuthorDetailsFragment : Fragment() {
         binding.btnAuthorQuotes.setOnClickListener {
             binding.btnAuthorQuotes.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
 
-            // We reuse the existing quotes list screen and pass author info.
-            // Next step: CategoryQuotesFragment will read these args and filter accordingly.
-            val navController = findNavController()
-            val action = AuthorDetailsFragmentDirections
-                .actionAuthorDetailsFragmentToCategoryQuotesFragment(
-                    authorSlug = slug,
-                    authorName = authorName
-                )
-            navController.navigate(action)
+            playCtaTapAnimation {
+                // We reuse the existing quotes list screen and pass author info.
+                // Next step: CategoryQuotesFragment will read these args and filter accordingly.
+                val navController = findNavController()
+                val action = AuthorDetailsFragmentDirections
+                    .actionAuthorDetailsFragmentToCategoryQuotesFragment(
+                        authorSlug = slug,
+                        authorName = authorName
+                    )
+                navController.navigate(action)
+            }
         }
     }
 

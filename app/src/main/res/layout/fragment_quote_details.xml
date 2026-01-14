@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground">
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -63,6 +63,7 @@
                         android:layout_height="wrap_content"
                         style="@style/WW.Text.Quote"
                         android:text="@string/quote_details_quote_placeholder"
+                        android:lineSpacingExtra="2dp"
                         tools:text="Phantasie ist wichtiger als Wissen …"
                         tools:targetApi="28" />
 
@@ -70,7 +71,7 @@
                         android:id="@+id/quoteAuthor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
                         android:text="@string/quote_details_author_placeholder"
                         style="@style/WW.Text.Meta"
                         tools:text="— Albert Einstein" />
@@ -97,7 +98,6 @@
                             android:layout_width="48dp"
                             android:layout_height="48dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:foreground="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/content_desc_favorite"
                             android:tooltipText="@string/content_desc_favorite"
                             android:minWidth="48dp"
@@ -149,10 +149,7 @@
                 android:text="@string/quote_details_author_details"
                 style="@style/WW.Button.Secondary"
                 app:icon="@drawable/ic_person_24"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:iconTint="?attr/colorPrimary"
-                app:rippleColor="@color/ww_selection_bg" />
+                app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSource"
@@ -163,10 +160,7 @@
                 android:text="@string/quote_details_open_source"
                 style="@style/WW.Button.Secondary"
                 app:icon="@drawable/ic_link_24"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:iconTint="?attr/colorPrimary"
-                app:rippleColor="@color/ww_selection_bg" />
+                app:iconGravity="textStart" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -282,8 +282,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun navigateToQuoteDetails(quote: Quote) {
+        // Use a stable identifier for navigation so lists with duplicate/empty backend IDs
+        // don't accidentally open the wrong details screen.
+        val stableQuoteId = quote.favoriteKey
         val action = HomeFragmentDirections.actionHomeFragmentToQuoteDetailsFragment(
-            quoteId = quote.id,
+            quoteId = stableQuoteId,
             author = quote.author.takeIf { it.isNotBlank() },
             quoteText = quote.quote.takeIf { it.isNotBlank() },
             category = quote.category.takeIf { it.isNotBlank() },

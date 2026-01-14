@@ -270,10 +270,13 @@ class CollectionFragment : Fragment() {
     }
 
     private fun navigateToQuoteDetails(quote: Quote) {
+        // Use a stable identifier for navigation so lists with duplicate/empty backend IDs
+        // don't accidentally open the wrong details screen.
+        val stableQuoteId = quote.favoriteKey
         // QuoteDetails requires SafeArgs; pass what we already have from the list item.
         val action = CollectionFragmentDirections
             .actionCollectionFragmentToQuoteDetailsFragment(
-                quoteId = quote.id,
+                quoteId = stableQuoteId,
                 quoteText = quote.quote,
                 author = quote.author,
                 category = quote.category,

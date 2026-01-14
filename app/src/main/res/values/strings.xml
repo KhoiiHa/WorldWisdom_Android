@@ -52,8 +52,8 @@
     <!-- Home (Daily Affirmation) -->
     <string name="loading_daily_quote">Lade dein tägliches Zitat…</string>
     <string name="daily_affirmation_text">%1$s\n\n— %2$s</string>
-    <string name="greeting_default">Guten Morgen 👋</string>
-    <string name="daily_affirmation_title">Daily Affirmation</string>
+    <string name="greeting_default">Willkommen 👋</string>
+    <string name="daily_affirmation_title">Tagesimpuls</string>
     <string name="daily_affirmation_hint_tap_for_details">Tippe auf die Karte für Details</string>
     <string name="daily_affirmation_loading">Lade dein Tageszitat…</string>
     <string name="home_empty_title">Keine Treffer</string>
@@ -70,11 +70,11 @@
 
     <!-- Home: Empty state (rich copy) -->
     <string name="home_empty_title_no_results">Keine Treffer</string>
-    <string name="home_empty_title_no_quotes">Keine Quotes</string>
+    <string name="home_empty_title_no_quotes">Keine Zitate</string>
     <string name="home_empty_subtitle_query_and_filter">Keine Treffer für „%1$s“ in %2$s. Probiere einen anderen Begriff oder setze den Filter zurück.</string>
     <string name="home_empty_subtitle_query">Keine Treffer für „%1$s“. Probiere einen anderen Suchbegriff.</string>
-    <string name="home_empty_subtitle_filter">Keine Quotes im Filter %1$s. Wähle einen anderen Filter oder setze zurück auf Alle.</string>
-    <string name="home_empty_subtitle_default">Aktuell sind keine Quotes verfügbar.</string>
+    <string name="home_empty_subtitle_filter">Keine Zitate im Filter %1$s. Wähle einen anderen Filter oder setze zurück auf Alle.</string>
+    <string name="home_empty_subtitle_default">Aktuell sind keine Zitate verfügbar.</string>
 
     <!-- Daily affirmation -->
     <string name="daily_affirmation_author_format">– %1$s</string>
@@ -146,11 +146,11 @@
 
     <!-- Navigation titles -->
     <string name="nav_home">Home</string>
-    <string name="nav_collection">Sammlung</string>
+    <string name="nav_collection">Favoriten</string>
     <string name="nav_profile">Profil</string>
     <string name="nav_settings">Einstellungen</string>
     <string name="nav_categories">Kategorien</string>
-    <string name="category_overview_subtitle">Wähle eine Kategorie, um passende Zitate zu sehen.</string>
+    <string name="category_overview_subtitle">Tippe eine Kategorie an, um passende Zitate zu sehen.</string>
     <string name="category_overview_empty">Keine Kategorien gefunden.</string>
     <string name="nav_login">Login</string>
     <string name="nav_register">Registrieren</string>

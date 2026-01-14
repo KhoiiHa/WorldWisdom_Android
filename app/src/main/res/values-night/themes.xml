@@ -5,12 +5,20 @@
         <item name="android:windowBackground">@color/ww_background_dark</item>
 
         <!-- Material3 color scheme (Dark) -->
-        <item name="colorPrimary">@color/ww_primary</item>
-        <item name="colorOnPrimary">@color/ww_on_primary</item>
-        <item name="colorSecondary">@color/ww_secondary</item>
-        <item name="colorOnSecondary">@color/ww_on_secondary</item>
-        <item name="colorTertiary">@color/ww_tertiary</item>
-        <item name="colorOnTertiary">@color/ww_on_tertiary</item>
+        <item name="colorPrimary">@color/ww_primary_dark</item>
+        <item name="colorOnPrimary">@color/ww_on_primary_dark</item>
+        <item name="colorPrimaryContainer">@color/ww_primary_container_dark</item>
+        <item name="colorOnPrimaryContainer">@color/ww_on_primary_container_dark</item>
+
+        <item name="colorSecondary">@color/ww_secondary_dark</item>
+        <item name="colorOnSecondary">@color/ww_on_secondary_dark</item>
+        <item name="colorSecondaryContainer">@color/ww_secondary_container_dark</item>
+        <item name="colorOnSecondaryContainer">@color/ww_on_secondary_container_dark</item>
+
+        <item name="colorTertiary">@color/ww_tertiary_dark</item>
+        <item name="colorOnTertiary">@color/ww_on_tertiary_dark</item>
+        <item name="colorTertiaryContainer">@color/ww_tertiary_container_dark</item>
+        <item name="colorOnTertiaryContainer">@color/ww_on_tertiary_container_dark</item>
 
         <item name="android:colorBackground">@color/ww_background_dark</item>
         <item name="colorOnBackground">@color/ww_on_background_dark</item>
@@ -20,7 +28,7 @@
         <item name="colorOnSurfaceVariant">@color/ww_on_surface_variant_dark</item>
         <item name="colorOutline">@color/ww_outline_dark</item>
         <item name="colorOutlineVariant">@color/ww_outline_soft_dark</item>
-        <item name="colorSurfaceContainer">@color/ww_surface_variant_dark</item>
+        <item name="colorSurfaceContainer">@color/ww_surface_dark</item>
 
         <item name="colorError">@color/ww_error</item>
         <item name="colorOnError">@color/ww_on_error</item>

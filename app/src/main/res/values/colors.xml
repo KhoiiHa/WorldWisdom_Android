@@ -63,11 +63,20 @@
     <color name="ww_primary">#2B78B5</color>
     <color name="ww_on_primary">#FFFFFFFF</color>
 
+    <color name="ww_primary_container">#D7E9FF</color>
+    <color name="ww_on_primary_container">#001D33</color>
+
     <color name="ww_secondary">#A5DADA</color>
     <color name="ww_on_secondary">#FF0F1A1C</color>
 
+    <color name="ww_secondary_container">#CDEEEE</color>
+    <color name="ww_on_secondary_container">#001F22</color>
+
     <color name="ww_tertiary">#FFC107</color>
     <color name="ww_on_tertiary">#FF1C1600</color>
+
+    <color name="ww_tertiary_container">#FFE7A6</color>
+    <color name="ww_on_tertiary_container">#2A2000</color>
 
     <!-- Soft accent surfaces (lavender pill background like current UI) -->
     <color name="ww_accent_soft">#D5D5EF</color>
@@ -105,6 +114,22 @@
 
     <color name="ww_outline_dark">#FF8B949E</color>
     <color name="ww_outline_soft_dark">#FF6F7882</color>
+
+    <!-- Dark containers (used by night theme) -->
+    <color name="ww_primary_dark">#9CCBFF</color>
+    <color name="ww_on_primary_dark">#003255</color>
+    <color name="ww_primary_container_dark">#004A78</color>
+    <color name="ww_on_primary_container_dark">#D7E9FF</color>
+
+    <color name="ww_secondary_dark">#9FD6D6</color>
+    <color name="ww_on_secondary_dark">#003739</color>
+    <color name="ww_secondary_container_dark">#1F4E50</color>
+    <color name="ww_on_secondary_container_dark">#CDEEEE</color>
+
+    <color name="ww_tertiary_dark">#F3C245</color>
+    <color name="ww_on_tertiary_dark">#3E2E00</color>
+    <color name="ww_tertiary_container_dark">#5B4300</color>
+    <color name="ww_on_tertiary_container_dark">#FFE7A6</color>
 
     <!-- Feedback -->
     <color name="ww_error">#AC3131</color>

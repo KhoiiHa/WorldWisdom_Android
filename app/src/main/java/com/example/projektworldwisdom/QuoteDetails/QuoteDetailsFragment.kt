@@ -21,7 +21,6 @@ import com.example.projektworldwisdom.viewmodel.SharedViewModel
 import com.google.android.material.chip.Chip
 import android.content.res.ColorStateList
 import com.google.android.material.color.MaterialColors
-
 class QuoteDetailsFragment : Fragment() {
 
     private var _binding: FragmentQuoteDetailsBinding? = null

@@ -1,7 +1,6 @@
 package com.example.projektworldwisdom.category
 
 import android.graphics.Rect
-import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -34,7 +33,7 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
 
     private var initialCategory: String = ""
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: android.os.Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recyclerCategories)
@@ -46,7 +45,8 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         // Toolbar: Back like other screens
         view.findViewById<MaterialToolbar>(R.id.toolbarCategoryOverview)
             .setNavigationOnClickListener {
-                navigateBackToOrigin(origin)
+                // Use the real back stack (same behavior as system back)
+                findNavController().navigateUp()
             }
 
         adapter = CategoryAdapter { category ->
@@ -84,23 +84,6 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         // Später können wir das dynamisch aus Daten ableiten.
         val categories = resources.getStringArray(R.array.categories_default).toList()
         render(categories)
-    }
-    private fun navigateBackToOrigin(origin: String) {
-        val navController = findNavController()
-
-        // Prefer popping back to the known origin destination (no duplicate screens).
-        val destinationId = when (origin) {
-            ORIGIN_HOME -> R.id.homeFragment
-            ORIGIN_COLLECTION -> R.id.collectionFragment
-            else -> null
-        }
-
-        val popped = destinationId?.let { navController.popBackStack(it, false) } ?: false
-
-        // Fallback: just go back one step.
-        if (!popped) {
-            navController.popBackStack()
-        }
     }
 
     private fun render(categories: List<String>) {

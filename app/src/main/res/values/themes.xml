@@ -8,10 +8,16 @@
         <!-- Material3 color scheme (Light) -->
         <item name="colorPrimary">@color/ww_primary</item>
         <item name="colorOnPrimary">@color/ww_on_primary</item>
+        <item name="colorPrimaryContainer">@color/ww_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/ww_on_primary_container</item>
         <item name="colorSecondary">@color/ww_secondary</item>
         <item name="colorOnSecondary">@color/ww_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/ww_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/ww_on_secondary_container</item>
         <item name="colorTertiary">@color/ww_tertiary</item>
         <item name="colorOnTertiary">@color/ww_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/ww_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/ww_on_tertiary_container</item>
 
         <item name="android:colorBackground">@color/ww_background</item>
         <item name="colorOnBackground">@color/ww_on_background</item>
@@ -21,7 +27,7 @@
         <item name="colorOnSurfaceVariant">@color/ww_on_surface_variant</item>
         <item name="colorOutline">@color/ww_outline</item>
         <item name="colorOutlineVariant">@color/ww_outline_soft</item>
-        <item name="colorSurfaceContainer">@color/ww_surface_variant</item>
+        <item name="colorSurfaceContainer">@color/ww_surface</item>
 
         <item name="colorError">@color/ww_error</item>
         <item name="colorOnError">@color/ww_on_error</item>

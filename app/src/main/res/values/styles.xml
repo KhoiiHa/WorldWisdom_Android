@@ -30,10 +30,17 @@
         <!-- Filter chips have a built-in selected state (uses theme container colors) -->
         <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
         <item name="checkedIconVisible">false</item>
+        <item name="chipStrokeColor">?attr/colorOutlineVariant</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="rippleColor">@color/ww_selection_bg</item>
     </style>
 
     <style name="WW.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
+        <item name="rippleColor">@color/ww_selection_bg</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+        <item name="iconPadding">8dp</item>
     </style>
 
 </resources>

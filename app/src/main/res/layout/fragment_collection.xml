@@ -69,7 +69,6 @@
             android:layout_marginTop="4dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"

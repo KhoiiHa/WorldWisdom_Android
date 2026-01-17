@@ -5,7 +5,6 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -39,12 +38,9 @@ class CollectionFragment : Fragment() {
     private var isRebuildingChips: Boolean = false
 
     private fun readInitialCategoryFromArgs() {
-        // Supports deep-links / future Category-Overview screen.
-        // We accept multiple keys to stay flexible without breaking navigation.
-        val raw = arguments?.getString("category")
-            ?: arguments?.getString("selectedCategory")
-            ?: arguments?.getString("initialCategory")
-
+        // Single contract: if this screen is opened with an initial category,
+        // it must be provided under this key.
+        val raw = arguments?.getString("initialCategory")
         selectedCategory = raw?.trim()?.takeIf { it.isNotEmpty() }
     }
 
@@ -288,35 +284,21 @@ class CollectionFragment : Fragment() {
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
-        val navController = findNavController()
-
         val slug = quote.authorSlug
         val name = quote.author
         val description = quote.category.takeIf { it.isNotBlank() }
         val bio = quote.description.takeIf { it.isNotBlank() }
         val sourceUrl = quote.source.takeIf { it.isNotBlank() }
 
-        // Prefer SafeArgs (compile-time checked). Keep a legacy fallback for safety.
-        runCatching {
-            val action = CollectionFragmentDirections
-                .actionCollectionFragmentToAuthorDetailsFragment(
-                    authorSlug = slug,
-                    authorName = name,
-                    authorDescription = description,
-                    authorBio = bio,
-                    authorSourceUrl = sourceUrl
-                )
-            navController.navigate(action)
-        }.recoverCatching {
-            val args = bundleOf(
-                "authorSlug" to slug,
-                "authorName" to name,
-                "authorDescription" to description,
-                "authorBio" to bio,
-                "authorSourceUrl" to sourceUrl
+        val action = CollectionFragmentDirections
+            .actionCollectionFragmentToAuthorDetailsFragment(
+                authorSlug = slug,
+                authorName = name,
+                authorDescription = description,
+                authorBio = bio,
+                authorSourceUrl = sourceUrl
             )
-            navController.navigate(R.id.authorDetailsFragment, args)
-        }
+        findNavController().navigate(action)
     }
 
     private fun navigateToHome() {
@@ -333,32 +315,12 @@ class CollectionFragment : Fragment() {
     }
 
     private fun navigateToCategoryOverview() {
-        val navController = findNavController()
-
-        // Prefer SafeArgs if the action exists in the graph (compile-time checked).
-        runCatching {
-            val action = CollectionFragmentDirections
-                .actionCollectionFragmentToCategoryOverviewFragment(
-                    origin = "collection",
-                    initialCategory = selectedCategory
-                )
-            navController.navigate(action)
-        }.recoverCatching {
-            // Fallback: keep legacy bundle navigation for safety.
-            val args = bundleOf(
-                "origin" to "collection",
-                "initialCategory" to selectedCategory
+        val action = CollectionFragmentDirections
+            .actionCollectionFragmentToCategoryOverviewFragment(
+                origin = "collection",
+                initialCategory = selectedCategory
             )
-
-            runCatching {
-                navController.navigate(
-                    R.id.action_collectionFragment_to_categoryOverviewFragment,
-                    args
-                )
-            }.recoverCatching {
-                navController.navigate(R.id.categoryOverviewFragment, args)
-            }
-        }
+        findNavController().navigate(action)
     }
 
     private fun setUiState(

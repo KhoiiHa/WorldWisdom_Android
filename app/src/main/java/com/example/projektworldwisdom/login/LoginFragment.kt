@@ -32,7 +32,8 @@ class LoginFragment : Fragment() {
         viewModel.currentUser.observe(viewLifecycleOwner) { firebaseUser ->
             firebaseUser?.let {
                 if (findNavController().currentDestination?.id == R.id.loginFragment) {
-                    findNavController().navigate(R.id.homeFragment)
+                    // Use the action so nav_graph popUpTo/backstack rules are applied.
+                    findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
                 }
             }
         }
@@ -55,4 +56,3 @@ class LoginFragment : Fragment() {
 
     }
 }
-

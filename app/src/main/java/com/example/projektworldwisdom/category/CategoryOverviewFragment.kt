@@ -5,11 +5,11 @@ import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projektworldwisdom.R
 import com.google.android.material.appbar.MaterialToolbar
-import androidx.core.os.bundleOf
 import kotlin.math.roundToInt
 
 class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
@@ -18,14 +18,11 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         // Key used to pass the selected category back to the previous screen (Collection).
         const val RESULT_SELECTED_CATEGORY = "selectedCategory"
 
-        // Optional argument (from nav_graph) to know where this screen was opened from.
-        const val ARG_ORIGIN = "origin"
         const val ORIGIN_HOME = "home"
         const val ORIGIN_COLLECTION = "collection"
-
-        // Optional argument (from nav_graph) to preselect/scroll to a category.
-        const val ARG_INITIAL_CATEGORY = "initialCategory"
     }
+
+    private val args: CategoryOverviewFragmentArgs by navArgs()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyText: TextView
@@ -39,8 +36,8 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
         recyclerView = view.findViewById(R.id.recyclerCategories)
         emptyText = view.findViewById(R.id.textEmptyCategories)
 
-        val origin = arguments?.getString(ARG_ORIGIN) ?: ORIGIN_HOME
-        initialCategory = arguments?.getString(ARG_INITIAL_CATEGORY).orEmpty().trim()
+        val origin = args.origin?.trim().orEmpty().ifBlank { ORIGIN_HOME }
+        initialCategory = args.initialCategory?.trim().orEmpty()
 
         // Toolbar: Back like other screens
         view.findViewById<MaterialToolbar>(R.id.toolbarCategoryOverview)
@@ -61,15 +58,13 @@ class CategoryOverviewFragment : Fragment(R.layout.fragment_category_overview) {
                     ?.set(RESULT_SELECTED_CATEGORY, category)
             }
 
-            // Navigate to quote list for this category.
-            // Use destination id instead of action id to avoid crashes if the action is missing.
-            navController.navigate(
-                R.id.categoryQuotesFragment,
-                bundleOf(
-                    "category" to category,
-                    "origin" to "overview"
+            // Navigate to quote list for this category (SafeArgs).
+            val action = CategoryOverviewFragmentDirections
+                .actionCategoryOverviewFragmentToCategoryQuotesFragment(
+                    category = category,
+                    origin = "overview"
                 )
-            )
+            navController.navigate(action)
         }
 
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)

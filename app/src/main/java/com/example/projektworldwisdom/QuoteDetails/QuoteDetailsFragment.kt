@@ -54,7 +54,7 @@ class QuoteDetailsFragment : Fragment() {
 
         // Live-Sync: wenn Favorit-Status sich irgendwo ändert (Home/Collection), updaten wir hier die UI
         viewModel.quotes.observe(viewLifecycleOwner) { quotes ->
-            val updated = quotes.orEmpty().firstOrNull { it.id == args.quoteId } ?: return@observe
+            val updated = findQuoteInListOrNull(quotes.orEmpty()) ?: return@observe
             currentIsFavorite = updated.isFavorite
             updateFavoriteUi(currentIsFavorite)
 
@@ -207,8 +207,13 @@ class QuoteDetailsFragment : Fragment() {
     }
 
     private fun buildQuoteFromArgs(): Quote {
+        // In diesem Projekt wird `quoteId` in einigen Flows als `favoriteKey` weitergereicht.
+        // Für ein stabiles Verhalten versuchen wir, daraus eine "API-id" abzuleiten (falls möglich),
+        // damit `favoriteKey` im Model nicht "driftet".
+        val derivedId = deriveIdFromArgsQuoteId()
+
         return Quote(
-            id = args.quoteId,
+            id = derivedId,
             author = args.author?.trim().orEmpty(),
             quote = args.quoteText?.trim().orEmpty(),
             category = args.category?.trim().orEmpty(),
@@ -221,7 +226,30 @@ class QuoteDetailsFragment : Fragment() {
     }
 
     private fun findQuoteOrNull(): Quote? {
-        return viewModel.quotes.value?.firstOrNull { it.id == args.quoteId }
+        return findQuoteInListOrNull(viewModel.quotes.value.orEmpty())
+    }
+
+    private fun findQuoteInListOrNull(quotes: List<Quote>): Quote? {
+        val rawArg = args.quoteId
+        if (rawArg.isBlank()) return null
+
+        // 1) Prefer favoriteKey matching (stabil, auch wenn IDs leer/dupliziert sind)
+        val byFavoriteKey = quotes.firstOrNull { it.favoriteKey == rawArg }
+        if (byFavoriteKey != null) return byFavoriteKey
+
+        // 2) Fallback: treat arg as API-id
+        val derivedId = deriveIdFromArgsQuoteId()
+        return quotes.firstOrNull { it.id == rawArg || (derivedId.isNotBlank() && it.id == derivedId) }
+    }
+
+    private fun deriveIdFromArgsQuoteId(): String {
+        val raw = args.quoteId.trim()
+        if (raw.isBlank()) return ""
+
+        // Wenn `quoteId` tatsächlich ein favoriteKey ist, ist das häufig: <id>_<authorSlug>_<hash>
+        // Wir nehmen als best-effort die erste Komponente.
+        val candidate = raw.substringBefore("_")
+        return if (candidate.isNotBlank()) candidate else raw
     }
 
     private fun navigateToAuthorDetails(quote: Quote) {
